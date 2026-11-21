@@ -163,3 +163,127 @@
             margin: 0 0 4px;
             color: #1A237E;
         }
+
+        .game-desc {
+            font-size: 12px;
+            color: #616161;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #00C853, #009624);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 13px;
+            box-shadow: 0 4px 10px rgba(0, 200, 83, 0.35);
+            flex-shrink: 0;
+        }
+
+        .game-card.disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .soon-badge {
+            background: #EEEEEE;
+            color: #757575;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="user-info">
+            <div class="avatar">🎮</div>
+            <div>
+                <div class="user-name" id="tg-user-name">بازیکن چالبازی</div>
+                <div style="font-size: 11px; color: #BBDEFB;">خوش آمدی!</div>
+            </div>
+        </div>
+        <div class="channel-badge">@chalbazi</div>
+    </div>
+
+    <div class="hero">
+        <h1>🎪 شهربازی چالبازی</h1>
+        <p>بازی مورد نظرت رو انتخاب کن و با بچه‌های کانال رقابت کن!</p>
+    </div>
+
+    <div class="games-grid">
+        <!-- بازی ۱: زرافه چوب‌بر -->
+        <a href="giraffe.html" class="game-card" onclick="vibrate()">
+            <div class="game-icon icon-giraffe">🦒</div>
+            <div class="game-details">
+                <h2 class="game-title">زرافه چوب‌بر</h2>
+                <p class="game-desc">با سرعت درخت رو قطع کن و نذار شاخه‌ها به سرت بخورن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۲: نیش ریاضی -->
+        <a href="math-sting.html" class="game-card" onclick="vibrate()">
+            <div class="game-icon icon-math">🦂</div>
+            <div class="game-details">
+                <h2 class="game-title">نیش ریاضی (Math Sting)</h2>
+                <p class="game-desc">سریع جواب بده قبل از اینکه زنبور، عقرب یا مار نیشت بزنن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۳: حدس کلمه سرعتی -->
+        <a href="esm-famil.html" class="game-card" onclick="vibrate()">
+            <div class="game-icon icon-word">🧠</div>
+            <div class="game-details">
+                <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
+                <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۴: جدول کلمات ۸×۸ (زنده) -->
+        <a href="word-grid.html?v=4" class="game-card" onclick="vibrate()">
+            <div class="game-icon icon-grid">🧩</div>
+            <div class="game-details">
+                <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
+                <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- جایگاه بازی‌های آینده -->
+        <div class="game-card disabled">
+            <div class="game-icon icon-soon">🎲</div>
+            <div class="game-details">
+                <h2 class="game-title" style="color:#757575;">بازی بعدی در راه است...</h2>
+                <p class="game-desc">به‌زودی چالش جدید به مجموعه اضافه می‌شود.</p>
+            </div>
+            <div class="soon-badge">به‌زودی</div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
+                if (fullName) document.getElementById('tg-user-name').textContent = fullName;
+            }
+        }
+
+        function vibrate() {
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
+    </script>
+</body>
+</html>
