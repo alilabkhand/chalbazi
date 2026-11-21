@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0B132B">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>جدول کلمات ۸×۸</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', Tahoma, system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: linear-gradient(160deg, #0B132B 0%, #1C2541 55%, #123524 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .hidden { display: none !important; }
+
+        /* هدر مشترک */
+        .app-header {
+            width: 100%;
+            max-width: 480px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #fff;
+            border-radius: 12px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .icon-btn:active { transform: scale(0.95); }
+
+        .status-pill {
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #6EE7B7;
+            padding: 5px 11px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-pill.solo-pill {
+            background: rgba(56, 189, 248, 0.16);
+            border-color: rgba(56, 189, 248, 0.45);
+            color: #7DD3FC;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulse 1.4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.8); }
+        }
+
+        .score-badge {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* صفحه منوی اصلی */
+        .screen {
+            width: 100%;
+            max-width: 480px;
+            padding: 14px 16px 28px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-box {
+            width: 74px;
+            height: 74px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #1E3A8A, #059669);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 900;
+            color: #FDE047;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+            margin: 8px 0 10px;
+        }
+
+        .menu-title {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 900;
+        }
+
+        .dict-badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.14);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #38BDF8;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin: 8px 0 14px;
+        }
+
+        .profile-card {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 18px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .profile-stats {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 10px 6px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 18px;
+            font-weight: 900;
+            color: #FBBF24;
+        }
+
+        .stat-lbl {
+            font-size: 11px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        .mode-btn {
+            width: 100%;
+            border: none;
+            border-radius: 18px;
+            padding: 15px 16px;
+            margin-bottom: 11px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: right;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+            transition: transform 0.12s;
+        }
+
+        .mode-btn:active { transform: scale(0.97); }
+        .mode-solo { background: linear-gradient(135deg, #059669, #10B981); }
+        .mode-online { background: linear-gradient(135deg, #2563EB, #7C3AED); }
+        .mode-install { background: linear-gradient(135deg, #D97706, #F59E0B); }
+
+        .mode-btn h3 { margin: 0 0 3px; font-size: 16px; font-weight: 900; }
+        .mode-btn p { margin: 0; font-size: 11px; opacity: 0.9; }
+        .mode-ico { font-size: 28px; margin-right: 10px; }
+
+        .rules-card {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #CBD5E1;
+            line-height: 1.75;
+            margin-top: 4px;
+        }
+
+        /* صفحه بازی */
+        .live-ticker {
+            width: 100%;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #BAE6FD;
+            text-align: center;
+            margin-bottom: 8px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .targets-panel {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+
+        .targets-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #94A3B8;
+            margin-bottom: 6px;
+        }
+
+        .targets-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .target-chip {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1.5px solid #3B82F6;
+            color: #93C5FD;
+            padding: 3px 9px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .target-chip.found {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: #10B981;
+            color: #6EE7B7;
+        }
+
+        .target-chip small {
+            font-weight: 400;
+            opacity: 0.85;
+            font-size: 10px;
+            margin-right: 3px;
+        }
+
+        .word-jar-row {
+            width: 100%;
+            max-width: 390px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .current-word-bar {
+            flex: 1;
+            min-height: 44px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            font-weight: 900;
+            color: #FBBF24;
+            letter-spacing: 2px;
+            padding: 4px 12px;
+        }
+
+        .jar-widget {
+            position: relative;
+            width: 54px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(14, 165, 233, 0.22), rgba(168, 85, 247, 0.25));
+            border: 1.5px solid rgba(56, 189, 248, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
+        }
+
+        .jar-svg { width: 30px; height: 30px; }
+
+        .jar-count {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 5px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #EC4899, #F59E0B);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #0F172A;
+        }
+
+        @keyframes jarCatch {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.22, 0.85) rotate(-8deg); box-shadow: 0 0 22px rgba(251, 191, 36, 0.9); }
+            55% { transform: scale(0.9, 1.15) rotate(6deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .jar-widget.jar-catch { animation: jarCatch 0.55s ease; }
+
+        .flying-word-pill {
+            position: fixed;
+            z-index: 999;
+            pointer-events: none;
+            padding: 8px 20px;
+            border-radius: 999px;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(255, 255, 255, 0.35);
+            transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.85s ease;
+        }
+
+        .flying-word-pts {
+            background: rgba(0, 0, 0, 0.28);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #FEF08A;
+        }
+
+        .jar-sparkle {
+            position: fixed;
+            z-index: 998;
+            pointer-events: none;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transition: transform 0.45s ease-out, opacity 0.45s ease-out;
+        }
+
+        .grid-wrapper {
+            width: 100%;
+            max-width: 390px;
+            aspect-ratio: 1 / 1;
+            background: rgba(15, 23, 42, 0.88);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 7px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 5px;
+            touch-action: none;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        .cell {
+            background: linear-gradient(145deg, #1E293B, #334155);
+            border: 1.5px solid #475569;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            font-weight: 900;
+            color: #F8FAFC;
+            transition: transform 0.1s;
+        }
+
+        .cell.selected {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-color: #FDE68A;
+            color: #fff;
+            transform: scale(1.08);
+            z-index: 2;
+        }
+
+        .cell.hint-flash {
+            background: linear-gradient(135deg, #EC4899, #DB2777) !important;
+            border-color: #FBCFE8 !important;
+            transform: scale(1.12);
+        }
+
+        .cell.cleared {
+            background: rgba(15, 23, 42, 0.35);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            color: transparent;
+            pointer-events: none;
+            transform: scale(0.92);
+        }
+
+        .feedback {
+            min-height: 24px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        .actions-bar {
+            width: 100%;
+            max-width: 390px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            gap: 8px;
+        }
+
+        .live-board {
+            width: 100%;
+            max-width: 390px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 10px 12px;
+            margin-top: 10px;
+        }
+
+        .live-board-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 900;
+            color: #FBBF24;
+            margin-bottom: 6px;
+        }
+
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            font-size: 12px;
+        }
+
+        .player-row:last-child { border-bottom: none; }
+        .player-row.me { background: rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 5px 8px; }
+
+        /* مودال‌ها */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 18px;
+        }
+
+        .card {
+            background: #1E293B;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            width: 100%;
+            max-width: 370px;
+            border-radius: 24px;
+            padding: 22px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.55);
+        }
+
+        .pill {
+            display: inline-block;
+            background: linear-gradient(135deg, #10B981, #059669);
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .input-box {
+            width: 100%;
+            background: #0F172A;
+            border: 2px solid #3B82F6;
+            border-radius: 14px;
+            padding: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+            margin: 10px 0 14px;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-bottom: 8px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
+        .btn-blue { background: linear-gradient(135deg, #0288D1, #03A9F4); }
+        .btn-gray { background: rgba(255, 255, 255, 0.13); }
+
+        .jar-words-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            justify-content: center;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 10px 4px;
+            margin: 10px 0 14px;
+        }
+
+        .jar-word-chip {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 900;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .jar-word-chip span {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #FEF08A;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- هدر صفحه اصلی -->
+    <div id="menu-header" class="app-header">
+        <div style="font-weight:900; font-size:14px;">🧩 جدول کلمات ۸×۸</div>
+        <button class="icon-btn" id="menu-sound-btn" onclick="toggleSound()">🔊 صدا: روشن</button>
+    </div>
+
+    <!-- صفحه منوی اصلی اپلیکیشن -->
+    <div id="menu-screen" class="screen">
+        <div class="logo-box">۸×۸</div>
+        <h1 class="menu-title">پازل کلمات فارسی</h1>
+        <div class="dict-badge" id="dict-status">در حال آماده‌سازی...</div>
+
+        <div class="profile-card">
+            <div style="text-align:right;">
+                <div style="font-size:11px; color:#94A3B8;">نام بازیکن</div>
+                <div style="font-size:15px; font-weight:900;" id="profile-name-display">بازیکن</div>
+            </div>
+            <button class="icon-btn" onclick="openNameModal()">✏️ تغییر نام</button>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-box">
+                <div class="stat-val" id="stat-level">1</div>
+                <div class="stat-lbl">مرحله آفلاین</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="stat-best">0</div>
+                <div class="stat-lbl">بهترین رکورد</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="stat-solved">0</div>
+                <div class="stat-lbl">جدول حل‌شده</div>
+            </div>
+        </div>
+
+        <button class="mode-btn mode-solo" onclick="startSoloMode()">
+            <div>
+                <h3>🎯 بازی تک‌نفره (آفلاین)</h3>
+                <p>مراحل نامحدود بدون نیاز به اینترنت با ثبت رکورد</p>
+            </div>
+            <span class="mode-ico">🧩</span>
+        </button>
+
+        <button class="mode-btn mode-online" onclick="startOnlineMode()">
+            <div>
+                <h3>🌐 رقابت زنده همگانی</h3>
+                <p>یک جدول مشترک برای همه؛ هر کی زودتر پیدا کنه امتیاز می‌گیره</p>
+            </div>
+            <span class="mode-ico">⚡</span>
+        </button>
+
+        <button id="install-pwa-btn" class="mode-btn mode-install hidden" onclick="triggerInstallPWA()">
+            <div>
+                <h3>📲 نصب اپلیکیشن روی گوشی</h3>
+                <p>اضافه کردن آیکون بازی به صفحه اصلی مثل اپ اندروید</p>
+            </div>
+            <span class="mode-ico">⬇️</span>
+        </button>
+
+        <div class="rules-card">
+            🔹 کل ۶۴ خانه جدول توسط چند <strong>کلمه کلیدی</strong> متصل (افقی، عمودی یا اریب) پر شده است.<br>
+            🔹 امتیاز کلمه کلیدی = <strong>تعداد حروف × تعداد کلمات کلیدی باقیمانده</strong> (و حروفش پاک می‌شوند).<br>
+            🔸 هر کلمه فارسی معتبر دیگر (۳ حرف و بیشتر) با انیمیشن رنگی در <strong>کوزه 🏺</strong> می‌افتد و به ازای هر حرف ۱ امتیاز می‌دهد.
+        </div>
+    </div>
+
+    <!-- هدر صفحه بازی -->
+    <div id="game-header" class="app-header hidden">
+        <button class="icon-btn" onclick="goToMenu()">🔙 منو</button>
+        <div class="status-pill" id="game-status-pill">
+            <span class="live-dot" id="game-live-dot"></span>
+            <span id="game-status-text">مرحله ۱</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+            <button class="icon-btn" id="game-sound-btn" onclick="toggleSound()" style="padding:5px 8px;">🔊</button>
+            <div class="score-badge">امتیاز: <span id="score-val">0</span></div>
+        </div>
+    </div>
+
+    <!-- صفحه اصلی بازی (مشترک برای آفلاین و آنلاین) -->
+    <div id="game-screen" class="screen hidden" style="padding-top:10px;">
+        <div class="live-ticker hidden" id="live-ticker">🌐 متصل به پازل زنده همگانی</div>
+
+        <div class="targets-panel">
+            <div class="targets-header">
+                <span>🎯 کلمات کلیدی باقی‌مانده: <strong id="rem-count" style="color:#FBBF24;">-</strong></span>
+                <span>ضریب فعلی: <strong id="mult-val" style="color:#34D399;">×-</strong></span>
+            </div>
+            <div class="targets-list" id="targets-container"></div>
+        </div>
+
+        <div class="word-jar-row">
+            <div class="current-word-bar" id="current-word">انگشت را روی حروف بکشید</div>
+            <button class="jar-widget" id="jar-widget" onclick="openJarModal()" title="کوزه کلمات عادی">
+                <svg class="jar-svg" viewBox="0 0 64 64" fill="none">
+                    <defs>
+                        <linearGradient id="jarBody" x1="14" y1="16" x2="50" y2="58" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#38BDF8"/><stop offset="50%" stop-color="#0284C7"/><stop offset="100%" stop-color="#1E3A8A"/>
+                        </linearGradient>
+                        <linearGradient id="jarRim" x1="18" y1="8" x2="46" y2="18" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#FDE047"/><stop offset="100%" stop-color="#F59E0B"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M18 22 C8 22 8 36 16 39" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M46 22 C56 22 56 36 48 39" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M23 17 L41 17 L43 23 C51 28 52 46 43 55 C40 58 24 58 21 55 C12 46 13 28 21 23 Z" fill="url(#jarBody)" stroke="#7DD3FC" stroke-width="2"/>
+                    <path d="M16 37 Q32 43 48 37" stroke="#FDE047" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+                    <path d="M22 27 C19 32 19 40 22 45" stroke="#E0F2FE" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
+                    <rect x="20" y="9" width="24" height="7" rx="3.5" fill="url(#jarRim)" stroke="#FEF08A" stroke-width="1.5"/>
+                </svg>
+                <span class="jar-count" id="bonus-count">0</span>
+            </button>
+        </div>
+
+        <div class="grid-wrapper" id="grid"></div>
+        <div class="feedback" id="feedback-msg"></div>
+
+        <div class="actions-bar">
+            <button class="icon-btn" onclick="openJarModal()">🏺 کوزه کلمات</button>
+            <div style="display:flex; gap:6px;">
+                <button class="icon-btn hidden" id="solo-reset-btn" onclick="startSoloMode()">🔄 جدول جدید</button>
+                <button class="icon-btn" onclick="useHint()">💡 راهنما (-۱۵)</button>
+            </div>
+        </div>
+
+        <div class="live-board hidden" id="live-board-box">
+            <div class="live-board-title">
+                <span>🏆 رده‌بندی زنده اتاق</span>
+                <span id="puzzle-num-badge" style="color:#94A3B8; font-weight:700;">پازل زنده</span>
+            </div>
+            <div id="live-scoreboard">در حال اتصال به سرور...</div>
+        </div>
+    </div>
+
+    <!-- مودال تنظیم/ویرایش نام بازیکن -->
+    <div id="name-modal" class="overlay hidden">
+        <div class="card">
+            <div class="pill">👤 پروفایل بازیکن</div>
+            <h3 style="margin:4px 0;">نام مستعار خود را وارد کنید</h3>
+            <p style="font-size:12px; color:#94A3B8; margin:4px 0;">این نام در جدول رده‌بندی رقابت آنلاین نمایش داده می‌شود.</p>
+            <input type="text" id="nickname-input" class="input-box" maxlength="22" placeholder="مثلاً: علی">
+            <button class="btn-main btn-green" onclick="saveNickname()">ذخیره نام ✓</button>
+        </div>
+    </div>
+
+    <!-- مودال کوزه کلمات عادی -->
+    <div id="jar-modal" class="overlay hidden" onclick="if(event.target===this) closeJarModal()">
+        <div class="card">
+            <div class="pill" style="background: linear-gradient(135deg, #0284C7, #8B5CF6);">🏺 کوزه کلمات عادی</div>
+            <p id="jar-summary" style="font-size:12px; color:#CBD5E1; margin:4px 0 8px;"></p>
+            <div class="jar-words-grid" id="jar-words-list"></div>
+            <button class="btn-main btn-blue" onclick="closeJarModal()">بستن کوزه</button>
+        </div>
+    </div>
+
+    <!-- مودال پایان جدول (آفلاین و آنلاین) -->
+    <div id="win-modal" class="overlay hidden">
+        <div class="card">
+            <div class="pill" id="win-pill">🏆 تبریک!</div>
+            <h2 id="win-title" style="color:#34D399; margin:4px 0;">جدول کامل پاکسازی شد!</h2>
+            <p id="win-summary" style="font-size:13px; color:#CBD5E1; margin:8px 0 12px;"></p>
+
+            <div id="win-online-board-wrap" class="live-board hidden" style="margin:0 0 12px; text-align:right; max-height:170px; overflow-y:auto;">
+                <div class="live-board-title"><span>🥇 نفرات برتر این پازل</span></div>
+                <div id="final-round-board"></div>
+            </div>
+
+            <div id="next-countdown" class="hidden" style="font-size:13px; font-weight:900; color:#FBBF24; margin-bottom:12px;"></div>
+
+            <button id="win-next-solo-btn" class="btn-main btn-green hidden" onclick="startSoloMode()">مرحله بعدی 🚀</button>
+            <button id="force-next-btn" class="btn-main btn-green hidden" onclick="createAndPushNewPuzzle()">🔄 ساخت پازل جدید</button>
+            <button class="btn-main btn-blue" onclick="shareResult()">📤 اشتراک‌گذاری امتیاز</button>
+            <button class="btn-main btn-gray" onclick="goToMenu()">🏠 بازگشت به منو</button>
+        </div>
+    </div>
+
+    <script>
+        // ثبت Service Worker برای قابلیت آفلاین و نصب PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js').catch(function() {});
+            });
+        }
+
+        // مدیریت دکمه نصب PWA روی اندروید
+        var deferredInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            var btn = document.getElementById('install-pwa-btn');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        function triggerInstallPWA() {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            deferredInstallPrompt.userChoice.then(function() {
+                deferredInstallPrompt = null;
+                document.getElementById('install-pwa-btn').classList.add('hidden');
+            });
+        }
+
+        // خطایاب ایمن
+        window.onerror = function(msg, src, line) {
+            var el = document.getElementById('dict-status');
+            if (el) {
+                el.style.color = '#F87171';
+                el.textContent = '❌ خطا (' + line + '): ' + msg;
+            }
+        };
+
+        var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
+        var LIVE_PATH = FIREBASE_DB_URL.replace(/\/+$/, '') + '/grid8Live';
+
+        var BONUS_GRADIENTS = [
+            'linear-gradient(135deg, #EC4899, #F97316)',
+            'linear-gradient(135deg, #06B6D4, #3B82F6)',
+            'linear-gradient(135deg, #8B5CF6, #EC4899)',
+            'linear-gradient(135deg, #10B981, #06B6D4)',
+            'linear-gradient(135deg, #F59E0B, #EF4444)'
+        ];
+        var colorCursor = 0;
+
+        function safeGet(k, fb) { try { var v = localStorage.getItem(k); return v !== null ? v : fb; } catch (e) { return fb; } }
+        function safeSet(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
+
+        // موتور صوتی سبک و کاملاً آفلاین (Web Audio API)
+        var soundEnabled = safeGet('wg_sound', '1') !== '0';
+        var audioCtx = null;
+
+        function getAudioCtx() {
+            if (!soundEnabled) return null;
+            try {
+                if (!audioCtx) {
+                    var AC = window.AudioContext || window.webkitAudioContext;
+                    if (AC) audioCtx = new AC();
+                }
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                return audioCtx;
+            } catch (e) { return null; }
+        }
+
+        function playNote(freq, dur, type, vol, delay) {
+            var ctx = getAudioCtx();
+            if (!ctx) return;
+            try {
+                var now = ctx.currentTime + (delay || 0);
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.type = type || 'sine';
+                osc.frequency.setValueAtTime(freq, now);
+                gain.gain.setValueAtTime(vol || 0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + dur);
+            } catch (e) {}
+        }
+
+        function sfxSelect(step) { playNote(320 + Math.min(step, 10) * 45, 0.06, 'triangle', 0.07, 0); }
+        function sfxCommonWord() {
+            playNote(523, 0.09, 'sine', 0.09, 0);
+            playNote(659, 0.11, 'sine', 0.09, 0.07);
+            playNote(784, 0.14, 'sine', 0.08, 0.14);
+        }
+        function sfxJarDrop() { playNote(980, 0.12, 'sine', 0.07, 0); playNote(1318, 0.15, 'triangle', 0.06, 0.06); }
+        function sfxKeyword() {
+            playNote(523, 0.12, 'triangle', 0.1, 0);
+            playNote(659, 0.12, 'triangle', 0.1, 0.08);
+            playNote(784, 0.14, 'triangle', 0.1, 0.16);
+            playNote(1046, 0.28, 'sine', 0.11, 0.24);
+        }
+        function sfxError() { playNote(190, 0.12, 'sawtooth', 0.05, 0); }
+        function sfxWin() {
+            var notes = [523, 659, 784, 1046, 1318];
+            for (var i = 0; i < notes.length; i++) playNote(notes[i], 0.22, 'triangle', 0.1, i * 0.1);
+        }
+
+        function haptic(ms) {
+            try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
+        }
+
+        function updateSoundButtons() {
+            document.getElementById('menu-sound-btn').textContent = soundEnabled ? '🔊 صدا: روشن' : '🔇 صدا: خاموش';
+            document.getElementById('game-sound-btn').textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            safeSet('wg_sound', soundEnabled ? '1' : '0');
+            updateSoundButtons();
+            if (soundEnabled) sfxSelect(3);
+        }
+        updateSoundButtons();
+
+        // پروفایل بازیکن و آمار آفلاین
+        var savedUid = safeGet('wg_uid', '');
+        if (!savedUid) {
+            savedUid = 'p_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 9999);
+            safeSet('wg_uid', savedUid);
+        }
+
+        var user = {
+            id: savedUid,
+            name: safeGet('wg_nickname', '')
+        };
+
+        var soloStats = {
+            level: parseInt(safeGet('wg_solo_level', '1'), 10) || 1,
+            best: parseInt(safeGet('wg_solo_best', '0'), 10) || 0,
+            solved: parseInt(safeGet('wg_solo_solved', '0'), 10) || 0
+        };
+
+        function refreshProfileUI() {
+            document.getElementById('profile-name-display').textContent = user.name || 'بازیکن مهمان';
+            document.getElementById('stat-level').textContent = soloStats.level.toLocaleString('fa-IR');
+            document.getElementById('stat-best').textContent = soloStats.best.toLocaleString('fa-IR');
+            document.getElementById('stat-solved').textContent = soloStats.solved.toLocaleString('fa-IR');
+        }
+        refreshProfileUI();
+
+        function openNameModal() {
+            document.getElementById('nickname-input').value = user.name || '';
+            document.getElementById('name-modal').classList.remove('hidden');
+            setTimeout(function() { document.getElementById('nickname-input').focus(); }, 100);
+        }
+
+        function saveNickname() {
+            var val = document.getElementById('nickname-input').value.trim();
+            if (!val) val = 'بازیکن ' + Math.floor(100 + Math.random() * 899);
+            user.name = val;
+            safeSet('wg_nickname', val);
+            refreshProfileUI();
+            document.getElementById('name-modal').classList.add('hidden');
+        }
+
+        // اگر اولین بار است، درخواست انتخاب نام مستعار
+        if (!user.name) {
+            openNameModal();
+        }
+
+        // مدیریت دکمه Back اندروید
+        window.addEventListener('popstate', function() {
+            if (!document.getElementById('jar-modal').classList.contains('hidden')) {
+                closeJarModal();
+            } else if (!document.getElementById('game-screen').classList.contains('hidden')) {
+                goToMenu(true);
+            }
+        });
+
+        // نرمال‌سازی و بارگذاری دیکشنری
+        function normalizeFa(str) {
+            return String(str).trim().replace(/\s+/g, '')
+                .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
+                .replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا')
+                .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
+        }
+
+        var EXTRA_WORDS = [
+            "درخت","زندگی","حشره","ستاره","آسمان","خورشید","باران","دریاچه","کوهستان","پرنده",
+            "پروانه","زنبور","عقرب","زرافه","پلنگ","گرگ","روباه","خرگوش","گنجشک","کبوتر",
+            "مدرسه","دانشگاه","کتابخانه","بیمارستان","فرودگاه","ایستگاه","خیابان","میدان","ساختمان",
+            "پنجره","دیوار","صندلی","کامپیوتر","موبایل","تلویزیون","یخچال","ساعت","عینک","کفش",
+            "پیراهن","شلوار","کلاه","انگشتر","گردنبند","زمستان","تابستان","بهار","پاییز","فروردین",
+            "اردیبهشت","خرداد","مرداد","شهریور","آبان","بهمن","اسفند","شنبه","دوشنبه","چهارشنبه",
+            "پنجشنبه","جمعه","صبحانه","ناهار","نوشابه","بستنی","شکلات","شیرینی","هندوانه","پرتقال",
+            "نارنگی","انگور","انار","گیلاس","آلبالو","زردآلو","گلابی","خیار","گوجه","بادمجان",
+            "لیمو","گردو","بادام","پسته","فندق","زعفران","دارچین","زنجبیل","نعنا","ریحان","جعفری",
+            "پیاز","قارچ","ذرت","برنج","گندم","مهتاب","کهکشان","سیاره","زمین","مریخ","مشتری",
+            "اقیانوس","جنگل","کویر","بیابان","آبشار","چشمه","رودخانه","ساحل","جزیره","کشتی","قایق",
+            "هواپیما","قطار","اتوبوس","دوچرخه","موتور","تراکتور","آمبولانس","طوفان","رعدوبرق",
+            "لبخند","مهربان","شجاع","باهوش","قهرمان","پیروزی","موفقیت","دوستی","خانواده","برادر",
+            "خواهر","فرزند","همسایه","مسافر","ورزشکار","فوتبال","والیبال","بسکتبال","شطرنج","تنیس"
+        ];
+
+        var VALID_WORDS_SET = new Set();
+        var WORDS_BY_LEN = {};
+
+        for (var ew = 0; ew < EXTRA_WORDS.length; ew++) {
+            var nw = normalizeFa(EXTRA_WORDS[ew]);
+            if (nw.length >= 3 && nw.length <= 10) VALID_WORDS_SET.add(nw);
+        }
+
+        function setDictBadge(msg, color) {
+            var el = document.getElementById('dict-status');
+            if (el) {
+                el.textContent = msg;
+                if (color) el.style.color = color;
+            }
+        }
+        setDictBadge('✅ آماده (' + VALID_WORDS_SET.size + ' واژه پایه) - در حال بارگذاری دیکشنری...', '#38BDF8');
+
+        function loadExternalScript(src, onOk, onErr) {
+            var s = document.createElement('script');
+            s.src = src;
+            s.async = true;
+            s.onload = onOk;
+            s.onerror = onErr;
+            document.head.appendChild(s);
+        }
+
+        var dictDone = false;
+        loadExternalScript('words.js', function() {
+            try {
+                if (typeof WORDS_DB !== 'undefined') {
+                    Object.keys(WORDS_DB).forEach(function(cat) {
+                        var arr = WORDS_DB[cat];
+                        if (Array.isArray(arr)) {
+                            for (var i = 0; i < arr.length; i++) {
+                                var n = normalizeFa(arr[i]);
+                                if (n.length >= 3 && n.length <= 10) VALID_WORDS_SET.add(n);
+                            }
+                        }
+                    });
+                    WORDS_BY_LEN = {};
+                    if (!dictDone) setDictBadge('📚 ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه آماده (در حال تکمیل...)', '#38BDF8');
+                }
+            } catch (e) {}
+        }, function() {});
+
+        loadExternalScript('dictionary.js', function() {
+            try {
+                if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
+                    for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) {
+                        var w = BIG_PERSIAN_DICT[i];
+                        if (w && w.length >= 3 && w.length <= 10) VALID_WORDS_SET.add(w);
+                    }
+                    WORDS_BY_LEN = {};
+                    dictDone = true;
+                    setDictBadge('📚 دیکشنری کامل آفلاین: ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه', '#34D399');
+                }
+            } catch (e) {}
+        }, function() {
+            setDictBadge('📚 دیکشنری پایه فعال: ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه', '#FBBF24');
+        });
+
+        function getWordsPoolByLength(len) {
+            if (!WORDS_BY_LEN[len]) {
+                var arr = [];
+                VALID_WORDS_SET.forEach(function(w) { if (w.length === len) arr.push(w); });
+                WORDS_BY_LEN[len] = arr;
+            }
+            return WORDS_BY_LEN[len].length > 0 ? WORDS_BY_LEN[len] : ["ستاره"];
+        }
+
+        // الگوریتم تولید جدول ۸×۸ متصل
+        var PARTITION_PRESETS = [
+            [7,7,6,6,6,6,6,5,5,5,5],
+            [8,7,7,6,6,6,6,6,6,6],
+            [7,6,6,6,6,6,5,5,5,4,4,4],
+            [8,8,7,7,6,6,6,6,5,5]
+        ];
+
+        function getFreeNeighbors(idx, visited) {
+            var r = Math.floor(idx / 8), c = idx % 8, res = [];
+            for (var dr = -1; dr <= 1; dr++) {
+                for (var dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    var nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        var nIdx = nr * 8 + nc;
+                        if (!visited[nIdx]) res.push(nIdx);
+                    }
+                }
+            }
+            return res;
+        }
+
+        function generateConnectedPaths(targetLengths) {
+            for (var attempt = 0; attempt < 150; attempt++) {
+                var visited = [];
+                for (var v = 0; v < 64; v++) visited.push(false);
+                var paths = [], success = true;
+
+                for (var t = 0; t < targetLengths.length; t++) {
+                    var len = targetLengths[t];
+                    var unvisited = [];
+                    for (var i = 0; i < 64; i++) if (!visited[i]) unvisited.push(i);
+                    if (unvisited.length < len) { success = false; break; }
+
+                    unvisited.sort(function(a, b) { return getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length; });
+                    var minDeg = getFreeNeighbors(unvisited[0], visited).length;
+                    var cands = unvisited.filter(function(c) { return getFreeNeighbors(c, visited).length === minDeg; });
+                    var curr = cands[Math.floor(Math.random() * cands.length)];
+
+                    var path = [curr];
+                    visited[curr] = true;
+
+                    for (var step = 1; step < len; step++) {
+                        var nbrs = getFreeNeighbors(curr, visited);
+                        if (nbrs.length === 0) { success = false; break; }
+                        nbrs.sort(function(a, b) { return getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length; });
+                        var bestDeg = getFreeNeighbors(nbrs[0], visited).length;
+                        var bestNbrs = nbrs.filter(function(n) { return getFreeNeighbors(n, visited).length === bestDeg; });
+                        curr = bestNbrs[Math.floor(Math.random() * bestNbrs.length)];
+                        path.push(curr);
+                        visited[curr] = true;
+                    }
+                    if (!success) break;
+                    paths.push(path);
+                }
+                if (success && paths.length === targetLengths.length) return paths;
+            }
+            return null;
+        }
+
+        function generatePuzzleCore() {
+            var preset = PARTITION_PRESETS[Math.floor(Math.random() * PARTITION_PRESETS.length)];
+            var lengths = preset.slice().sort(function() { return Math.random() - 0.5; });
+            var paths = generateConnectedPaths(lengths);
+
+            if (!paths) {
+                paths = [];
+                var snake = [];
+                for (var r = 0; r < 8; r++) {
+                    if (r % 2 === 0) for (var c = 0; c < 8; c++) snake.push(r * 8 + c);
+                    else for (var c2 = 7; c2 >= 0; c2--) snake.push(r * 8 + c2);
+                }
+                var cursor = 0;
+                for (var j = 0; j < lengths.length; j++) {
+                    paths.push(snake.slice(cursor, cursor + lengths[j]));
+                    cursor += lengths[j];
+                }
+            }
+
+            var letters = [];
+            for (var x = 0; x < 64; x++) letters.push('');
+            var kWordsObj = {};
+            var used = new Set();
+
+            for (var pIdx = 0; pIdx < paths.length; pIdx++) {
+                var path = paths[pIdx];
+                var pool = getWordsPoolByLength(path.length);
+                var word = pool[Math.floor(Math.random() * pool.length)];
+                var tries = 0;
+                while (used.has(word) && tries < 40) {
+                    word = pool[Math.floor(Math.random() * pool.length)];
+                    tries++;
+                }
+                used.add(word);
+                for (var m = 0; m < path.length; m++) letters[path[m]] = word[m];
+                kWordsObj[pIdx] = { word: word, path: path, found: false, foundBy: "" };
+            }
+
+            return { letters: letters, kWordsObj: kWordsObj };
+        }
+
+        function buildOnlinePuzzleData(nextNumber) {
+            var core = generatePuzzleCore();
+            var playersInit = {};
+            playersInit[user.id] = { name: user.name || 'بازیکن', score: 0, bonusCount: 0, lastSeen: Date.now() };
+            return {
+                puzzleId: 'p_' + Date.now(),
+                puzzleNumber: nextNumber,
+                gridLetters: core.letters,
+                keyWords: core.kWordsObj,
+                finishedAt: 0,
+                finishedById: "",
+                lastEvent: { text: '🚀 پازل شماره ' + nextNumber + ' شروع شد! اولین کلمه کلیدی رو کی پیدا می‌کنه؟', ts: Date.now() },
+                players: playersInit
+            };
+        }
+
+        // متغیرهای وضعیت بازی
+        var gameMode = 'solo'; // 'solo' | 'online'
+        var currentPuzzleId = null;
+        var currentPuzzleNumber = 1;
+        var gridLetters = [];
+        var keyWordsArr = [];
+        var clearedCells = [];
+        var foundBonusWords = new Set();
+        var myScore = 0;
+        var selectedPath = [];
+        var isDragging = false;
+        var syncInterval = null;
+        var heartbeatInterval = null;
+        var countdownInterval = null;
+        var isCreatingNext = false;
+
+        var gridEl = document.getElementById('grid');
+        var cellElements = [];
+        for (var ci = 0; ci < 64; ci++) {
+            gridLetters.push('');
+            clearedCells.push(false);
+            var cellDiv = document.createElement('div');
+            cellDiv.className = 'cell';
+            cellDiv.setAttribute('data-index', String(ci));
+            gridEl.appendChild(cellDiv);
+            cellElements.push(cellDiv);
+        }
+
+        function stopAllTimers() {
+            clearInterval(syncInterval);
+            clearInterval(heartbeatInterval);
+            clearInterval(countdownInterval);
+            syncInterval = null;
+            heartbeatInterval = null;
+            countdownInterval = null;
+        }
+
+        function showGameScreen() {
+            document.getElementById('menu-header').classList.add('hidden');
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('win-modal').classList.add('hidden');
+            document.getElementById('game-header').classList.remove('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            try { history.pushState({ view: 'game' }, ''); } catch (e) {}
+        }
+
+        function goToMenu(fromPopState) {
+            stopAllTimers();
+            isDragging = false;
+            selectedPath = [];
+            document.getElementById('win-modal').classList.add('hidden');
+            document.getElementById('jar-modal').classList.add('hidden');
+            document.getElementById('game-header').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('menu-header').classList.remove('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            refreshProfileUI();
+            if (!fromPopState && history.state && history.state.view === 'game') {
+                try { history.back(); } catch (e) {}
+            }
+        }
+
+        // شروع حالت تک‌نفره آفلاین
+        function startSoloMode() {
+            stopAllTimers();
+            gameMode = 'solo';
+            showGameScreen();
+
+            var pill = document.getElementById('game-status-pill');
+            pill.classList.add('solo-pill');
+            document.getElementById('game-live-dot').classList.add('hidden');
+            document.getElementById('game-status-text').textContent = 'مرحله ' + soloStats.level + ' • آفلاین';
+
+            document.getElementById('live-ticker').classList.add('hidden');
+            document.getElementById('live-board-box').classList.add('hidden');
+            document.getElementById('solo-reset-btn').classList.remove('hidden');
+
+            var core = generatePuzzleCore();
+            currentPuzzleId = 'solo_' + Date.now();
+            gridLetters = core.letters;
+            keyWordsArr = Object.keys(core.kWordsObj).map(function(k) {
+                var it = core.kWordsObj[k];
+                return { idx: k, word: it.word, path: it.path, found: false, foundBy: '' };
+            });
+
+            clearedCells = [];
+            for (var i = 0; i < 64; i++) {
+                clearedCells.push(false);
+                cellElements[i].classList.remove('cleared', 'selected', 'hint-flash');
+                cellElements[i].textContent = gridLetters[i];
+            }
+
+            myScore = 0;
+            foundBonusWords = new Set();
+            selectedPath = [];
+            updateSelectionVisuals();
+            updateTargetsAndScoreUI();
+            showFeedback('کلمات کلیدی مشخص‌شده در بالا را پیدا کن!', '#CBD5E1');
+        }
+
+        // شروع حالت رقابت زنده آنلاین
+        async function startOnlineMode() {
+            stopAllTimers();
+            gameMode = 'online';
+            currentPuzzleId = null;
+            showGameScreen();
+
+            var pill = document.getElementById('game-status-pill');
+            pill.classList.remove('solo-pill');
+            document.getElementById('game-live-dot').classList.remove('hidden');
+            document.getElementById('game-status-text').textContent = 'در حال اتصال...';
+
+            document.getElementById('live-ticker').classList.remove('hidden');
+            document.getElementById('live-board-box').classList.remove('hidden');
+            document.getElementById('solo-reset-btn').classList.add('hidden');
+            document.getElementById('live-scoreboard').innerHTML = '<div style="font-size:12px; color:#94A3B8;">در حال اتصال به سرور...</div>';
+
+            var ok = await syncRoom(true);
+            if (!ok) {
+                showFeedback('❌ اتصال به سرور آنلاین برقرار نشد (اینترنت یا فیلترشکن را بررسی کنید).', '#F87171');
+                document.getElementById('game-status-text').textContent = 'آفلاین';
+            }
+
+            syncInterval = setInterval(function() { syncRoom(false); }, 1500);
+            heartbeatInterval = setInterval(sendHeartbeat, 10000);
+        }
+
+        // انیمیشن کوزه
+        function animateCommonWordToJar(word, points) {
+            var wordBar = document.getElementById('current-word');
+            var jarEl = document.getElementById('jar-widget');
+            if (!wordBar || !jarEl) return;
+
+            var sRect = wordBar.getBoundingClientRect();
+            var jRect = jarEl.getBoundingClientRect();
+            var startX = sRect.left + sRect.width / 2;
+            var startY = sRect.top + sRect.height / 2;
+            var endX = jRect.left + jRect.width / 2;
+            var endY = jRect.top + jRect.height / 2;
+            var dx = endX - startX;
+            var dy = endY - startY;
+
+            var grad = BONUS_GRADIENTS[colorCursor % BONUS_GRADIENTS.length];
+            colorCursor++;
+
+            var pill = document.createElement('div');
+            pill.className = 'flying-word-pill';
+            pill.style.background = grad;
+            pill.style.left = startX + 'px';
+            pill.style.top = startY + 'px';
+            pill.style.transform = 'translate(-50%, -65%) scale(1.12)';
+            pill.style.opacity = '1';
+            pill.innerHTML = '<span>✨ ' + word + '</span><span class="flying-word-pts">+' + points + '</span>';
+            document.body.appendChild(pill);
+
+            setTimeout(function() {
+                pill.style.transform = 'translate(' + (dx - 20) + 'px, ' + (dy - 10) + 'px) scale(0.18) rotate(12deg)';
+                pill.style.opacity = '0.2';
+            }, 300);
+
+            setTimeout(function() {
+                if (pill.parentNode) pill.parentNode.removeChild(pill);
+                jarEl.classList.remove('jar-catch');
+                void jarEl.offsetWidth;
+                jarEl.classList.add('jar-catch');
+                sfxJarDrop();
+                spawnJarSparkles(endX, endY - 12);
+                updateTargetsAndScoreUI();
+            }, 1020);
+        }
+
+        function spawnJarSparkles(cx, cy) {
+            var colors = ['#FDE047', '#38BDF8', '#F472B6', '#34D399', '#FB923C'];
+            for (var i = 0; i < 8; i++) {
+                (function(idx) {
+                    var dot = document.createElement('div');
+                    dot.className = 'jar-sparkle';
+                    dot.style.background = colors[idx % colors.length];
+                    dot.style.left = cx + 'px';
+                    dot.style.top = cy + 'px';
+                    dot.style.transform = 'translate(-50%, -50%) scale(1)';
+                    dot.style.opacity = '1';
+                    document.body.appendChild(dot);
+
+                    var angle = (-Math.PI * 0.9) + (Math.PI * 0.8 * (idx / 7));
+                    var dist = 24 + Math.random() * 18;
+                    var tx = Math.cos(angle) * dist;
+                    var ty = Math.sin(angle) * dist - 8;
+
+                    setTimeout(function() {
+                        dot.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(0)';
+                        dot.style.opacity = '0';
+                    }, 20);
+                    setTimeout(function() {
+                        if (dot.parentNode) dot.parentNode.removeChild(dot);
+                    }, 500);
+                })(i);
+            }
+        }
+
+        function openJarModal() {
+            var listEl = document.getElementById('jar-words-list');
+            var summaryEl = document.getElementById('jar-summary');
+            var wordsArr = Array.from(foundBonusWords);
+            var totalPts = 0;
+            for (var i = 0; i < wordsArr.length; i++) totalPts += wordsArr[i].length;
+
+            if (wordsArr.length > 0) {
+                summaryEl.innerHTML = 'تا الان <strong style="color:#FBBF24;">' + wordsArr.length + ' کلمه عادی</strong> با مجموع <strong style="color:#34D399;">+' + totalPts + ' امتیاز</strong> جمع کردی!';
+                var html = '';
+                for (var j = wordsArr.length - 1; j >= 0; j--) {
+                    var w = wordsArr[j];
+                    var bg = BONUS_GRADIENTS[(wordsArr.length - 1 - j) % BONUS_GRADIENTS.length];
+                    html += '<div class="jar-word-chip" style="background:' + bg + ';">' + w + '<span>+' + w.length + '</span></div>';
+                }
+                listEl.innerHTML = html;
+            } else {
+                summaryEl.textContent = 'کوزه‌ات هنوز خالیه! هر کلمه فارسی ۳ حرفی و بیشتر که پیدا کنی می‌افته اینجا.';
+                listEl.innerHTML = '<div style="font-size:12px; color:#64748B; padding:14px;">هنوز کلمه‌ای در کوزه نیست 🏺</div>';
+            }
+            document.getElementById('jar-modal').classList.remove('hidden');
+        }
+
+        function closeJarModal() {
+            document.getElementById('jar-modal').classList.add('hidden');
+        }
+
+        // توابع سرور آنلاین (Firebase)
+        async function sendHeartbeat() {
+            if (gameMode !== 'online' || !currentPuzzleId) return;
+            try {
+                await fetch(LIVE_PATH + '/players/' + user.id + '/lastSeen.json', {
+                    method: 'PUT',
+                    body: JSON.stringify(Date.now())
+                });
+            } catch (e) {}
+        }
+
+        async function registerPlayerInCurrentRoom() {
+            if (gameMode !== 'online') return;
+            try {
+                await fetch(LIVE_PATH + '/players/' + user.id + '.json', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: user.name || 'بازیکن',
+                        score: myScore,
+                        bonusCount: foundBonusWords.size,
+                        lastSeen: Date.now()
+                    })
+                });
+            } catch (e) {}
+        }
+
+        async function createAndPushNewPuzzle() {
+            if (gameMode !== 'online' || isCreatingNext) return;
+            isCreatingNext = true;
+            try {
+                var checkRes = await fetch(LIVE_PATH + '.json');
+                var current = await checkRes.json();
+                if (current && current.puzzleId !== currentPuzzleId && !current.finishedAt) {
+                    applyRoomState(current, false);
+                    isCreatingNext = false;
+                    return;
+                }
+                var nextNum = (current && current.puzzleNumber ? current.puzzleNumber : 0) + 1;
+                var newData = buildOnlinePuzzleData(nextNum);
+                await fetch(LIVE_PATH + '.json', {
+                    method: 'PUT',
+                    body: JSON.stringify(newData)
+                });
+                applyRoomState(newData, false);
+            } catch (e) {}
+            isCreatingNext = false;
+        }
+
+        async function syncRoom(isInitial) {
+            if (gameMode !== 'online') return false;
+            try {
+                var res = await fetch(LIVE_PATH + '.json');
+                if (!res.ok) return false;
+                var data = await res.json();
+                if (!data || !data.gridLetters || !data.keyWords) {
+                    await createAndPushNewPuzzle();
+                    return true;
+                }
+                if (data.finishedAt && (Date.now() - data.finishedAt > 20000)) {
+                    currentPuzzleId = data.puzzleId;
+                    await createAndPushNewPuzzle();
+                    return true;
+                }
+                applyRoomState(data, isInitial);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function applyRoomState(data, isInitial) {
+            if (gameMode !== 'online') return;
+            var isNewPuzzle = (data.puzzleId !== currentPuzzleId);
+
+            if (isNewPuzzle) {
+                currentPuzzleId = data.puzzleId;
+                currentPuzzleNumber = data.puzzleNumber || 1;
+                gridLetters = data.gridLetters;
+                selectedPath = [];
+                isDragging = false;
+                clearInterval(countdownInterval);
+                document.getElementById('win-modal').classList.add('hidden');
+                document.getElementById('force-next-btn').classList.add('hidden');
+
+                var savedBonus = [];
+                try { savedBonus = JSON.parse(safeGet('g8_bonus_' + currentPuzzleId, '[]')); } catch (e) {}
+                foundBonusWords = new Set(savedBonus);
+
+                if (data.players && data.players[user.id]) {
+                    myScore = data.players[user.id].score || 0;
+                } else {
+                    myScore = 0;
+                    registerPlayerInCurrentRoom();
+                }
+
+                for (var i = 0; i < 64; i++) cellElements[i].textContent = gridLetters[i] || '';
+                document.getElementById('puzzle-num-badge').textContent = 'پازل #' + currentPuzzleNumber;
+            } else if (isInitial && (!data.players || !data.players[user.id])) {
+                registerPlayerInCurrentRoom();
+            }
+
+            keyWordsArr = [];
+            var kwKeys = Object.keys(data.keyWords);
+            for (var k = 0; k < kwKeys.length; k++) {
+                var keyName = kwKeys[k];
+                var item = data.keyWords[keyName];
+                if (item) {
+                    keyWordsArr.push({
+                        idx: keyName,
+                        word: item.word,
+                        path: item.path,
+                        found: !!item.found,
+                        foundBy: item.foundBy || ''
+                    });
+                }
+            }
+
+            var newCleared = [];
+            for (var c = 0; c < 64; c++) newCleared.push(false);
+            for (var w = 0; w < keyWordsArr.length; w++) {
+                var kw = keyWordsArr[w];
+                if (kw.found && Array.isArray(kw.path)) {
+                    for (var p = 0; p < kw.path.length; p++) newCleared[kw.path[p]] = true;
+                }
+            }
+            clearedCells = newCleared;
+
+            for (var g = 0; g < 64; g++) {
+                if (clearedCells[g]) {
+                    cellElements[g].classList.add('cleared');
+                    cellElements[g].classList.remove('selected');
+                    cellElements[g].textContent = '';
+                } else {
+                    cellElements[g].classList.remove('cleared');
+                    cellElements[g].textContent = gridLetters[g] || '';
+                }
+            }
+
+            if (data.lastEvent && data.lastEvent.text) {
+                document.getElementById('live-ticker').textContent = data.lastEvent.text;
+            }
+
+            var playersObj = data.players || {};
+            var now = Date.now();
+            var pIds = Object.keys(playersObj);
+            var playersList = [];
+            var onlineCount = 0;
+            for (var pi = 0; pi < pIds.length; pi++) {
+                var pid = pIds[pi];
+                var po = playersObj[pid];
+                if (po) {
+                    playersList.push({ id: pid, name: po.name || 'بازیکن', score: po.score || 0, lastSeen: po.lastSeen || 0 });
+                    if (now - (po.lastSeen || 0) < 35000) onlineCount++;
+                }
+            }
+            if (onlineCount < 1) onlineCount = 1;
+            document.getElementById('game-status-text').textContent = 'زنده | ' + onlineCount + ' نفر';
+
+            playersList.sort(function(a, b) { return b.score - a.score; });
+            var boardHtml = '';
+            var maxShow = Math.min(10, playersList.length);
+            for (var bi = 0; bi < maxShow; bi++) {
+                var pl = playersList[bi];
+                var medal = bi === 0 ? '🥇' : (bi === 1 ? '🥈' : (bi === 2 ? '🥉' : (bi + 1) + '.'));
+                var cls = pl.id === user.id ? 'player-row me' : 'player-row';
+                boardHtml += '<div class="' + cls + '"><span>' + medal + ' ' + pl.name + '</span><strong style="color:#FBBF24;">' + pl.score + ' امتیاز</strong></div>';
+            }
+            document.getElementById('live-scoreboard').innerHTML = boardHtml || '<div style="font-size:12px; color:#94A3B8;">اولین نفر باش!</div>';
+
+            updateTargetsAndScoreUI();
+
+            var allFound = keyWordsArr.length > 0 && keyWordsArr.every(function(item) { return item.found; });
+            if (allFound || data.finishedAt) {
+                showOnlineFinishedModal(data, playersList, boardHtml);
+            }
+        }
+
+        function updateTargetsAndScoreUI() {
+            document.getElementById('score-val').textContent = myScore;
+            document.getElementById('bonus-count').textContent = foundBonusWords.size;
+
+            var remaining = 0;
+            for (var i = 0; i < keyWordsArr.length; i++) if (!keyWordsArr[i].found) remaining++;
+            document.getElementById('rem-count').textContent = remaining;
+            document.getElementById('mult-val').textContent = '×' + remaining;
+
+            var sorted = keyWordsArr.slice().sort(function(a, b) { return b.word.length - a.word.length; });
+            var html = '';
+            for (var j = 0; j < sorted.length; j++) {
+                var k = sorted[j];
+                if (k.found) {
+                    var shortName = k.foundBy ? '<small>(' + k.foundBy.split(' ')[0] + ')</small>' : '';
+                    html += '<div class="target-chip found">✓ ' + k.word + shortName + '</div>';
+                } else {
+                    html += '<div class="target-chip">' + k.word.length + ' حرفی</div>';
+                }
+            }
+            document.getElementById('targets-container').innerHTML = html;
+        }
+
+        function showSoloWinModal() {
+            sfxWin();
+            haptic([60, 40, 120]);
+            var finishedLvl = soloStats.level;
+            soloStats.solved += 1;
+            soloStats.level += 1;
+            var isNewBest = false;
+            if (myScore > soloStats.best) {
+                soloStats.best = myScore;
+                isNewBest = true;
+            }
+            safeSet('wg_solo_level', soloStats.level);
+            safeSet('wg_solo_solved', soloStats.solved);
+            safeSet('wg_solo_best', soloStats.best);
+
+            document.getElementById('win-pill').textContent = isNewBest ? '🔥 رکورد جدید ثبت شد!' : '🏆 مرحله ' + finishedLvl + ' تکمیل شد!';
+            document.getElementById('win-title').textContent = 'آفرین ' + (user.name || '') + '!';
+            document.getElementById('win-summary').innerHTML =
+                'امتیاز این جدول: <strong style="color:#FBBF24; font-size:20px;">' + myScore + '</strong><br>' +
+                'کلمات عادی داخل کوزه: <strong style="color:#38BDF8;">' + foundBonusWords.size + ' کلمه 🏺</strong>';
+
+            document.getElementById('win-online-board-wrap').classList.add('hidden');
+            document.getElementById('next-countdown').classList.add('hidden');
+            document.getElementById('force-next-btn').classList.add('hidden');
+            document.getElementById('win-next-solo-btn').classList.remove('hidden');
+            document.getElementById('win-modal').classList.remove('hidden');
+        }
+
+        function showOnlineFinishedModal(data, playersList, boardHtml) {
+            var modal = document.getElementById('win-modal');
+            if (!modal.classList.contains('hidden')) return;
+
+            sfxWin();
+            document.getElementById('win-pill').textContent = '🌐 پایان پازل #' + currentPuzzleNumber;
+            document.getElementById('win-title').textContent = 'این پازل تمام شد!';
+            var topPlayer = playersList[0];
+            document.getElementById('win-summary').innerHTML = topPlayer
+                ? '👑 قهرمان این دور: <strong style="color:#FBBF24;">' + topPlayer.name + '</strong> با ' + topPlayer.score + ' امتیاز'
+                : 'جدول کامل پاکسازی شد!';
+
+            document.getElementById('final-round-board').innerHTML = boardHtml;
+            document.getElementById('win-online-board-wrap').classList.remove('hidden');
+            document.getElementById('win-next-solo-btn').classList.add('hidden');
+            document.getElementById('next-countdown').classList.remove('hidden');
+            modal.classList.remove('hidden');
+
+            var finishedAt = data.finishedAt || Date.now();
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(function() {
+                var secLeft = Math.max(0, Math.ceil((finishedAt + 10000 - Date.now()) / 1000));
+                var cdEl = document.getElementById('next-countdown');
+                if (secLeft > 0) {
+                    cdEl.textContent = '⏳ پازل بعدی تا ' + secLeft + ' ثانیه دیگر شروع می‌شود...';
+                } else {
+                    cdEl.textContent = '🚀 در حال ساخت پازل جدید...';
+                    clearInterval(countdownInterval);
+                    document.getElementById('force-next-btn').classList.remove('hidden');
+                    var delay = (data.finishedById === user.id) ? 300 : (1800 + Math.random() * 1500);
+                    setTimeout(function() {
+                        if (gameMode === 'online' && !document.getElementById('win-modal').classList.contains('hidden')) {
+                            createAndPushNewPuzzle();
+                        }
+                    }, delay);
+                }
+            }, 500);
+        }
+
+        // منطق انتخاب حروف روی جدول ۸×۸
+        function areAdjacent(idx1, idx2) {
+            var r1 = Math.floor(idx1 / 8), c1 = idx1 % 8;
+            var r2 = Math.floor(idx2 / 8), c2 = idx2 % 8;
+            return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && idx1 !== idx2;
+        }
+
+        function handleSelectCell(idx) {
+            if (idx === null || isNaN(idx) || clearedCells[idx]) return;
+            if (selectedPath.length >= 2 && selectedPath[selectedPath.length - 2] === idx) {
+                selectedPath.pop();
+                sfxSelect(selectedPath.length);
+                updateSelectionVisuals();
+                return;
+            }
+            if (selectedPath.indexOf(idx) !== -1) return;
+            if (selectedPath.length === 0 || areAdjacent(selectedPath[selectedPath.length - 1], idx)) {
+                selectedPath.push(idx);
+                sfxSelect(selectedPath.length);
+                haptic(12);
+                updateSelectionVisuals();
+            }
+        }
+
+        function updateSelectionVisuals() {
+            for (var i = 0; i < 64; i++) {
+                if (selectedPath.indexOf(i) !== -1 && !clearedCells[i]) cellElements[i].classList.add('selected');
+                else cellElements[i].classList.remove('selected');
+            }
+            var wordBar = document.getElementById('current-word');
+            if (selectedPath.length === 0) {
+                wordBar.textContent = 'انگشت را روی حروف بکشید';
+            } else {
+                var txt = '';
+                for (var j = 0; j < selectedPath.length; j++) txt += gridLetters[selectedPath[j]];
+                wordBar.textContent = txt;
+            }
+        }
+
+        async function finalizeWord() {
+            if (selectedPath.length === 0) return;
+
+            for (var s = 0; s < selectedPath.length; s++) {
+                if (clearedCells[selectedPath[s]]) {
+                    showFeedback('⚡ یکی از این حروف همین الان پاک شد!', '#FBBF24');
+                    selectedPath = [];
+                    updateSelectionVisuals();
+                    return;
+                }
+            }
+
+            var formedWord = '';
+            for (var f = 0; f < selectedPath.length; f++) formedWord += gridLetters[selectedPath[f]];
+
+            var remainingKeys = keyWordsArr.filter(function(k) { return !k.found; });
+            var matchedKey = null;
+
+            for (var a = 0; a < remainingKeys.length; a++) {
+                var rk = remainingKeys[a];
+                if (rk.path.length === selectedPath.length) {
+                    var exact = true;
+                    for (var b = 0; b < rk.path.length; b++) {
+                        if (rk.path[b] !== selectedPath[b]) { exact = false; break; }
+                    }
+                    if (exact) { matchedKey = rk; break; }
+                }
+            }
+            if (!matchedKey) {
+                for (var c = 0; c < remainingKeys.length; c++) {
+                    var rk2 = remainingKeys[c];
+                    if (rk2.word === formedWord) {
+                        var overlap = rk2.path.some(function(cellIdx) { return selectedPath.indexOf(cellIdx) !== -1; });
+                        if (overlap) { matchedKey = rk2; break; }
+                    }
+                }
+            }
+
+            selectedPath = [];
+            updateSelectionVisuals();
+
+            // ۱. کلمه کلیدی پیدا شد
+            if (matchedKey) {
+                var multiplier = remainingKeys.length;
+                var earned = formedWord.length * multiplier;
+
+                if (gameMode === 'solo') {
+                    myScore += earned;
+                    matchedKey.found = true;
+                    for (var p = 0; p < matchedKey.path.length; p++) {
+                        var ci2 = matchedKey.path[p];
+                        clearedCells[ci2] = true;
+                        cellElements[ci2].classList.add('cleared');
+                        cellElements[ci2].classList.remove('selected');
+                        cellElements[ci2].textContent = '';
+                    }
+                    sfxKeyword();
+                    haptic(45);
+                    showFeedback('🌟 کلمه کلیدی «' + formedWord + '» (+' + earned + ' امتیاز = ' + formedWord.length + '×' + multiplier + ')', '#34D399');
+                    updateTargetsAndScoreUI();
+                    if (keyWordsArr.every(function(k) { return k.found; })) {
+                        setTimeout(showSoloWinModal, 700);
+                    }
+                } else {
+                    try {
+                        var checkRes = await fetch(LIVE_PATH + '/keyWords/' + matchedKey.idx + '.json');
+                        var liveKw = await checkRes.json();
+                        if (!liveKw || liveKw.found) {
+                            sfxError();
+                            showFeedback('⚡ «' + (liveKw ? liveKw.foundBy : 'یک بازیکن') + '» یک لحظه زودتر این کلمه را زد!', '#FBBF24');
+                            syncRoom(false);
+                            return;
+                        }
+                        myScore += earned;
+                        await fetch(LIVE_PATH + '/keyWords/' + matchedKey.idx + '.json', {
+                            method: 'PATCH',
+                            body: JSON.stringify({ found: true, foundBy: user.name || 'بازیکن' })
+                        });
+                        await registerPlayerInCurrentRoom();
+                        await fetch(LIVE_PATH + '/lastEvent.json', {
+                            method: 'PUT',
+                            body: JSON.stringify({ text: '🌟 ' + (user.name || 'بازیکن') + ' کلمه کلیدی «' + formedWord + '» را پیدا کرد! (+' + earned + ')', ts: Date.now() })
+                        });
+                        if (multiplier === 1) {
+                            await fetch(LIVE_PATH + '.json', {
+                                method: 'PATCH',
+                                body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id })
+                            });
+                        }
+                        sfxKeyword();
+                        haptic(45);
+                        showFeedback('🌟 عالی! «' + formedWord + '» (+' + earned + ' امتیاز = ' + formedWord.length + '×' + multiplier + ')', '#34D399');
+                        syncRoom(false);
+                    } catch (e) {
+                        sfxError();
+                        showFeedback('❌ خطا در ثبت روی سرور آنلاین', '#F87171');
+                    }
+                }
+                return;
+            }
+
+            // ۲. کلمه عادی (از دیکشنری جامع)
+            if (formedWord.length >= 3 && VALID_WORDS_SET.has(formedWord)) {
+                if (foundBonusWords.has(formedWord)) {
+                    sfxError();
+                    showFeedback('⚠️ کلمه عادی «' + formedWord + '» قبلاً در کوزه افتاده است!', '#FBBF24');
+                } else {
+                    foundBonusWords.add(formedWord);
+                    if (gameMode === 'online') {
+                        safeSet('g8_bonus_' + currentPuzzleId, JSON.stringify(Array.from(foundBonusWords)));
+                    }
+                    var bonusEarned = formedWord.length;
+                    myScore += bonusEarned;
+
+                    sfxCommonWord();
+                    haptic(25);
+                    showFeedback('🏺 کلمه عادی «' + formedWord + '» رفت توی کوزه! (+' + bonusEarned + ' امتیاز)', '#38BDF8');
+                    animateCommonWordToJar(formedWord, bonusEarned);
+                    document.getElementById('score-val').textContent = myScore;
+                    if (gameMode === 'online') registerPlayerInCurrentRoom();
+                }
+            } else if (formedWord.length >= 2) {
+                sfxError();
+                showFeedback('❌ «' + formedWord + '» در دیکشنری معتبر نیست', '#F87171');
+            }
+        }
+
+        function showFeedback(msg, color) {
+            var el = document.getElementById('feedback-msg');
+            el.textContent = msg;
+            el.style.color = color;
+        }
+
+        function useHint() {
+            var rem = keyWordsArr.filter(function(k) { return !k.found; });
+            if (rem.length === 0) return;
+            if (myScore < 15) {
+                sfxError();
+                showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۵ امتیاز نیاز دارید!', '#FBBF24');
+                return;
+            }
+            myScore -= 15;
+            updateTargetsAndScoreUI();
+            if (gameMode === 'online') registerPlayerInCurrentRoom();
+
+            var target = rem[Math.floor(Math.random() * rem.length)];
+            var firstIdx = target.path[0];
+            cellElements[firstIdx].classList.add('hint-flash');
+            sfxSelect(6);
+            setTimeout(function() { cellElements[firstIdx].classList.remove('hint-flash'); }, 1800);
+            showFeedback('💡 خانه چشمک‌زن، شروع یک کلمه «' + target.word.length + ' حرفی» است!', '#F472B6');
+        }
+
+        // اشتراک‌گذاری استاندارد اندروید (Web Share API)
+        function shareResult() {
+            var modeTxt = gameMode === 'solo' ? ('مرحله ' + (soloStats.level - 1) + ' آفلاین') : ('رقابت زنده پازل #' + currentPuzzleNumber);
+            var text = '🧩 من (' + (user.name || 'بازیکن') + ') در ' + modeTxt + ' بازی جدول کلمات ۸×۸ امتیاز ' + myScore + ' گرفتم و ' + foundBonusWords.size + ' کلمه توی کوزه جمع کردم! 🏺🔥';
+
+            if (navigator.share) {
+                navigator.share({ title: 'جدول کلمات ۸×۸', text: text, url: window.location.href }).catch(function() {});
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text + '\n' + window.location.href);
+                alert('متن امتیاز کپی شد! می‌توانید در پیام‌رسان‌ها ارسال کنید.');
+            } else {
+                alert(text);
+            }
+        }
+
+        // رویدادهای لمس و موس
+        function getCellFromPoint(x, y) {
+            var target = document.elementFromPoint(x, y);
+            if (target && target.classList.contains('cell')) {
+                return Number(target.getAttribute('data-index'));
+            }
+            return null;
+        }
+
+        gridEl.addEventListener('pointerdown', function(e) {
+            isDragging = true;
+            selectedPath = [];
+            handleSelectCell(getCellFromPoint(e.clientX, e.clientY));
+        });
+        window.addEventListener('pointermove', function(e) {
+            if (!isDragging) return;
+            handleSelectCell(getCellFromPoint(e.clientX, e.clientY));
+        });
+        window.addEventListener('pointerup', function() {
+            if (!isDragging) return;
+            isDragging = false;
+            finalizeWord();
+        });
+        window.addEventListener('pointercancel', function() {
+            isDragging = false;
+            selectedPath = [];
+            updateSelectionVisuals();
+        });
+    </script>
+</body>
+</html>
