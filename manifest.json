@@ -1,0 +1,21 @@
+{
+  "name": "جدول کلمات ۸×۸",
+  "short_name": "جدول ۸×۸",
+  "description": "بازی فکری پازل کلمات فارسی ۸ در ۸ به صورت تک‌نفره آفلاین و رقابت زنده آنلاین",
+  "start_url": "./app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "fa",
+  "background_color": "#0B132B",
+  "theme_color": "#0B132B",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
