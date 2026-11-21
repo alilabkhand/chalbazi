@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نیش ریاضی | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #1B263B 0%, #2B3A55 60%, #3E2723 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 480px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            z-index: 10;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stings-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+
+        .score-box {
+            background: #E53935;
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 15px;
+        }
+
+        .timer-wrap {
+            width: 88%;
+            max-width: 400px;
+            height: 12px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+            border: 1.5px solid rgba(255,255,255,0.5);
+        }
+
+        #timer-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #FF1744, #FFEA00, #00E676);
+            transition: width 0.08s linear;
+        }
+
+        #arena {
+            flex: 1;
+            width: 100%;
+            max-width: 480px;
+            display: block;
+        }
+
+        /* پنل سوال و گزینه‌ها */
+        .question-panel {
+            width: 100%;
+            max-width: 480px;
+            background: #fff;
+            color: #212121;
+            border-radius: 26px 26px 0 0;
+            padding: 18px 20px 24px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .question-text {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1A237E;
+            margin: 0 0 14px;
+            direction: ltr;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .opt-btn {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: #fff;
+            border: none;
+            border-radius: 18px;
+            padding: 16px;
+            font-size: 26px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(245, 124, 0, 0.35);
+            transition: transform 0.1s;
+            direction: ltr;
+        }
+
+        .opt-btn:active {
+            transform: scale(0.95);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            color: #212121;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .channel-tag {
+            display: inline-block;
+            background: #FFEBEE;
+            color: #C62828;
+            font-weight: 900;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            direction: ltr;
+        }
+
+        .card h1 {
+            margin: 0 0 8px;
+            font-size: 23px;
+            color: #B71C1C;
+        }
+
+        .card p {
+            margin: 0 0 16px;
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #E53935, #B71C1C);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+        }
+
+        .btn-tg {
+            background: linear-gradient(135deg, #29B6F6, #0288D1);
+            color: #fff;
+        }
+
+        .btn-lobby {
+            background: #ECEFF1;
+            color: #37474F;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn">🏠 لابی</a>
+        <div class="stings-box">
+            <span>نیش‌ها:</span>
+            <span id="sting-icons">🤍🤍🤍</span>
+        </div>
+        <div class="score-box">امتیاز: <span id="score-val">0</span></div>
+    </div>
+
+    <div class="timer-wrap">
+        <div id="timer-fill"></div>
+    </div>
+
+    <canvas id="arena"></canvas>
+
+    <div class="question-panel">
+        <div class="question-text" id="q-text">3 × 4 = ?</div>
+        <div class="options-grid">
+            <button class="opt-btn" id="opt-0" onclick="checkAnswer(0)">12</button>
+            <button class="opt-btn" id="opt-1" onclick="checkAnswer(1)">14</button>
+        </div>
+    </div>
+
+    <!-- صفحه شروع -->
+    <div id="start-modal" class="overlay">
+        <div class="card">
+            <div class="channel-tag">@chalbazi</div>
+            <h1>🦂 نیش ریاضی</h1>
+            <p>زنبور، عقرب و مار به دستت حمله می‌کنن! سریع جواب درست رو بزن تا دفع بشن. با <strong>۳ نیش</strong> دستت ورم می‌کنه و می‌بازی!</p>
+            <button class="btn btn-primary" onclick="startGame()">شروع نبرد ⚡</button>
+            <a href="index.html" class="btn btn-lobby">بازگشت به منوی بازی‌ها</a>
+        </div>
+    </div>
+
+    <!-- صفحه پایان -->
+    <div id="gameover-modal" class="overlay hidden">
+        <div class="card">
+            <div class="channel-tag">@chalbazi</div>
+            <h1>💉 دستت از نیش باد کرد!</h1>
+            <p>امتیاز نهایی شما: <strong id="final-score" style="font-size: 22px; color: #C62828;">0</strong><br>
+            بهترین رکورد شخصی: <strong id="best-score">0</strong></p>
+
+            <button class="btn btn-tg" onclick="shareScore()">📤 ارسال رکورد در @chalbazi</button>
+            <button class="btn btn-primary" onclick="startGame()">🔄 تلاش مجدد</button>
+            <a href="index.html" class="btn btn-lobby">🏠 بازگشت به لابی</a>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE';
+        const CHANNEL_URL = 'https://t.me/chalbazi';
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+        let currentUser = {
+            id: 'guest_' + (localStorage.getItem('chalbazi_uid') || Math.floor(Math.random() * 1000000)),
+            name: 'بازیکن چالبازی',
+            username: ''
+        };
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                currentUser.id = String(u.id);
+                currentUser.name = [u.first_name, u.last_name].filter(Boolean).join(' ');
+                currentUser.username = u.username ? '@' + u.username : '';
+            }
+        }
+
+        const canvas = document.getElementById('arena');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const creatures = [
+            { name: 'زنبور', emoji: '🐝', color: '#FFB300' },
+            { name: 'عقرب', emoji: '🦂', color: '#8D6E63' },
+            { name: 'مار', emoji: '🐍', color: '#43A047' }
+        ];
+
+        let score = 0;
+        let stings = 0;
+        let gameActive = false;
+        let currentCorrect = 0;
+        let options = [0, 0];
+        let activeCreature = creatures[0];
+        let attackProgress = 0; // از 0 (دور) تا 1 (رسیدن به دست)
+        let stingFlash = 0;
+        let lastTime = 0;
+        let bloodDrops = [];
+
+        function updateStingIcons() {
+            const arr = [];
+            for (let i = 0; i < 3; i++) {
+                arr.push(i < stings ? '🩸' : '🤍');
+            }
+            document.getElementById('sting-icons').textContent = arr.join('');
+        }
+
+        function generateQuestion() {
+            const isMul = Math.random() < (score > 8 ? 0.55 : 0.35);
+            let a, b, ans, text;
+
+            if (isMul) {
+                const maxVal = Math.min(12, 5 + Math.floor(score / 4));
+                a = Math.floor(Math.random() * (maxVal - 1)) + 2;
+                b = Math.floor(Math.random() * 9) + 2;
+                ans = a * b;
+                text = `${a} × ${b} = ?`;
+            } else {
+                const maxVal = Math.min(50, 12 + score * 2);
+                a = Math.floor(Math.random() * maxVal) + 3;
+                b = Math.floor(Math.random() * maxVal) + 3;
+                ans = a + b;
+                text = `${a} + ${b} = ?`;
+            }
+
+            let wrong = ans + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 4) + 1);
+            if (wrong < 0 || wrong === ans) wrong = ans + 2;
+
+            currentCorrect = ans;
+            if (Math.random() < 0.5) {
+                options = [ans, wrong];
+            } else {
+                options = [wrong, ans];
+            }
+
+            document.getElementById('q-text').textContent = text;
+            document.getElementById('opt-0').textContent = options[0];
+            document.getElementById('opt-1').textContent = options[1];
+
+            activeCreature = creatures[Math.floor(Math.random() * creatures.length)];
+            attackProgress = 0;
+        }
+
+        function startGame() {
+            score = 0;
+            stings = 0;
+            bloodDrops = [];
+            document.getElementById('score-val').textContent = '0';
+            updateStingIcons();
+            document.getElementById('start-modal').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+
+            generateQuestion();
+            gameActive = true;
+            lastTime = performance.now();
+            requestAnimationFrame(loop);
+        }
+
+        function checkAnswer(idx) {
+            if (!gameActive) return;
+
+            if (options[idx] === currentCorrect) {
+                score++;
+                document.getElementById('score-val').textContent = score;
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                generateQuestion();
+            } else {
+                takeSting();
+            }
+        }
+
+        function takeSting() {
+            stings++;
+            stingFlash = 1;
+            updateStingIcons();
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+
+            // ایجاد قطرات خون روی محل نیش
+            const handX = canvas.width / 2;
+            const handY = canvas.height - 65;
+            for (let i = 0; i < 6; i++) {
+                bloodDrops.push({
+                    x: handX + (Math.random() - 0.5) * 55,
+                    y: handY - 10 + (Math.random() - 0.5) * 35,
+                    r: 3 + Math.random() * 4,
+                    vy: 0.4 + Math.random() * 0.8
+                });
+            }
+
+            if (stings >= 3) {
+                endGame();
+            } else {
+                generateQuestion();
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            const best = Math.max(score, Number(localStorage.getItem('chalbazi_math_best') || 0));
+            localStorage.setItem('chalbazi_math_best', best);
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('best-score').textContent = best;
+            document.getElementById('gameover-modal').classList.remove('hidden');
+
+            if (score > 0 && GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: currentUser.id,
+                        name: currentUser.name + ' (نیش ریاضی)',
+                        username: currentUser.username,
+                        score: score
+                    })
+                }).catch(() => {});
+            }
+        }
+
+        function shareScore() {
+            const text = `🦂 من (${currentUser.name}) توی بازی «نیش ریاضی» کانال @chalbazi امتیاز ${score} رو گرفتم! 🧠🔥\nمی‌تونی قبل از نیش خوردن رکوردم رو بزنی؟ 👇`;
+            const url = `https://t.me/share/url?url=${encodeURIComponent(CHANNEL_URL)}&text=${encodeURIComponent(text)}`;
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+
+        function drawHand(x, y, stingCount) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // تورم دست بر اساس تعداد نیش‌ها
+            const swell = 1 + stingCount * 0.16;
+            ctx.scale(swell, 1 + stingCount * 0.1);
+
+            // رنگ دست بر اثر التهاب و سم قرمزتر می‌شود
+            const colors = ['#FFCC80', '#FFAB91', '#EF9A9A', '#E57373'];
+            ctx.fillStyle = colors[Math.min(3, stingCount)];
+
+            // کف دست
+            ctx.beginPath();
+            ctx.roundRect(-36, -30, 72, 65, 22);
+            ctx.fill();
+
+            // انگشتان
+            const fingerX = [-26, -9, 9, 26];
+            const fingerH = [32, 40, 38, 28];
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.roundRect(fingerX[i] - 7, -30 - fingerH[i] + 8, 14, fingerH[i], 8);
+                ctx.fill();
+            }
+
+            // شست
+            ctx.beginPath();
+            ctx.roundRect(32, -8, 22, 15, 8);
+            ctx.fill();
+
+            // جای نیش‌های متورم
+            ctx.fillStyle = '#B71C1C';
+            if (stingCount >= 1) {
+                ctx.beginPath(); ctx.arc(-10, -5, 4, 0, Math.PI * 2); ctx.fill();
+            }
+            if (stingCount >= 2) {
+                ctx.beginPath(); ctx.arc(14, 5, 5, 0, Math.PI * 2); ctx.fill();
+            }
+            if (stingCount >= 3) {
+                ctx.beginPath(); ctx.arc(0, -16, 6, 0, Math.PI * 2); ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        function loop(now) {
+            if (!gameActive) return;
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            // سرعت حمله جانور بر اساس امتیاز
+            const speed = 0.24 + Math.min(0.45, score * 0.012);
+            attackProgress += speed * dt;
+
+            document.getElementById('timer-fill').style.width = Math.max(0, (1 - attackProgress) * 100) + '%';
+
+            if (attackProgress >= 1) {
+                takeSting();
+                if (!gameActive) return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // فلش قرمز هنگام نیش خوردن
+            if (stingFlash > 0) {
+                ctx.fillStyle = `rgba(229, 57, 53, ${stingFlash * 0.45})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                stingFlash = Math.max(0, stingFlash - dt * 3);
+            }
+
+            const centerX = canvas.width / 2;
+            const handY = canvas.height - 60;
+
+            // رسم دست بازیکن
+            drawHand(centerX, handY, stings);
+
+            // رسم قطرات خون
+            ctx.fillStyle = '#D50000';
+            for (const b of bloodDrops) {
+                b.y += b.vy * 15 * dt;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // رسم جانور مهاجم در حال نزدیک شدن به دست
+            const startY = 45;
+            const endY = handY - 45;
+            const curY = startY + (endY - startY) * attackProgress;
+            const wobbleX = Math.sin(attackProgress * 18) * 28;
+
+            ctx.font = `${54 + attackProgress * 22}px serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(activeCreature.emoji, centerX + wobbleX, curY);
+
+            requestAnimationFrame(loop);
+        }
+
+        // رسم اولیه صحنه
+        drawHand(canvas.width / 2, canvas.height - 60, 0);
+    </script>
+</body>
+</html>
+
