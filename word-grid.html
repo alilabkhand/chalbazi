@@ -5,514 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>جدول کلمات ۸×۸ (زنده) | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="words.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Vazirmatn', sans-serif;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: linear-gradient(160deg, #0B132B 0%, #1C2541 60%, #1B4332 100%);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
-
-        .header {
-            width: 100%;
-            max-width: 480px;
-            padding: 10px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .live-pill {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.5);
-            color: #6EE7B7;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: #10B981;
-            border-radius: 50%;
-            animation: pulse 1.4s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
-        }
-
-        .badge {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: #fff;
-            padding: 5px 12px;
-            border-radius: 14px;
-            font-weight: 900;
-            font-size: 13px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            padding: 10px 14px 24px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .live-ticker {
-            width: 100%;
-            background: rgba(56, 189, 248, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 12px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 700;
-            color: #BAE6FD;
-            text-align: center;
-            margin-bottom: 8px;
-            min-height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .targets-panel {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 8px 10px;
-            margin-bottom: 8px;
-        }
-
-        .targets-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #94A3B8;
-            margin-bottom: 6px;
-        }
-
-        .targets-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            justify-content: center;
-        }
-
-        .target-chip {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1.5px solid #3B82F6;
-            color: #93C5FD;
-            padding: 3px 9px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 900;
-            transition: all 0.25s;
-        }
-
-        .target-chip.found {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: #10B981;
-            color: #6EE7B7;
-        }
-
-        .target-chip small {
-            font-weight: 400;
-            opacity: 0.85;
-            font-size: 10px;
-            margin-right: 3px;
-        }
-
-        /* ردیف نوار کلمه فعلی + کوزه کلمات عادی */
-        .word-jar-row {
-            width: 100%;
-            max-width: 390px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            position: relative;
-        }
-
-        .current-word-bar {
-            flex: 1;
-            min-height: 44px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 19px;
-            font-weight: 900;
-            color: #FBBF24;
-            letter-spacing: 2px;
-            padding: 4px 12px;
-            transition: background 0.25s, border-color 0.25s;
-        }
-
-        /* ویجت کوزه کلمات عادی */
-        .jar-widget {
-            position: relative;
-            width: 54px;
-            height: 46px;
-            border-radius: 14px;
-            background: linear-gradient(145deg, rgba(14, 165, 233, 0.22), rgba(168, 85, 247, 0.25));
-            border: 1.5px solid rgba(56, 189, 248, 0.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            padding: 0;
-            flex-shrink: 0;
-            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
-            transition: transform 0.15s;
-        }
-
-        .jar-widget:active {
-            transform: scale(0.93);
-        }
-
-        .jar-svg {
-            width: 30px;
-            height: 30px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-        }
-
-        .jar-count {
-            position: absolute;
-            top: -6px;
-            left: -6px;
-            min-width: 22px;
-            height: 22px;
-            padding: 0 5px;
-            border-radius: 11px;
-            background: linear-gradient(135deg, #EC4899, #F59E0B);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #0F172A;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        }
-
-        @keyframes jarCatch {
-            0%   { transform: scale(1) rotate(0deg); box-shadow: 0 0 0 rgba(251, 191, 36, 0); }
-            25%  { transform: scale(1.22, 0.85) rotate(-8deg); box-shadow: 0 0 24px rgba(251, 191, 36, 0.9); }
-            55%  { transform: scale(0.9, 1.15) rotate(6deg); box-shadow: 0 0 18px rgba(56, 189, 248, 0.85); }
-            80%  { transform: scale(1.06, 0.96) rotate(-3deg); }
-            100% { transform: scale(1) rotate(0deg); box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25); }
-        }
-
-        .jar-widget.jar-catch {
-            animation: jarCatch 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        /* برچسب برجسته و رنگی کلمه عادی در حال پرواز به کوزه */
-        .flying-word-pill {
-            position: fixed;
-            z-index: 999;
-            pointer-events: none;
-            padding: 8px 20px;
-            border-radius: 999px;
-            font-size: 20px;
-            font-weight: 900;
-            color: #fff;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 22px rgba(255, 255, 255, 0.35);
-            will-change: transform, opacity;
-        }
-
-        .flying-word-pts {
-            background: rgba(0, 0, 0, 0.28);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 13px;
-            color: #FEF08A;
-        }
-
-        .jar-sparkle {
-            position: fixed;
-            z-index: 998;
-            pointer-events: none;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            will-change: transform, opacity;
-        }
-
-        /* برچسب‌های رنگی داخل مودال کوزه */
-        .jar-words-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            justify-content: center;
-            max-height: 220px;
-            overflow-y: auto;
-            padding: 10px 4px;
-            margin: 10px 0 14px;
-        }
-
-        .jar-word-chip {
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 900;
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
-        }
-
-        .jar-word-chip span {
-            background: rgba(0,0,0,0.25);
-            padding: 1px 6px;
-            border-radius: 8px;
-            font-size: 11px;
-            color: #FEF08A;
-        }
-
-        .grid-wrapper {
-            width: 100%;
-            max-width: 390px;
-            aspect-ratio: 1 / 1;
-            background: rgba(15, 23, 42, 0.85);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 18px;
-            padding: 7px;
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            gap: 5px;
-            touch-action: none;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-        }
-
-        .cell {
-            background: linear-gradient(145deg, #1E293B, #334155);
-            border: 1.5px solid #475569;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 19px;
-            font-weight: 900;
-            color: #F8FAFC;
-            transition: transform 0.1s, background 0.15s;
-        }
-
-        .cell.selected {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            border-color: #FDE68A;
-            color: #fff;
-            transform: scale(1.08);
-            z-index: 2;
-        }
-
-        .cell.hint-flash {
-            background: linear-gradient(135deg, #EC4899, #DB2777) !important;
-            border-color: #FBCFE8 !important;
-            transform: scale(1.12);
-        }
-
-        .cell.cleared {
-            background: rgba(15, 23, 42, 0.35);
-            border: 1px dashed rgba(255, 255, 255, 0.08);
-            color: transparent;
-            pointer-events: none;
-            transform: scale(0.92);
-        }
-
-        .feedback {
-            min-height: 22px;
-            font-size: 12px;
-            font-weight: 700;
-            margin-top: 6px;
-            text-align: center;
-        }
-
-        .stats-bar {
-            width: 100%;
-            max-width: 390px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #CBD5E1;
-        }
-
-        .btn-small {
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            padding: 5px 11px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .live-board {
-            width: 100%;
-            max-width: 390px;
-            background: rgba(15, 23, 42, 0.72);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 16px;
-            padding: 10px 12px;
-            margin-top: 10px;
-        }
-
-        .live-board-title {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: 900;
-            color: #FBBF24;
-            margin-bottom: 6px;
-        }
-
-        .player-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 4px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-            font-size: 12px;
-        }
-
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Vazirmatn', sans-serif; }
+        body { margin: 0; padding: 0; min-height: 100vh; background: linear-gradient(160deg, #0B132B 0%, #1C2541 60%, #1B4332 100%); color: #fff; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        .header { width: 100%; max-width: 480px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.12); }
+        .back-btn { background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+        .live-pill { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
+        .live-dot { width: 8px; height: 8px; background: #10B981; border-radius: 50%; animation: pulse 1.4s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+        .badge { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 5px 12px; border-radius: 14px; font-weight: 900; font-size: 13px; }
+        .container { width: 100%; max-width: 480px; padding: 10px 14px 24px; flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .live-ticker { width: 100%; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 6px 12px; font-size: 12px; font-weight: 700; color: #BAE6FD; text-align: center; margin-bottom: 8px; min-height: 30px; display: flex; align-items: center; justify-content: center; }
+        .targets-panel { width: 100%; background: rgba(15,23,42,0.75); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 8px 10px; margin-bottom: 8px; }
+        .targets-header { display: flex; justify-content: space-between; font-size: 11px; color: #94A3B8; margin-bottom: 6px; }
+        .targets-list { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+        .target-chip { background: rgba(59,130,246,0.2); border: 1.5px solid #3B82F6; color: #93C5FD; padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 900; }
+        .target-chip.found { background: rgba(16,185,129,0.2); border-color: #10B981; color: #6EE7B7; }
+        .target-chip small { font-weight: 400; opacity: 0.85; font-size: 10px; margin-right: 3px; }
+        .word-jar-row { width: 100%; max-width: 390px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; position: relative; }
+        .current-word-bar { flex: 1; min-height: 44px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 900; color: #FBBF24; letter-spacing: 2px; padding: 4px 12px; }
+        .jar-widget { position: relative; width: 54px; height: 46px; border-radius: 14px; background: linear-gradient(145deg, rgba(14,165,233,0.22), rgba(168,85,247,0.25)); border: 1.5px solid rgba(56,189,248,0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-shrink: 0; box-shadow: 0 4px 14px rgba(14,165,233,0.25); }
+        .jar-svg { width: 30px; height: 30px; }
+        .jar-count { position: absolute; top: -6px; left: -6px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: linear-gradient(135deg, #EC4899, #F59E0B); color: #fff; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #0F172A; }
+        @keyframes jarCatch { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.22,0.85) rotate(-8deg); box-shadow: 0 0 22px rgba(251,191,36,0.9); } 55% { transform: scale(0.9,1.15) rotate(6deg); } 100% { transform: scale(1) rotate(0deg); } }
+        .jar-widget.jar-catch { animation: jarCatch 0.55s ease; }
+        .flying-word-pill { position: fixed; z-index: 999; pointer-events: none; padding: 8px 20px; border-radius: 999px; font-size: 20px; font-weight: 900; color: #fff; white-space: nowrap; display: flex; align-items: center; gap: 8px; border: 2px solid rgba(255,255,255,0.85); text-shadow: 0 2px 6px rgba(0,0,0,0.35); box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 20px rgba(255,255,255,0.35); transition: transform 0.85s cubic-bezier(0.22,1,0.36,1), opacity 0.85s ease; }
+        .flying-word-pts { background: rgba(0,0,0,0.28); padding: 2px 8px; border-radius: 10px; font-size: 13px; color: #FEF08A; }
+        .jar-sparkle { position: fixed; z-index: 998; pointer-events: none; width: 8px; height: 8px; border-radius: 50%; transition: transform 0.45s ease-out, opacity 0.45s ease-out; }
+        .jar-words-grid { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; max-height: 220px; overflow-y: auto; padding: 10px 4px; margin: 10px 0 14px; }
+        .jar-word-chip { padding: 5px 12px; border-radius: 12px; font-size: 13px; font-weight: 900; color: #fff; display: inline-flex; align-items: center; gap: 6px; }
+        .jar-word-chip span { background: rgba(0,0,0,0.25); padding: 1px 6px; border-radius: 8px; font-size: 11px; color: #FEF08A; }
+        .grid-wrapper { width: 100%; max-width: 390px; aspect-ratio: 1 / 1; background: rgba(15,23,42,0.85); border: 2px solid rgba(255,255,255,0.2); border-radius: 18px; padding: 7px; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 5px; touch-action: none; box-shadow: 0 12px 28px rgba(0,0,0,0.45); }
+        .cell { background: linear-gradient(145deg, #1E293B, #334155); border: 1.5px solid #475569; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 900; color: #F8FAFC; transition: transform 0.1s; }
+        .cell.selected { background: linear-gradient(135deg, #F59E0B, #D97706); border-color: #FDE68A; color: #fff; transform: scale(1.08); z-index: 2; }
+        .cell.hint-flash { background: linear-gradient(135deg, #EC4899, #DB2777) !important; border-color: #FBCFE8 !important; transform: scale(1.12); }
+        .cell.cleared { background: rgba(15,23,42,0.35); border: 1px dashed rgba(255,255,255,0.08); color: transparent; pointer-events: none; transform: scale(0.92); }
+        .feedback { min-height: 22px; font-size: 12px; font-weight: 700; margin-top: 6px; text-align: center; }
+        .stats-bar { width: 100%; max-width: 390px; display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px; color: #CBD5E1; }
+        .btn-small { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 5px 11px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .live-board { width: 100%; max-width: 390px; background: rgba(15,23,42,0.72); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 10px 12px; margin-top: 10px; }
+        .live-board-title { display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; color: #FBBF24; margin-bottom: 6px; }
+        .player-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 4px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 12px; }
         .player-row:last-child { border-bottom: none; }
-
-        .player-row.me {
-            background: rgba(59, 130, 246, 0.18);
-            border-radius: 8px;
-            padding: 5px 8px;
-        }
-
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.84);
-            backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 18px;
-        }
-
-        .card {
-            background: #1E293B;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: #fff;
-            width: 100%;
-            max-width: 380px;
-            border-radius: 24px;
-            padding: 22px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        }
-
-        .pill {
-            display: inline-block;
-            background: linear-gradient(135deg, #10B981, #059669);
-            padding: 4px 14px;
-            border-radius: 14px;
-            font-size: 12px;
-            font-weight: 900;
-            margin-bottom: 8px;
-            direction: ltr;
-        }
-
-        .dict-badge {
-            display: inline-block;
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            color: #38BDF8;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 10px;
-            margin-top: 4px;
-        }
-
-        .rules-list {
-            text-align: right;
-            font-size: 12px;
-            color: #CBD5E1;
-            line-height: 1.7;
-            background: rgba(15, 23, 42, 0.6);
-            padding: 12px 14px;
-            border-radius: 14px;
-            margin: 12px 0 16px;
-        }
-
-        .btn-main {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 14px;
-            font-size: 15px;
-            font-weight: 900;
-            cursor: pointer;
-            margin-bottom: 8px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            text-decoration: none;
-        }
-
+        .player-row.me { background: rgba(59,130,246,0.18); border-radius: 8px; padding: 5px 8px; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.84); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 18px; }
+        .card { background: #1E293B; border: 1px solid rgba(255,255,255,0.18); color: #fff; width: 100%; max-width: 380px; border-radius: 24px; padding: 22px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .pill { display: inline-block; background: linear-gradient(135deg, #10B981, #059669); padding: 4px 14px; border-radius: 14px; font-size: 12px; font-weight: 900; margin-bottom: 8px; direction: ltr; }
+        .dict-badge { display: inline-block; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); color: #38BDF8; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px; margin-top: 4px; }
+        .rules-list { text-align: right; font-size: 12px; color: #CBD5E1; line-height: 1.7; background: rgba(15,23,42,0.6); padding: 12px 14px; border-radius: 14px; margin: 12px 0 16px; }
+        .btn-main { width: 100%; padding: 13px; border: none; border-radius: 14px; font-size: 15px; font-weight: 900; cursor: pointer; margin-bottom: 8px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
         .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
         .btn-blue { background: linear-gradient(135deg, #0288D1, #03A9F4); }
-        .btn-gray { background: rgba(255, 255, 255, 0.12); }
-
+        .btn-gray { background: rgba(255,255,255,0.12); }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -520,10 +65,7 @@
 
     <div class="header">
         <a href="index.html" class="back-btn">🏠 لابی</a>
-        <div class="live-pill">
-            <span class="live-dot"></span>
-            <span id="online-count">در حال اتصال...</span>
-        </div>
+        <div class="live-pill"><span class="live-dot"></span><span id="online-count">در حال اتصال...</span></div>
         <div class="badge">امتیاز: <span id="score-val">0</span></div>
     </div>
 
@@ -538,41 +80,30 @@
             <div class="targets-list" id="targets-container"></div>
         </div>
 
-        <!-- نوار کلمه فعلی در کنار کوزه کلمات عادی -->
         <div class="word-jar-row">
             <div class="current-word-bar" id="current-word">انگشت را روی حروف بکشید</div>
             <button class="jar-widget" id="jar-widget" onclick="openJarModal()" title="کوزه کلمات عادی">
-                <svg class="jar-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="jar-svg" viewBox="0 0 64 64" fill="none">
                     <defs>
                         <linearGradient id="jarBody" x1="14" y1="16" x2="50" y2="58" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#38BDF8"/>
-                            <stop offset="50%" stop-color="#0284C7"/>
-                            <stop offset="100%" stop-color="#1E3A8A"/>
+                            <stop offset="0%" stop-color="#38BDF8"/><stop offset="50%" stop-color="#0284C7"/><stop offset="100%" stop-color="#1E3A8A"/>
                         </linearGradient>
                         <linearGradient id="jarRim" x1="18" y1="8" x2="46" y2="18" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#FDE047"/>
-                            <stop offset="100%" stop-color="#F59E0B"/>
+                            <stop offset="0%" stop-color="#FDE047"/><stop offset="100%" stop-color="#F59E0B"/>
                         </linearGradient>
                     </defs>
-                    <!-- دسته‌های کوزه -->
                     <path d="M18 22 C8 22 8 36 16 39" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
                     <path d="M46 22 C56 22 56 36 48 39" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
-                    <!-- بدنه کوزه -->
                     <path d="M23 17 L41 17 L43 23 C51 28 52 46 43 55 C40 58 24 58 21 55 C12 46 13 28 21 23 Z" fill="url(#jarBody)" stroke="#7DD3FC" stroke-width="2"/>
-                    <!-- نوار طلایی تزئینی روی شکم کوزه -->
                     <path d="M16 37 Q32 43 48 37" stroke="#FDE047" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
-                    <!-- درخشش شیشه‌ای روی کوزه -->
                     <path d="M22 27 C19 32 19 40 22 45" stroke="#E0F2FE" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
-                    <!-- دهانه کوزه -->
                     <rect x="20" y="9" width="24" height="7" rx="3.5" fill="url(#jarRim)" stroke="#FEF08A" stroke-width="1.5"/>
-                    <ellipse cx="32" cy="10" rx="8" ry="2" fill="#78350F" opacity="0.55"/>
                 </svg>
                 <span class="jar-count" id="bonus-count">0</span>
             </button>
         </div>
 
         <div class="grid-wrapper" id="grid"></div>
-
         <div class="feedback" id="feedback-msg"></div>
 
         <div class="stats-bar">
@@ -589,7 +120,6 @@
         </div>
     </div>
 
-    <!-- مودال نمایش محتویات کوزه کلمات عادی -->
     <div id="jar-modal" class="overlay hidden" onclick="if(event.target===this) closeJarModal()">
         <div class="card">
             <div class="pill" style="background: linear-gradient(135deg, #0284C7, #8B5CF6);">🏺 کوزه کلمات عادی من</div>
@@ -599,7 +129,6 @@
         </div>
     </div>
 
-    <!-- صفحه ورود به اتاق زنده -->
     <div id="start-modal" class="overlay">
         <div class="card">
             <div class="pill">@chalbazi</div>
@@ -616,75 +145,64 @@
         </div>
     </div>
 
-    <!-- صفحه پایان پازل فعلی -->
     <div id="win-modal" class="overlay hidden">
         <div class="card">
             <div class="pill">@chalbazi</div>
             <h2 style="color: #34D399; margin: 4px 0;">🏆 این پازل تمام شد!</h2>
             <p id="winner-summary" style="font-size: 13px; color: #CBD5E1; margin: 6px 0 12px;"></p>
-
             <div class="live-board" style="margin: 0 0 14px; text-align: right; max-height: 180px; overflow-y: auto;">
                 <div class="live-board-title"><span>🥇 نفرات برتر این پازل</span></div>
                 <div id="final-round-board"></div>
             </div>
-
-            <div id="next-countdown" style="font-size: 13px; font-weight: 900; color: #FBBF24; margin-bottom: 12px;">
-                ⏳ ساخت پازل جدید تا ۱۰ ثانیه دیگر...
-            </div>
-
+            <div id="next-countdown" style="font-size: 13px; font-weight: 900; color: #FBBF24; margin-bottom: 12px;">⏳ ساخت پازل جدید تا ۱۰ ثانیه دیگر...</div>
             <button class="btn-main btn-blue" onclick="shareScore()">📤 اشتراک‌گذاری نتیجه در @chalbazi</button>
             <button id="force-next-btn" class="btn-main btn-green hidden" onclick="createAndPushNewPuzzle()">🔄 ساخت پازل جدید</button>
         </div>
     </div>
 
+    <!-- خطایاب مستقل برای نمایش هرگونه خطای احتمالی -->
     <script>
-        window.onerror = function(msg) {
-            const el = document.getElementById('dict-status');
-            if (el) el.textContent = '⚠️ خطای اجرا: ' + msg;
+        window.onerror = function(msg, src, line) {
+            var el = document.getElementById('dict-status');
+            if (el) {
+                el.style.color = '#F87171';
+                el.textContent = '❌ خطا (خط ' + line + '): ' + msg;
+            }
         };
+    </script>
 
-        function safeGet(key, fallback) {
-            try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; }
-        }
-        function safeSet(key, val) {
-            try { localStorage.setItem(key, val); } catch (e) {}
-        }
+    <script>
+        var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
+        var CHANNEL_URL = 'https://t.me/chalbazi';
+        var LIVE_PATH = FIREBASE_DB_URL.replace(/\/+$/, '') + '/grid8Live';
 
-        const FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
-        const CHANNEL_URL = 'https://t.me/chalbazi';
-        const CLEAN_DB_URL = FIREBASE_DB_URL.replace(/\/+$/, '');
-        const LIVE_PATH = `${CLEAN_DB_URL}/grid8Live`;
-
-        // پالت رنگ‌های شاد و برجسته برای کلمات عادی
-        const BONUS_GRADIENTS = [
+        var BONUS_GRADIENTS = [
             'linear-gradient(135deg, #EC4899, #F97316)',
             'linear-gradient(135deg, #06B6D4, #3B82F6)',
             'linear-gradient(135deg, #8B5CF6, #EC4899)',
             'linear-gradient(135deg, #10B981, #06B6D4)',
             'linear-gradient(135deg, #F59E0B, #EF4444)'
         ];
-        let colorCursor = 0;
+        var colorCursor = 0;
 
-        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        let savedUid = safeGet('chalbazi_uid', '');
+        function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
+        function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+        var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+        var savedUid = safeGet('chalbazi_uid', '');
         if (!savedUid) {
             savedUid = String(Math.floor(Math.random() * 999999));
             safeSet('chalbazi_uid', savedUid);
         }
-
-        let user = {
-            id: 'u_' + savedUid,
-            name: 'بازیکن چالبازی'
-        };
-
+        var user = { id: 'u_' + savedUid, name: 'بازیکن چالبازی' };
         if (tg) {
             try {
                 tg.ready();
                 tg.expand();
                 if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    const u = tg.initDataUnsafe.user;
-                    user.id = 'tg_' + u.id;
-                    user.name = [u.first_name, u.last_name].filter(Boolean).join(' ');
+                    var tu = tg.initDataUnsafe.user;
+                    user.id = 'tg_' + tu.id;
+                    user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || 'بازیکن';
                 }
             } catch (e) {}
         }
@@ -696,119 +214,112 @@
                 .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
         }
 
-        const EXTRA_WORDS = [
+        var EXTRA_WORDS = [
             "درخت","زندگی","حشره","ستاره","آسمان","خورشید","باران","دریاچه","کوهستان","پرنده",
-            "پروانه","زنبور","عقرب","زرافه","پلنگ","شیر","گرگ","روباه","خرگوش","گنجشک","کبوتر",
+            "پروانه","زنبور","عقرب","زرافه","پلنگ","گرگ","روباه","خرگوش","گنجشک","کبوتر",
             "مدرسه","دانشگاه","کتابخانه","بیمارستان","فرودگاه","ایستگاه","خیابان","میدان","ساختمان",
-            "پنجره","دیوار","صندلی","کامپیوتر","موبایل","تلویزیون","یخچال","ساعت","عینک","کیف",
-            "کفش","پیراهن","شلوار","کلاه","انگشتر","گردنبند","زمستان","تابستان","بهار","پاییز",
-            "فروردین","اردیبهشت","خرداد","مرداد","شهریور","آبان","آذر","بهمن","اسفند","شنبه",
-            "دوشنبه","چهارشنبه","پنجشنبه","جمعه","صبحانه","ناهار","شام","نوشابه","بستنی","شکلات",
-            "شیرینی","هندوانه","پرتقال","نارنگی","انگور","انار","گیلاس","آلبالو","زردآلو","هلو",
-            "گلابی","خیار","گوجه","بادمجان","سیب","موز","لیمو","گردو","بادام","پسته","فندق",
-            "زعفران","دارچین","زنجبیل","نعنا","ریحان","جعفری","پیاز","سیر","قارچ","ذرت","برنج",
-            "گندم","مهتاب","کهکشان","سیاره","زمین","مریخ","زحل","مشتری","اقیانوس",
-            "جنگل","کویر","بیابان","آبشار","چشمه","رودخانه","ساحل","جزیره","کشتی","قایق",
-            "هواپیما","قطار","اتوبوس","دوچرخه","موتور","تراکتور","آمبولانس","آتش","بارانی",
-            "طوفان","رعدوبرق","رنگین","لبخند","مهربان","شجاع","باهوش","قهرمان","پیروزی","موفقیت",
-            "دوستی","خانواده","پدر","مادر","برادر","خواهر","فرزند","همسایه","مسافر","ورزشکار",
-            "فوتبال","والیبال","بسکتبال","شنا","شطرنج","تنیس","تلاش","امیدوار"
+            "پنجره","دیوار","صندلی","کامپیوتر","موبایل","تلویزیون","یخچال","ساعت","عینک","کفش",
+            "پیراهن","شلوار","کلاه","انگشتر","گردنبند","زمستان","تابستان","بهار","پاییز","فروردین",
+            "اردیبهشت","خرداد","مرداد","شهریور","آبان","بهمن","اسفند","شنبه","دوشنبه","چهارشنبه",
+            "پنجشنبه","جمعه","صبحانه","ناهار","نوشابه","بستنی","شکلات","شیرینی","هندوانه","پرتقال",
+            "نارنگی","انگور","انار","گیلاس","آلبالو","زردآلو","گلابی","خیار","گوجه","بادمجان",
+            "لیمو","گردو","بادام","پسته","فندق","زعفران","دارچین","زنجبیل","نعنا","ریحان","جعفری",
+            "پیاز","قارچ","ذرت","برنج","گندم","مهتاب","کهکشان","سیاره","زمین","مریخ","مشتری",
+            "اقیانوس","جنگل","کویر","بیابان","آبشار","چشمه","رودخانه","ساحل","جزیره","کشتی","قایق",
+            "هواپیما","قطار","اتوبوس","دوچرخه","موتور","تراکتور","آمبولانس","طوفان","رعدوبرق",
+            "لبخند","مهربان","شجاع","باهوش","قهرمان","پیروزی","موفقیت","دوستی","خانواده","برادر",
+            "خواهر","فرزند","همسایه","مسافر","ورزشکار","فوتبال","والیبال","بسکتبال","شطرنج","تنیس"
         ];
 
-        const VALID_WORDS_SET = new Set();
-        let WORDS_BY_LEN = {};
+        var VALID_WORDS_SET = new Set();
+        var WORDS_BY_LEN = {};
 
-        function loadBaseDictionary() {
-            const basePool = [...EXTRA_WORDS];
-            if (typeof WORDS_DB !== 'undefined') {
-                Object.values(WORDS_DB).forEach(arr => {
-                    if (Array.isArray(arr)) basePool.push(...arr);
-                });
-            }
-            for (let i = 0; i < basePool.length; i++) {
-                const norm = normalizeFa(basePool[i]);
-                if (norm.length >= 3 && norm.length <= 10) {
-                    VALID_WORDS_SET.add(norm);
-                }
+        for (var ew = 0; ew < EXTRA_WORDS.length; ew++) {
+            var nw = normalizeFa(EXTRA_WORDS[ew]);
+            if (nw.length >= 3 && nw.length <= 10) VALID_WORDS_SET.add(nw);
+        }
+
+        function setDictBadge(msg, color) {
+            var el = document.getElementById('dict-status');
+            if (el) {
+                el.textContent = msg;
+                if (color) el.style.color = color;
             }
         }
-        loadBaseDictionary();
+        setDictBadge('✅ آماده بازی (' + VALID_WORDS_SET.size + ' واژه پایه) - در حال دانلود دیکشنری بزرگ...', '#38BDF8');
 
-        const dictReadyPromise = new Promise((resolve) => {
-            const statusEl = document.getElementById('dict-status');
-            if (statusEl) {
-                statusEl.textContent = `⏳ دانلود دیکشنری بزرگ... (${VALID_WORDS_SET.size} واژه پایه آماده است)`;
-            }
+        function loadExternalScript(src, onOk, onErr) {
+            var s = document.createElement('script');
+            s.src = src;
+            s.async = true;
+            s.onload = onOk;
+            s.onerror = onErr;
+            document.head.appendChild(s);
+        }
 
-            let finished = false;
-            const done = (msg) => {
-                if (finished) return;
-                finished = true;
-                if (statusEl) statusEl.textContent = msg;
-                resolve();
-            };
-
-            const script = document.createElement('script');
-            script.src = 'dictionary.js';
-            script.async = true;
-
-            script.onload = () => {
-                try {
-                    if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
-                        for (let i = 0; i < BIG_PERSIAN_DICT.length; i++) {
-                            const w = BIG_PERSIAN_DICT[i];
-                            if (w && w.length >= 3 && w.length <= 10) {
-                                VALID_WORDS_SET.add(w);
+        var dictDone = false;
+        loadExternalScript('words.js', function() {
+            try {
+                if (typeof WORDS_DB !== 'undefined') {
+                    Object.keys(WORDS_DB).forEach(function(cat) {
+                        var arr = WORDS_DB[cat];
+                        if (Array.isArray(arr)) {
+                            for (var i = 0; i < arr.length; i++) {
+                                var n = normalizeFa(arr[i]);
+                                if (n.length >= 3 && n.length <= 10) VALID_WORDS_SET.add(n);
                             }
                         }
-                        WORDS_BY_LEN = {};
-                        done(`📚 دیکشنری کامل فعال: ${VALID_WORDS_SET.size.toLocaleString('fa-IR')} واژه`);
-                    } else {
-                        done(`⚠️ فایل dictionary.js معتبر نیست (${VALID_WORDS_SET.size} واژه پایه فعال)`);
-                    }
-                } catch (e) {
-                    done(`⚠️ خطا در خواندن دیکشنری (${VALID_WORDS_SET.size} واژه پایه فعال)`);
+                    });
+                    WORDS_BY_LEN = {};
+                    if (!dictDone) setDictBadge('⏳ در حال دانلود dictionary.js (' + VALID_WORDS_SET.size + ' واژه آماده)', '#38BDF8');
                 }
-            };
+            } catch (e) {}
+        }, function() {});
 
-            script.onerror = () => {
-                done(`⚠️ فایل dictionary.js پیدا نشد (${VALID_WORDS_SET.size} واژه پایه فعال)`);
-            };
-
-            document.head.appendChild(script);
-
-            setTimeout(() => {
-                done(`📚 آماده بازی (${VALID_WORDS_SET.size.toLocaleString('fa-IR')} واژه)`);
-            }, 10000);
+        loadExternalScript('dictionary.js', function() {
+            try {
+                if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
+                    for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) {
+                        var w = BIG_PERSIAN_DICT[i];
+                        if (w && w.length >= 3 && w.length <= 10) VALID_WORDS_SET.add(w);
+                    }
+                    WORDS_BY_LEN = {};
+                    dictDone = true;
+                    setDictBadge('📚 دیکشنری کامل فعال: ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه', '#34D399');
+                } else {
+                    setDictBadge('⚠️ فرمت dictionary.js نامعتبر است (' + VALID_WORDS_SET.size + ' واژه فعال)', '#FBBF24');
+                }
+            } catch (e) {
+                setDictBadge('⚠️ خطا در خواندن دیکشنری (' + VALID_WORDS_SET.size + ' واژه فعال)', '#FBBF24');
+            }
+        }, function() {
+            setDictBadge('⚠️ فایل dictionary.js پیدا نشد (' + VALID_WORDS_SET.size + ' واژه فعال)', '#FBBF24');
         });
 
         function getWordsPoolByLength(len) {
             if (!WORDS_BY_LEN[len]) {
-                const arr = [];
-                VALID_WORDS_SET.forEach(w => {
-                    if (w.length === len) arr.push(w);
-                });
+                var arr = [];
+                VALID_WORDS_SET.forEach(function(w) { if (w.length === len) arr.push(w); });
                 WORDS_BY_LEN[len] = arr;
             }
             return WORDS_BY_LEN[len].length > 0 ? WORDS_BY_LEN[len] : ["ستاره"];
         }
 
-        const PARTITION_PRESETS = [
-            [7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5],
-            [8, 7, 7, 6, 6, 6, 6, 6, 6, 6],
-            [7, 6, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4],
-            [8, 8, 7, 7, 6, 6, 6, 6, 5, 5]
+        var PARTITION_PRESETS = [
+            [7,7,6,6,6,6,6,5,5,5,5],
+            [8,7,7,6,6,6,6,6,6,6],
+            [7,6,6,6,6,6,5,5,5,4,4,4],
+            [8,8,7,7,6,6,6,6,5,5]
         ];
 
         function getFreeNeighbors(idx, visited) {
-            const r = Math.floor(idx / 8), c = idx % 8;
-            const res = [];
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
+            var r = Math.floor(idx / 8), c = idx % 8, res = [];
+            for (var dr = -1; dr <= 1; dr++) {
+                for (var dc = -1; dc <= 1; dc++) {
                     if (dr === 0 && dc === 0) continue;
-                    const nr = r + dr, nc = c + dc;
+                    var nr = r + dr, nc = c + dc;
                     if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
-                        const nIdx = nr * 8 + nc;
+                        var nIdx = nr * 8 + nc;
                         if (!visited[nIdx]) res.push(nIdx);
                     }
                 }
@@ -817,31 +328,32 @@
         }
 
         function generateConnectedPaths(targetLengths) {
-            for (let attempt = 0; attempt < 150; attempt++) {
-                const visited = Array(64).fill(false);
-                const paths = [];
-                let success = true;
+            for (var attempt = 0; attempt < 150; attempt++) {
+                var visited = [];
+                for (var v = 0; v < 64; v++) visited.push(false);
+                var paths = [], success = true;
 
-                for (const len of targetLengths) {
-                    const unvisitedCells = [];
-                    for (let i = 0; i < 64; i++) if (!visited[i]) unvisitedCells.push(i);
-                    if (unvisitedCells.length < len) { success = false; break; }
+                for (var t = 0; t < targetLengths.length; t++) {
+                    var len = targetLengths[t];
+                    var unvisited = [];
+                    for (var i = 0; i < 64; i++) if (!visited[i]) unvisited.push(i);
+                    if (unvisited.length < len) { success = false; break; }
 
-                    unvisitedCells.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
-                    const minDeg = getFreeNeighbors(unvisitedCells[0], visited).length;
-                    const candidates = unvisitedCells.filter(c => getFreeNeighbors(c, visited).length === minDeg);
-                    let curr = candidates[Math.floor(Math.random() * candidates.length)];
+                    unvisited.sort(function(a, b) { return getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length; });
+                    var minDeg = getFreeNeighbors(unvisited[0], visited).length;
+                    var cands = unvisited.filter(function(c) { return getFreeNeighbors(c, visited).length === minDeg; });
+                    var curr = cands[Math.floor(Math.random() * cands.length)];
 
-                    const path = [curr];
+                    var path = [curr];
                     visited[curr] = true;
 
-                    for (let step = 1; step < len; step++) {
-                        const neighbors = getFreeNeighbors(curr, visited);
-                        if (neighbors.length === 0) { success = false; break; }
-                        neighbors.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
-                        const bestDeg = getFreeNeighbors(neighbors[0], visited).length;
-                        const bestNeighbors = neighbors.filter(n => getFreeNeighbors(n, visited).length === bestDeg);
-                        curr = bestNeighbors[Math.floor(Math.random() * bestNeighbors.length)];
+                    for (var step = 1; step < len; step++) {
+                        var nbrs = getFreeNeighbors(curr, visited);
+                        if (nbrs.length === 0) { success = false; break; }
+                        nbrs.sort(function(a, b) { return getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length; });
+                        var bestDeg = getFreeNeighbors(nbrs[0], visited).length;
+                        var bestNbrs = nbrs.filter(function(n) { return getFreeNeighbors(n, visited).length === bestDeg; });
+                        curr = bestNbrs[Math.floor(Math.random() * bestNbrs.length)];
                         path.push(curr);
                         visited[curr] = true;
                     }
@@ -854,40 +366,45 @@
         }
 
         function buildNewPuzzleData(nextNumber) {
-            const preset = PARTITION_PRESETS[Math.floor(Math.random() * PARTITION_PRESETS.length)];
-            const lengths = [...preset].sort(() => Math.random() - 0.5);
-            let paths = generateConnectedPaths(lengths);
+            var preset = PARTITION_PRESETS[Math.floor(Math.random() * PARTITION_PRESETS.length)];
+            var lengths = preset.slice().sort(function() { return Math.random() - 0.5; });
+            var paths = generateConnectedPaths(lengths);
 
             if (!paths) {
                 paths = [];
-                let snake = [];
-                for (let r = 0; r < 8; r++) {
-                    if (r % 2 === 0) for (let c = 0; c < 8; c++) snake.push(r * 8 + c);
-                    else for (let c = 7; c >= 0; c--) snake.push(r * 8 + c);
+                var snake = [];
+                for (var r = 0; r < 8; r++) {
+                    if (r % 2 === 0) for (var c = 0; c < 8; c++) snake.push(r * 8 + c);
+                    else for (var c2 = 7; c2 >= 0; c2--) snake.push(r * 8 + c2);
                 }
-                let cursor = 0;
-                for (const len of lengths) {
-                    paths.push(snake.slice(cursor, cursor + len));
-                    cursor += len;
+                var cursor = 0;
+                for (var j = 0; j < lengths.length; j++) {
+                    paths.push(snake.slice(cursor, cursor + lengths[j]));
+                    cursor += lengths[j];
                 }
             }
 
-            const letters = Array(64).fill('');
-            const kWords = {};
-            const used = new Set();
+            var letters = [];
+            for (var x = 0; x < 64; x++) letters.push('');
+            var kWords = {};
+            var used = new Set();
 
-            paths.forEach((path, idx) => {
-                const pool = getWordsPoolByLength(path.length);
-                let word = pool[Math.floor(Math.random() * pool.length)];
-                let tries = 0;
+            for (var pIdx = 0; pIdx < paths.length; pIdx++) {
+                var path = paths[pIdx];
+                var pool = getWordsPoolByLength(path.length);
+                var word = pool[Math.floor(Math.random() * pool.length)];
+                var tries = 0;
                 while (used.has(word) && tries < 40) {
                     word = pool[Math.floor(Math.random() * pool.length)];
                     tries++;
                 }
                 used.add(word);
-                for (let i = 0; i < path.length; i++) letters[path[i]] = word[i];
-                kWords[idx] = { word, path, found: false, foundBy: "" };
-            });
+                for (var m = 0; m < path.length; m++) letters[path[m]] = word[m];
+                kWords[pIdx] = { word: word, path: path, found: false, foundBy: "" };
+            }
+
+            var playersInit = {};
+            playersInit[user.id] = { name: user.name, score: 0, bonusCount: 0, lastSeen: Date.now() };
 
             return {
                 puzzleId: 'p_' + Date.now(),
@@ -896,91 +413,566 @@
                 keyWords: kWords,
                 finishedAt: 0,
                 finishedById: "",
-                lastEvent: { text: `🚀 پازل شماره ${nextNumber} شروع شد! اولین کلمه کلیدی رو کی پیدا می‌کنه؟`, ts: Date.now() },
-                players: {
-                    [user.id]: { name: user.name, score: 0, bonusCount: 0, lastSeen: Date.now() }
-                }
+                lastEvent: { text: '🚀 پازل شماره ' + nextNumber + ' شروع شد! اولین کلمه کلیدی رو کی پیدا می‌کنه؟', ts: Date.now() },
+                players: playersInit
             };
         }
 
-        let currentPuzzleId = null;
-        let currentPuzzleNumber = 1;
-        let gridLetters = Array(64).fill('');
-        let keyWordsArr = [];
-        let clearedCells = Array(64).fill(false);
-        let foundBonusWords = new Set();
-        let myScore = 0;
-        let selectedPath = [];
-        let isDragging = false;
-        let syncInterval = null;
-        let heartbeatInterval = null;
-        let countdownInterval = null;
-        let isCreatingNext = false;
+        var currentPuzzleId = null;
+        var currentPuzzleNumber = 1;
+        var gridLetters = [];
+        var keyWordsArr = [];
+        var clearedCells = [];
+        var foundBonusWords = new Set();
+        var myScore = 0;
+        var selectedPath = [];
+        var isDragging = false;
+        var syncInterval = null;
+        var heartbeatInterval = null;
+        var countdownInterval = null;
+        var isCreatingNext = false;
 
-        const gridEl = document.getElementById('grid');
-        const cellElements = [];
-        for (let i = 0; i < 64; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.dataset.index = i;
-            gridEl.appendChild(cell);
-            cellElements.push(cell);
+        var gridEl = document.getElementById('grid');
+        var cellElements = [];
+        for (var ci = 0; ci < 64; ci++) {
+            gridLetters.push('');
+            clearedCells.push(false);
+            var cellDiv = document.createElement('div');
+            cellDiv.className = 'cell';
+            cellDiv.setAttribute('data-index', String(ci));
+            gridEl.appendChild(cellDiv);
+            cellElements.push(cellDiv);
         }
 
-        // انیمیشن نمایش برجسته و رنگی کلمه عادی و افتادن در کوزه
         function animateCommonWordToJar(word, points) {
-            const wordBar = document.getElementById('current-word');
-            const jarEl = document.getElementById('jar-widget');
+            var wordBar = document.getElementById('current-word');
+            var jarEl = document.getElementById('jar-widget');
             if (!wordBar || !jarEl) return;
 
-            const startRect = wordBar.getBoundingClientRect();
-            const jarRect = jarEl.getBoundingClientRect();
+            var sRect = wordBar.getBoundingClientRect();
+            var jRect = jarEl.getBoundingClientRect();
+            var startX = sRect.left + sRect.width / 2;
+            var startY = sRect.top + sRect.height / 2;
+            var endX = jRect.left + jRect.width / 2;
+            var endY = jRect.top + jRect.height / 2;
+            var dx = endX - startX;
+            var dy = endY - startY;
 
-            const startX = startRect.left + startRect.width / 2;
-            const startY = startRect.top + startRect.height / 2;
-            const endX = jarRect.left + jarRect.width / 2;
-            const endY = jarRect.top + jarRect.height / 2;
-
-            const dx = endX - startX;
-            const dy = endY - startY;
-
-            const gradient = BONUS_GRADIENTS[colorCursor % BONUS_GRADIENTS.length];
+            var grad = BONUS_GRADIENTS[colorCursor % BONUS_GRADIENTS.length];
             colorCursor++;
 
-            const pill = document.createElement('div');
+            var pill = document.createElement('div');
             pill.className = 'flying-word-pill';
-            pill.style.background = gradient;
+            pill.style.background = grad;
             pill.style.left = startX + 'px';
             pill.style.top = startY + 'px';
-            pill.innerHTML = `<span>✨ ${word}</span><span class="flying-word-pts">+${points}</span>`;
+            pill.style.transform = 'translate(-50%, -65%) scale(1.12)';
+            pill.style.opacity = '1';
+            pill.innerHTML = '<span>✨ ' + word + '</span><span class="flying-word-pts">+' + points + '</span>';
             document.body.appendChild(pill);
 
-            const onLand = () => {
-                pill.remove();
+            setTimeout(function() {
+                pill.style.transform = 'translate(' + (dx - 20) + 'px, ' + (dy - 10) + 'px) scale(0.18) rotate(12deg)';
+                pill.style.opacity = '0.2';
+            }, 320);
+
+            setTimeout(function() {
+                if (pill.parentNode) pill.parentNode.removeChild(pill);
                 jarEl.classList.remove('jar-catch');
                 void jarEl.offsetWidth;
                 jarEl.classList.add('jar-catch');
                 spawnJarSparkles(endX, endY - 12);
                 updateTargetsAndScoreUI();
-            };
-
-            if (pill.animate) {
-                const anim = pill.animate([
-                    { transform: 'translate(-50%, -30%) scale(0.5)', opacity: 0 },
-                    { transform: 'translate(-50%, -65%) scale(1.18)', opacity: 1, offset: 0.18 },
-                    { transform: 'translate(-50%, -68%) scale(1.12)', opacity: 1, offset: 0.52 },
-                    { transform: `translate(calc(-50% + ${dx * 0.85}px), calc(-50% + ${dy - 44}px)) scale(0.72) rotate(-10deg)`, opacity: 1, offset: 0.78 },
-                    { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 4}px)) scale(0.16) rotate(14deg)`, opacity: 0.25 }
-                ], {
-                    duration: 1050,
-                    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-                    fill: 'forwards'
-                });
-                anim.onfinish = onLand;
-            } else {
-                setTimeout(onLand, 600);
-            }
+            }, 1050);
         }
 
         function spawnJarSparkles(cx, cy) {
-            const colors =
+            var colors = ['#FDE047', '#38BDF8', '#F472B6', '#34D399', '#FB923C'];
+            for (var i = 0; i < 8; i++) {
+                (function(idx) {
+                    var dot = document.createElement('div');
+                    dot.className = 'jar-sparkle';
+                    dot.style.background = colors[idx % colors.length];
+                    dot.style.left = cx + 'px';
+                    dot.style.top = cy + 'px';
+                    dot.style.transform = 'translate(-50%, -50%) scale(1)';
+                    dot.style.opacity = '1';
+                    document.body.appendChild(dot);
+
+                    var angle = (-Math.PI * 0.9) + (Math.PI * 0.8 * (idx / 7));
+                    var dist = 24 + Math.random() * 18;
+                    var tx = Math.cos(angle) * dist;
+                    var ty = Math.sin(angle) * dist - 8;
+
+                    setTimeout(function() {
+                        dot.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(0)';
+                        dot.style.opacity = '0';
+                    }, 20);
+                    setTimeout(function() {
+                        if (dot.parentNode) dot.parentNode.removeChild(dot);
+                    }, 500);
+                })(i);
+            }
+        }
+
+        function openJarModal() {
+            var listEl = document.getElementById('jar-words-list');
+            var summaryEl = document.getElementById('jar-summary');
+            var wordsArr = Array.from(foundBonusWords);
+            var totalPts = 0;
+            for (var i = 0; i < wordsArr.length; i++) totalPts += wordsArr[i].length;
+
+            if (wordsArr.length > 0) {
+                summaryEl.innerHTML = 'تا الان <strong style="color:#FBBF24;">' + wordsArr.length + ' کلمه عادی</strong> با مجموع <strong style="color:#34D399;">+' + totalPts + ' امتیاز</strong> در کوزه جمع کردی!';
+                var html = '';
+                for (var j = wordsArr.length - 1; j >= 0; j--) {
+                    var w = wordsArr[j];
+                    var bg = BONUS_GRADIENTS[(wordsArr.length - 1 - j) % BONUS_GRADIENTS.length];
+                    html += '<div class="jar-word-chip" style="background:' + bg + ';">' + w + '<span>+' + w.length + '</span></div>';
+                }
+                listEl.innerHTML = html;
+            } else {
+                summaryEl.textContent = 'کوزه‌ات هنوز خالیه! هر کلمه عادی ۳ حرفی و بیشتر که پیدا کنی می‌افته اینجا.';
+                listEl.innerHTML = '<div style="font-size:12px; color:#64748B; padding:14px;">هنوز کلمه‌ای در کوزه نیست 🏺</div>';
+            }
+            document.getElementById('jar-modal').classList.remove('hidden');
+        }
+
+        function closeJarModal() {
+            document.getElementById('jar-modal').classList.add('hidden');
+        }
+
+        async function enterLiveGame() {
+            document.getElementById('start-modal').classList.add('hidden');
+            await syncRoom(true);
+            clearInterval(syncInterval);
+            syncInterval = setInterval(function() { syncRoom(false); }, 1500);
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = setInterval(sendHeartbeat, 10000);
+        }
+
+        async function sendHeartbeat() {
+            if (!currentPuzzleId) return;
+            try {
+                await fetch(LIVE_PATH + '/players/' + user.id + '/lastSeen.json', {
+                    method: 'PUT',
+                    body: JSON.stringify(Date.now())
+                });
+            } catch (e) {}
+        }
+
+        async function registerPlayerInCurrentRoom() {
+            try {
+                await fetch(LIVE_PATH + '/players/' + user.id + '.json', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: user.name,
+                        score: myScore,
+                        bonusCount: foundBonusWords.size,
+                        lastSeen: Date.now()
+                    })
+                });
+            } catch (e) {}
+        }
+
+        async function createAndPushNewPuzzle() {
+            if (isCreatingNext) return;
+            isCreatingNext = true;
+            try {
+                var checkRes = await fetch(LIVE_PATH + '.json');
+                var current = await checkRes.json();
+                if (current && current.puzzleId !== currentPuzzleId && !current.finishedAt) {
+                    applyRoomState(current, false);
+                    isCreatingNext = false;
+                    return;
+                }
+                var nextNum = (current && current.puzzleNumber ? current.puzzleNumber : 0) + 1;
+                var newData = buildNewPuzzleData(nextNum);
+                await fetch(LIVE_PATH + '.json', {
+                    method: 'PUT',
+                    body: JSON.stringify(newData)
+                });
+                applyRoomState(newData, false);
+            } catch (e) {}
+            isCreatingNext = false;
+        }
+
+        async function syncRoom(isInitial) {
+            try {
+                var res = await fetch(LIVE_PATH + '.json');
+                if (!res.ok) return;
+                var data = await res.json();
+                if (!data || !data.gridLetters || !data.keyWords) {
+                    await createAndPushNewPuzzle();
+                    return;
+                }
+                if (data.finishedAt && (Date.now() - data.finishedAt > 20000)) {
+                    currentPuzzleId = data.puzzleId;
+                    await createAndPushNewPuzzle();
+                    return;
+                }
+                applyRoomState(data, isInitial);
+            } catch (e) {}
+        }
+
+        function applyRoomState(data, isInitial) {
+            var isNewPuzzle = (data.puzzleId !== currentPuzzleId);
+
+            if (isNewPuzzle) {
+                currentPuzzleId = data.puzzleId;
+                currentPuzzleNumber = data.puzzleNumber || 1;
+                gridLetters = data.gridLetters;
+                selectedPath = [];
+                isDragging = false;
+                clearInterval(countdownInterval);
+                document.getElementById('win-modal').classList.add('hidden');
+                document.getElementById('force-next-btn').classList.add('hidden');
+
+                var savedBonus = [];
+                try { savedBonus = JSON.parse(safeGet('g8_bonus_' + currentPuzzleId, '[]')); } catch (e) {}
+                foundBonusWords = new Set(savedBonus);
+
+                if (data.players && data.players[user.id]) {
+                    myScore = data.players[user.id].score || 0;
+                } else {
+                    myScore = 0;
+                    registerPlayerInCurrentRoom();
+                }
+
+                for (var i = 0; i < 64; i++) {
+                    cellElements[i].textContent = gridLetters[i] || '';
+                }
+                document.getElementById('puzzle-num-badge').textContent = 'پازل #' + currentPuzzleNumber;
+            } else if (isInitial && (!data.players || !data.players[user.id])) {
+                registerPlayerInCurrentRoom();
+            }
+
+            keyWordsArr = [];
+            var kwKeys = Object.keys(data.keyWords);
+            for (var k = 0; k < kwKeys.length; k++) {
+                var keyName = kwKeys[k];
+                var item = data.keyWords[keyName];
+                if (item) {
+                    keyWordsArr.push({
+                        idx: keyName,
+                        word: item.word,
+                        path: item.path,
+                        found: !!item.found,
+                        foundBy: item.foundBy || ''
+                    });
+                }
+            }
+
+            var newCleared = [];
+            for (var c = 0; c < 64; c++) newCleared.push(false);
+            for (var w = 0; w < keyWordsArr.length; w++) {
+                var kw = keyWordsArr[w];
+                if (kw.found && Array.isArray(kw.path)) {
+                    for (var p = 0; p < kw.path.length; p++) newCleared[kw.path[p]] = true;
+                }
+            }
+            clearedCells = newCleared;
+
+            for (var g = 0; g < 64; g++) {
+                if (clearedCells[g]) {
+                    cellElements[g].classList.add('cleared');
+                    cellElements[g].classList.remove('selected');
+                    cellElements[g].textContent = '';
+                } else {
+                    cellElements[g].classList.remove('cleared');
+                    cellElements[g].textContent = gridLetters[g] || '';
+                }
+            }
+
+            if (data.lastEvent && data.lastEvent.text) {
+                document.getElementById('live-ticker').textContent = data.lastEvent.text;
+            }
+
+            var playersObj = data.players || {};
+            var now = Date.now();
+            var pIds = Object.keys(playersObj);
+            var playersList = [];
+            var onlineCount = 0;
+            for (var pi = 0; pi < pIds.length; pi++) {
+                var pid = pIds[pi];
+                var po = playersObj[pid];
+                if (po) {
+                    playersList.push({ id: pid, name: po.name || 'بازیکن', score: po.score || 0, lastSeen: po.lastSeen || 0 });
+                    if (now - (po.lastSeen || 0) < 35000) onlineCount++;
+                }
+            }
+            if (onlineCount < 1) onlineCount = 1;
+            document.getElementById('online-count').textContent = 'زنده | ' + onlineCount + ' نفر';
+
+            playersList.sort(function(a, b) { return b.score - a.score; });
+            var boardHtml = '';
+            var maxShow = Math.min(10, playersList.length);
+            for (var bi = 0; bi < maxShow; bi++) {
+                var pl = playersList[bi];
+                var medal = bi === 0 ? '🥇' : (bi === 1 ? '🥈' : (bi === 2 ? '🥉' : (bi + 1) + '.'));
+                var cls = pl.id === user.id ? 'player-row me' : 'player-row';
+                boardHtml += '<div class="' + cls + '"><span>' + medal + ' ' + pl.name + '</span><strong style="color:#FBBF24;">' + pl.score + ' امتیاز</strong></div>';
+            }
+            document.getElementById('live-scoreboard').innerHTML = boardHtml || '<div style="font-size:12px; color:#94A3B8;">اولین نفر باش!</div>';
+
+            updateTargetsAndScoreUI();
+
+            var allFound = keyWordsArr.length > 0 && keyWordsArr.every(function(item) { return item.found; });
+            if (allFound || data.finishedAt) {
+                showRoundFinishedModal(data, playersList, boardHtml);
+            }
+        }
+
+        function updateTargetsAndScoreUI() {
+            document.getElementById('score-val').textContent = myScore;
+            document.getElementById('bonus-count').textContent = foundBonusWords.size;
+
+            var remaining = 0;
+            for (var i = 0; i < keyWordsArr.length; i++) if (!keyWordsArr[i].found) remaining++;
+            document.getElementById('rem-count').textContent = remaining;
+            document.getElementById('mult-val').textContent = '×' + remaining;
+
+            var sorted = keyWordsArr.slice().sort(function(a, b) { return b.word.length - a.word.length; });
+            var html = '';
+            for (var j = 0; j < sorted.length; j++) {
+                var k = sorted[j];
+                if (k.found) {
+                    var shortName = (k.foundBy || '').split(' ')[0];
+                    html += '<div class="target-chip found">✓ ' + k.word + '<small>(' + shortName + ')</small></div>';
+                } else {
+                    html += '<div class="target-chip">' + k.word.length + ' حرفی</div>';
+                }
+            }
+            document.getElementById('targets-container').innerHTML = html;
+        }
+
+        function showRoundFinishedModal(data, playersList, boardHtml) {
+            var modal = document.getElementById('win-modal');
+            if (!modal.classList.contains('hidden')) return;
+
+            modal.classList.remove('hidden');
+            var topPlayer = playersList[0];
+            document.getElementById('winner-summary').innerHTML = topPlayer
+                ? '👑 قهرمان پازل #' + currentPuzzleNumber + ': <strong style="color:#FBBF24;">' + topPlayer.name + '</strong> با ' + topPlayer.score + ' امتیاز'
+                : 'پازل #' + currentPuzzleNumber + ' کامل شد!';
+            document.getElementById('final-round-board').innerHTML = boardHtml;
+
+            var finishedAt = data.finishedAt || Date.now();
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(function() {
+                var secLeft = Math.max(0, Math.ceil((finishedAt + 10000 - Date.now()) / 1000));
+                var cdEl = document.getElementById('next-countdown');
+                if (secLeft > 0) {
+                    cdEl.textContent = '⏳ پازل بعدی تا ' + secLeft + ' ثانیه دیگر شروع می‌شود...';
+                } else {
+                    cdEl.textContent = '🚀 در حال آماده‌سازی پازل جدید...';
+                    clearInterval(countdownInterval);
+                    document.getElementById('force-next-btn').classList.remove('hidden');
+                    var delay = (data.finishedById === user.id) ? 300 : (1800 + Math.random() * 1500);
+                    setTimeout(function() {
+                        if (!document.getElementById('win-modal').classList.contains('hidden')) {
+                            createAndPushNewPuzzle();
+                        }
+                    }, delay);
+                }
+            }, 500);
+        }
+
+        function areAdjacent(idx1, idx2) {
+            var r1 = Math.floor(idx1 / 8), c1 = idx1 % 8;
+            var r2 = Math.floor(idx2 / 8), c2 = idx2 % 8;
+            return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && idx1 !== idx2;
+        }
+
+        function handleSelectCell(idx) {
+            if (idx === null || isNaN(idx) || clearedCells[idx]) return;
+            if (selectedPath.length >= 2 && selectedPath[selectedPath.length - 2] === idx) {
+                selectedPath.pop();
+                updateSelectionVisuals();
+                return;
+            }
+            if (selectedPath.indexOf(idx) !== -1) return;
+            if (selectedPath.length === 0 || areAdjacent(selectedPath[selectedPath.length - 1], idx)) {
+                selectedPath.push(idx);
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+                updateSelectionVisuals();
+            }
+        }
+
+        function updateSelectionVisuals() {
+            for (var i = 0; i < 64; i++) {
+                if (selectedPath.indexOf(i) !== -1 && !clearedCells[i]) cellElements[i].classList.add('selected');
+                else cellElements[i].classList.remove('selected');
+            }
+            var wordBar = document.getElementById('current-word');
+            if (selectedPath.length === 0) {
+                wordBar.textContent = 'انگشت را روی حروف بکشید';
+            } else {
+                var txt = '';
+                for (var j = 0; j < selectedPath.length; j++) txt += gridLetters[selectedPath[j]];
+                wordBar.textContent = txt;
+            }
+        }
+
+        async function finalizeWord() {
+            if (selectedPath.length === 0) return;
+
+            for (var s = 0; s < selectedPath.length; s++) {
+                if (clearedCells[selectedPath[s]]) {
+                    showFeedback('⚡ یکی از این حروف همین الان توسط بازیکن دیگری پاک شد!', '#FBBF24');
+                    selectedPath = [];
+                    updateSelectionVisuals();
+                    return;
+                }
+            }
+
+            var formedWord = '';
+            for (var f = 0; f < selectedPath.length; f++) formedWord += gridLetters[selectedPath[f]];
+
+            var remainingKeys = keyWordsArr.filter(function(k) { return !k.found; });
+            var matchedKey = null;
+
+            for (var a = 0; a < remainingKeys.length; a++) {
+                var rk = remainingKeys[a];
+                if (rk.path.length === selectedPath.length) {
+                    var exact = true;
+                    for (var b = 0; b < rk.path.length; b++) {
+                        if (rk.path[b] !== selectedPath[b]) { exact = false; break; }
+                    }
+                    if (exact) { matchedKey = rk; break; }
+                }
+            }
+            if (!matchedKey) {
+                for (var c = 0; c < remainingKeys.length; c++) {
+                    var rk2 = remainingKeys[c];
+                    if (rk2.word === formedWord) {
+                        var overlap = rk2.path.some(function(cellIdx) { return selectedPath.indexOf(cellIdx) !== -1; });
+                        if (overlap) { matchedKey = rk2; break; }
+                    }
+                }
+            }
+
+            selectedPath = [];
+            updateSelectionVisuals();
+
+            if (matchedKey) {
+                try {
+                    var checkRes = await fetch(LIVE_PATH + '/keyWords/' + matchedKey.idx + '.json');
+                    var liveKw = await checkRes.json();
+                    if (!liveKw || liveKw.found) {
+                        showFeedback('⚡ «' + (liveKw ? liveKw.foundBy : 'یک بازیکن') + '» یک لحظه زودتر این کلمه را زد!', '#FBBF24');
+                        syncRoom(false);
+                        return;
+                    }
+
+                    var multiplier = remainingKeys.length;
+                    var earned = formedWord.length * multiplier;
+                    myScore += earned;
+
+                    await fetch(LIVE_PATH + '/keyWords/' + matchedKey.idx + '.json', {
+                        method: 'PATCH',
+                        body: JSON.stringify({ found: true, foundBy: user.name })
+                    });
+                    await registerPlayerInCurrentRoom();
+                    await fetch(LIVE_PATH + '/lastEvent.json', {
+                        method: 'PUT',
+                        body: JSON.stringify({ text: '🌟 ' + user.name + ' کلمه کلیدی «' + formedWord + '» را پیدا کرد! (+' + earned + ')', ts: Date.now() })
+                    });
+
+                    if (multiplier === 1) {
+                        await fetch(LIVE_PATH + '.json', {
+                            method: 'PATCH',
+                            body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id })
+                        });
+                    }
+
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    showFeedback('🌟 عالی! «' + formedWord + '» (+' + earned + ' امتیاز = ' + formedWord.length + '×' + multiplier + ')', '#34D399');
+                    syncRoom(false);
+                } catch (e) {
+                    showFeedback('❌ خطا در ثبت کلمه روی سرور', '#F87171');
+                }
+                return;
+            }
+
+            if (formedWord.length >= 3 && VALID_WORDS_SET.has(formedWord)) {
+                if (foundBonusWords.has(formedWord)) {
+                    showFeedback('⚠️ کلمه عادی «' + formedWord + '» قبلاً در کوزه افتاده است!', '#FBBF24');
+                } else {
+                    foundBonusWords.add(formedWord);
+                    safeSet('g8_bonus_' + currentPuzzleId, JSON.stringify(Array.from(foundBonusWords)));
+                    var bonusEarned = formedWord.length;
+                    myScore += bonusEarned;
+
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+                    showFeedback('🏺 کلمه عادی «' + formedWord + '» رفت توی کوزه! (+' + bonusEarned + ' امتیاز)', '#38BDF8');
+                    animateCommonWordToJar(formedWord, bonusEarned);
+                    document.getElementById('score-val').textContent = myScore;
+                    registerPlayerInCurrentRoom();
+                }
+            } else if (formedWord.length >= 2) {
+                showFeedback('❌ «' + formedWord + '» در دیکشنری معتبر نیست', '#F87171');
+            }
+        }
+
+        function showFeedback(msg, color) {
+            var el = document.getElementById('feedback-msg');
+            el.textContent = msg;
+            el.style.color = color;
+        }
+
+        function useHint() {
+            var rem = keyWordsArr.filter(function(k) { return !k.found; });
+            if (rem.length === 0) return;
+            if (myScore < 15) {
+                showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۵ امتیاز نیاز دارید!', '#FBBF24');
+                return;
+            }
+            myScore -= 15;
+            updateTargetsAndScoreUI();
+            registerPlayerInCurrentRoom();
+
+            var target = rem[Math.floor(Math.random() * rem.length)];
+            var firstIdx = target.path[0];
+            cellElements[firstIdx].classList.add('hint-flash');
+            setTimeout(function() { cellElements[firstIdx].classList.remove('hint-flash'); }, 1800);
+            showFeedback('💡 خانه چشمک‌زن، شروع یک کلمه «' + target.word.length + ' حرفی» است!', '#F472B6');
+        }
+
+        function getCellFromPoint(x, y) {
+            var target = document.elementFromPoint(x, y);
+            if (target && target.classList.contains('cell')) {
+                return Number(target.getAttribute('data-index'));
+            }
+            return null;
+        }
+
+        gridEl.addEventListener('pointerdown', function(e) {
+            isDragging = true;
+            selectedPath = [];
+            handleSelectCell(getCellFromPoint(e.clientX, e.clientY));
+        });
+        window.addEventListener('pointermove', function(e) {
+            if (!isDragging) return;
+            handleSelectCell(getCellFromPoint(e.clientX, e.clientY));
+        });
+        window.addEventListener('pointerup', function() {
+            if (!isDragging) return;
+            isDragging = false;
+            finalizeWord();
+        });
+        window.addEventListener('pointercancel', function() {
+            isDragging = false;
+            selectedPath = [];
+            updateSelectionVisuals();
+        });
+
+        function shareScore() {
+            var text = '🧩 من (' + user.name + ') در رقابت زنده پازل #' + currentPuzzleNumber + ' جدول ۸×۸ کانال @chalbazi امتیاز ' + myScore + ' گرفتم و ' + foundBonusWords.size + ' کلمه توی کوزه جمع کردم! 🏺🔥\nبیا تو پازل بعدی رقابت کنیم 👇';
+            var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
