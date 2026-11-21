@@ -26,7 +26,6 @@
             align-items: center;
         }
 
-        /* هدر پروفایل کاربر */
         .top-bar {
             width: 100%;
             max-width: 480px;
@@ -72,7 +71,6 @@
             direction: ltr;
         }
 
-        /* عنوان لابی */
         .hero {
             text-align: center;
             padding: 24px 20px 14px;
@@ -92,7 +90,6 @@
             color: #E3F2FD;
         }
 
-        /* لیست کارت‌های بازی */
         .games-grid {
             width: 100%;
             max-width: 480px;
@@ -112,9 +109,7 @@
             justify-content: space-between;
             text-decoration: none;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-            position: relative;
-            overflow: hidden;
+            transition: transform 0.15s ease;
         }
 
         .game-card:active {
@@ -142,6 +137,11 @@
             border: 2px solid #E53935;
         }
 
+        .icon-word {
+            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+            border: 2px solid #8B5CF6;
+        }
+
         .icon-soon {
             background: #F5F5F5;
             border: 2px dashed #BDBDBD;
@@ -153,7 +153,7 @@
         }
 
         .game-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
             margin: 0 0 4px;
             color: #1A237E;
@@ -169,7 +169,7 @@
         .play-btn {
             background: linear-gradient(135deg, #00C853, #009624);
             color: #fff;
-            padding: 10px 16px;
+            padding: 10px 14px;
             border-radius: 14px;
             font-weight: 900;
             font-size: 13px;
@@ -231,6 +231,16 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
+        <!-- بازی ۳: حدس کلمه سرعتی -->
+        <a href="esm-famil.html" class="game-card" onclick="vibrate()">
+            <div class="game-icon icon-word">🧠</div>
+            <div class="game-details">
+                <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
+                <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
         <!-- جایگاه بازی‌های آینده -->
         <div class="game-card disabled">
             <div class="game-icon icon-soon">🎲</div>
@@ -262,4 +272,3 @@
     </script>
 </body>
 </html>
-
