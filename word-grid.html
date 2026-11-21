@@ -6,6 +6,7 @@
     <title>جدول کلمات ۸×۸ | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="words.js"></script>
+    <script src="dictionary.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
 
@@ -68,7 +69,6 @@
             align-items: center;
         }
 
-        /* پنل شرایط کلمات کلیدی */
         .targets-panel {
             width: 100%;
             background: rgba(15, 23, 42, 0.75);
@@ -111,7 +111,6 @@
             text-decoration: line-through;
         }
 
-        /* نمایش کلمه در حال انتخاب */
         .current-word-bar {
             width: 100%;
             min-height: 40px;
@@ -128,7 +127,6 @@
             padding: 4px 12px;
         }
 
-        /* جدول ۸ در ۸ */
         .grid-wrapper {
             width: 100%;
             max-width: 390px;
@@ -204,7 +202,6 @@
             cursor: pointer;
         }
 
-        /* مودال شروع و پایان */
         .overlay {
             position: fixed;
             inset: 0;
@@ -238,6 +235,18 @@
             font-weight: 900;
             margin-bottom: 8px;
             direction: ltr;
+        }
+
+        .dict-badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #38BDF8;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 10px;
+            margin-top: 4px;
         }
 
         .rules-list {
@@ -327,6 +336,7 @@
         <div class="card">
             <div class="pill">@chalbazi</div>
             <h2 style="margin: 4px 0; font-size: 20px;">🧩 پازل کلمات ۸×۸</h2>
+            <div class="dict-badge" id="dict-status">در حال بارگذاری دیکشنری...</div>
             <div class="rules-list">
                 🔹 کل جدول ۶۴ حرفی با چند <strong>کلمه کلیدی</strong> پر شده است.<br>
                 🔹 حروف کلمه باید به هم متصل باشند (افقی، عمودی یا اریب).<br>
@@ -386,7 +396,6 @@
                 .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
         }
 
-        // جمع‌آوری بانک کلمات از words.js + کلمات پرکاربرد فارسی برای کلمات عادی و کلیدی
         const EXTRA_WORDS = [
             "درخت","زندگی","حشره","ستاره","آسمان","خورشید","باران","دریاچه","کوهستان","پرنده",
             "پروانه","زنبور","عقرب","زرافه","پلنگ","شیر","گرگ","روباه","خرگوش","گنجشک","کبوتر",
@@ -398,23 +407,23 @@
             "شیرینی","هندوانه","پرتقال","نارنگی","انگور","انار","گیلاس","آلبالو","زردآلو","هلو",
             "گلابی","خیار","گوجه","بادمجان","سیب","موز","لیمو","گردو","بادام","پسته","فندق",
             "زعفران","دارچین","زنجبیل","نعنا","ریحان","جعفری","پیاز","سیر","قارچ","ذرت","برنج",
-            "گندم","خورشید","مهتاب","کهکشان","سیاره","زمین","مریخ","زحل","مشتری","اقیانوس",
+            "گندم","مهتاب","کهکشان","سیاره","زمین","مریخ","زحل","مشتری","اقیانوس",
             "جنگل","کویر","بیابان","آبشار","چشمه","رودخانه","ساحل","جزیره","کشتی","قایق",
             "هواپیما","قطار","اتوبوس","دوچرخه","موتور","تراکتور","آمبولانس","آتش","بارانی",
             "طوفان","رعدوبرق","رنگین","لبخند","مهربان","شجاع","باهوش","قهرمان","پیروزی","موفقیت",
             "دوستی","خانواده","پدر","مادر","برادر","خواهر","فرزند","همسایه","مسافر","ورزشکار",
-            "فوتبال","والیبال","بسکتبال","شنا","کشتی","شطرنج","تنیس","پینگ","تلاش","امیدوار"
+            "فوتبال","والیبال","بسکتبال","شنا","شطرنج","تنیس","تلاش","امیدوار"
         ];
 
         const VALID_WORDS_SET = new Set();
         const WORDS_BY_LEN = {};
 
         function buildDictionary() {
-            const rawList = [...EXTRA_WORDS];
+            const keyPool = [...EXTRA_WORDS];
             if (typeof WORDS_DB !== 'undefined') {
-                Object.values(WORDS_DB).forEach(arr => rawList.push(...arr));
+                Object.values(WORDS_DB).forEach(arr => keyPool.push(...arr));
             }
-            rawList.forEach(w => {
+            keyPool.forEach(w => {
                 const norm = normalizeFa(w);
                 if (norm.length >= 3 && norm.length <= 10) {
                     VALID_WORDS_SET.add(norm);
@@ -424,10 +433,22 @@
                     }
                 }
             });
+
+            // افزودن دیکشنری جامع فارسی (dictionary.js) برای پذیرش ده‌ها هزار کلمه عادی
+            if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
+                for (let i = 0; i < BIG_PERSIAN_DICT.length; i++) {
+                    const w = BIG_PERSIAN_DICT[i];
+                    if (w && w.length >= 3) VALID_WORDS_SET.add(w);
+                }
+            }
+
+            const statusEl = document.getElementById('dict-status');
+            if (statusEl) {
+                statusEl.textContent = `📚 دیکشنری فعال: ${VALID_WORDS_SET.size.toLocaleString('fa-IR')} واژه فارسی`;
+            }
         }
         buildDictionary();
 
-        // الگوریتم پوشش کامل جدول ۸×۸ با مسیرهای متصل (Hamiltonian-style Random Walk)
         function generateConnectedPaths(targetLengths) {
             const totalCells = 64;
             for (let attempt = 0; attempt < 150; attempt++) {
@@ -436,7 +457,6 @@
                 let success = true;
 
                 for (const len of targetLengths) {
-                    // انتخاب نقطه شروع ترجیحاً از گوشه‌ها یا خانه‌های دارای کمترین همسایه آزاد (Warnsdorff's rule)
                     const unvisitedCells = [];
                     for (let i = 0; i < totalCells; i++) {
                         if (!visited[i]) unvisitedCells.push(i);
@@ -457,7 +477,6 @@
                             success = false;
                             break;
                         }
-                        // انتخاب همسایه‌ای که کمترین راه خروج دارد تا بن‌بست ایجاد نشود
                         neighbors.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
                         const bestDeg = getFreeNeighbors(neighbors[0], visited).length;
                         const bestNeighbors = neighbors.filter(n => getFreeNeighbors(n, visited).length === bestDeg);
@@ -494,17 +513,16 @@
             return res;
         }
 
-        // ترکیب‌های طول کلمات که مجموعشان دقیقاً ۶۴ خانه جدول می‌شود
         const PARTITION_PRESETS = [
-            [7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5],       // 11 کلمه (مجموع 64)
-            [8, 7, 7, 6, 6, 6, 6, 6, 6, 6],          // 10 کلمه (مجموع 64)
-            [7, 6, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4],    // 12 کلمه (مجموع 64)
-            [8, 8, 7, 7, 6, 6, 6, 6, 5, 5]           // 10 کلمه (مجموع 64)
+            [7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5],
+            [8, 7, 7, 6, 6, 6, 6, 6, 6, 6],
+            [7, 6, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4],
+            [8, 8, 7, 7, 6, 6, 6, 6, 5, 5]
         ];
 
         let gridLetters = Array(64).fill('');
         let clearedCells = Array(64).fill(false);
-        let keyWords = []; // { word, path, found }
+        let keyWords = [];
         let foundBonusWords = new Set();
         let score = 0;
         let selectedPath = [];
@@ -521,13 +539,10 @@
             keyWords = [];
             selectedPath = [];
 
-            // انتخاب یک الگوی ۶۴ خانه‌ای
             const preset = PARTITION_PRESETS[Math.floor(Math.random() * PARTITION_PRESETS.length)];
-            // مخلوط کردن ترتیب طول‌ها
             const lengths = [...preset].sort(() => Math.random() - 0.5);
 
             let paths = generateConnectedPaths(lengths);
-            // پشتیبان قطعی در صورت نیاز (مسیر مارپیچی ردیفی برای تضمین ۱۰۰٪ پوشش ۶۴ خانه)
             if (!paths) {
                 paths = [];
                 let snake = [];
@@ -577,7 +592,6 @@
             document.getElementById('mult-val').textContent = `×${remaining}`;
 
             const container = document.getElementById('targets-container');
-            // مرتب‌سازی نمایشی بر اساس طول کلمه
             const sorted = [...keyWords].sort((a, b) => b.word.length - a.word.length);
             container.innerHTML = sorted.map(k => `
                 <div class="target-chip ${k.found ? 'found' : ''}">
@@ -609,7 +623,6 @@
         function handleSelectCell(idx) {
             if (idx === null || isNaN(idx) || clearedCells[idx]) return;
 
-            // اگر کاربر به خانه قبلی برگشت، خانه آخر را از انتخاب خارج کن (عقب‌گرد)
             if (selectedPath.length >= 2 && selectedPath[selectedPath.length - 2] === idx) {
                 selectedPath.pop();
                 updateSelectionVisuals();
@@ -646,14 +659,16 @@
             const formedWord = selectedPath.map(i => gridLetters[i]).join('');
             const remainingKeys = keyWords.filter(k => !k.found);
 
-            // ۱. بررسی تطابق با یکی از کلمات کلیدی باقیمانده (یا از نظر مسیر یا از نظر متن کلمه با همان طول)
+            // ۱. اولویت با تطابق دقیق مسیر کلمه کلیدی
             let matchedKey = remainingKeys.find(k =>
                 k.path.length === selectedPath.length && k.path.every((val, idx) => val === selectedPath[idx])
             );
 
-            // اگر کاربر همان کلمه کلیدی را از مسیر معتبر دیگری در جدول ساخت
+            // ۲. اگر متن دقیق کلمه کلیدی با کمی اختلاف در حروف همسایه هم‌نام کشیده شد، فقط مسیر اصلی آن کلمه پاک می‌شود تا سایر کلمات خراب نشوند
             if (!matchedKey) {
-                matchedKey = remainingKeys.find(k => k.word === formedWord);
+                matchedKey = remainingKeys.find(k =>
+                    k.word === formedWord && k.path.some(cellIdx => selectedPath.includes(cellIdx))
+                );
             }
 
             if (matchedKey) {
@@ -662,8 +677,7 @@
                 score += earned;
                 matchedKey.found = true;
 
-                // پاک کردن خانه‌های انتخاب‌شده از جدول
-                selectedPath.forEach(idx => clearedCells[idx] = true);
+                matchedKey.path.forEach(idx => clearedCells[idx] = true);
 
                 if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 showFeedback(`🌟 کلمه کلیدی «${formedWord}» پیدا شد! (+${earned} امتیاز = ${formedWord.length}×${multiplier})`, '#34D399');
@@ -673,27 +687,26 @@
                 updateUI();
                 renderGrid();
 
-                // بررسی پایان بازی (پیدا شدن همه کلمات کلیدی)
                 if (keyWords.every(k => k.found)) {
                     setTimeout(handleWinGame, 900);
                 }
                 return;
             }
 
-            // ۲. بررسی به عنوان کلمه عادی (حداقل ۳ حرف و موجود در دیکشنری)
+            // ۳. بررسی به عنوان کلمه عادی با دیکشنری جامع ۵۰٬۰۰۰+ کلمه
             if (formedWord.length >= 3 && VALID_WORDS_SET.has(formedWord)) {
                 if (foundBonusWords.has(formedWord)) {
                     showFeedback(`⚠️ کلمه عادی «${formedWord}» را قبلاً پیدا کرده‌اید!`, '#FBBF24');
                 } else {
                     foundBonusWords.add(formedWord);
-                    const earned = formedWord.length * 1;
+                    const earned = formedWord.length;
                     score += earned;
                     if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                     showFeedback(`✨ کلمه عادی «${formedWord}» (+${earned} امتیاز)`, '#38BDF8');
                     updateUI();
                 }
             } else if (formedWord.length >= 2) {
-                showFeedback(`❌ «${formedWord}» در لیست کلمات معتبر نیست`, '#F87171');
+                showFeedback(`❌ «${formedWord}» در دیکشنری معتبر نیست`, '#F87171');
             }
 
             selectedPath = [];
@@ -727,7 +740,6 @@
             showFeedback(`💡 خانه چشمک‌زن، حرف اول کلمه «${target.word.length} حرفی» است!`, '#F472B6');
         }
 
-        // رویدادهای لمس و موس روی جدول
         const gridEl = document.getElementById('grid');
 
         function getCellFromPoint(x, y) {
