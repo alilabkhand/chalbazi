@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حدس کلمه سرعتی | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(160deg, #0F172A 0%, #1E293B 55%, #311042 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 480px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+            margin-bottom: 14px;
+        }
+
+        .category-pill {
+            display: inline-block;
+            background: linear-gradient(135deg, #EC4899, #8B5CF6);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35);
+        }
+
+        .clue-text {
+            font-size: 17px;
+            font-weight: 700;
+            color: #E2E8F0;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        /* خانه‌های حروف کلمه */
+        .letters-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+            direction: rtl;
+        }
+
+        .letter-box {
+            width: 44px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 900;
+            color: #38BDF8;
+            transition: all 0.25s ease;
+        }
+
+        .letter-box.revealed {
+            border-color: #F59E0B;
+            background: rgba(245, 158, 11, 0.18);
+            color: #FBBF24;
+            transform: scale(1.06);
+        }
+
+        .round-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #94A3B8;
+            margin-top: 8px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: #0F172A;
+            border: 2px solid #3B82F6;
+            border-radius: 14px;
+            padding: 13px 16px;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #38BDF8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 13px 18px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.1s;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #10B981, #059669);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-mode {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .btn-solo {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+        }
+
+        .btn-multi {
+            background: linear-gradient(135deg, #EC4899, #DB2777);
+        }
+
+        .btn-skip {
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            padding: 10px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .feedback {
+            text-align: center;
+            min-height: 26px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* جدول امتیازات زنده آنلاین */
+        .live-board {
+            background: rgba(15, 23, 42, 0.65);
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .live-board h4 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #FBBF24;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            font-size: 13px;
+        }
+
+        .player-row:last-child {
+            border-bottom: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn">🏠 لابی</a>
+        <div style="font-weight: 900; font-size: 15px;">اسم‌فامیل سرعتی ⚡</div>
+        <div class="badge">امتیاز: <span id="my-score">0</span></div>
+    </div>
+
+    <div class="container">
+        <!-- منوی انتخاب حالت بازی -->
+        <div id="menu-screen" class="card" style="text-align: center; margin-top: 20px;">
+            <div class="category-pill">@chalbazi</div>
+            <h2 style="margin: 8px 0;">چالش حدس کلمه</h2>
+            <p style="font-size: 13px; color: #CBD5E1; line-height: 1.6; margin-bottom: 20px;">
+                دسته و تعداد حروف بهت داده میشه! هر کلمه‌ای که در دیتابیس باشه و با حروف راهنما بخونه قبوله. هر چی دیرتر جواب بدی، حروف بیشتری رو میشه و امتیاز سوال کم میشه!
+            </p>
+            <button class="btn btn-mode btn-solo" onclick="startSolo()">👤 بازی تک‌نفره (رکوردی)</button>
+            <button class="btn btn-mode btn-multi" onclick="joinOnlineRoom()">🌐 رقابت آنلاین هم‌زمان (گروهی)</button>
+            <p id="firebase-warn" style="font-size: 11px; color: #FBBF24; margin-top: 8px;"></p>
+        </div>
+
+        <!-- صفحه اصلی بازی -->
+        <div id="game-screen" class="hidden">
+            <div class="card" style="text-align: center;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span id="mode-label" style="font-size: 12px; color: #38BDF8; font-weight: 700;">حالت تک‌نفره</span>
+                    <span style="font-size: 12px; color: #FBBF24; font-weight: 700;">ارزش این سوال: <span id="round-points">100</span></span>
+                </div>
+
+                <div class="category-pill" id="cat-name">کشور</div>
+                <div class="clue-text" id="clue-desc">کشور ۵ حرفی که حرف سوم آن «ر» است</div>
+
+                <div class="letters-row" id="letters-container"></div>
+
+                <div class="round-info">
+                    <span>⏳ راهنمای بعدی: <strong id="hint-countdown">8</strong> ثانیه</span>
+                    <span>تعداد کل جواب‌های مجاز: <strong id="valid-count">1</strong></span>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="answer-input" placeholder="جواب را بنویسید..." autocomplete="off">
+                    <button class="btn btn-submit" onclick="submitAnswer()">ثبت ✓</button>
+                </div>
+
+                <div class="feedback" id="feedback-msg"></div>
+
+                <button id="skip-btn" class="btn btn-skip" onclick="skipQuestion()">رد کردن سوال (نمایش جواب)</button>
+            </div>
+
+            <!-- جدول زنده بازیکنان آنلاین -->
+            <div id="online-panel" class="live-board hidden">
+                <h4>
+                    <span>🏆 جدول لحظه‌ای اتاق (@chalbazi)</span>
+                    <span style="color: #10B981;">● زنده</span>
+                </h4>
+                <div id="scoreboard-list">در حال اتصال به اتاق...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // آدرس دیتابیس Firebase خود را اینجا قرار دهید (برای فعال شدن بخش آنلاین هم‌زمان)
+        const FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com/';
+
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        let user = {
+            id: 'u_' + (localStorage.getItem('chalbazi_uid') || Math.floor(Math.random() * 999999)),
+            name: 'بازیکن مهمان'
+        };
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                user.id = 'tg_' + u.id;
+                user.name = [u.first_name, u.last_name].filter(Boolean).join(' ');
+            }
+        }
+
+        // پایگاه داده جامع فارسی در ۷ دسته
+        const DATABASE = {
+            "اسم پسر": [
+                "علی", "رضا", "امیر", "حسین", "محمد", "مهدی", "سعید", "پویا", "آرش", "بابک",
+                "بهرام", "پدرام", "فرهاد", "کوروش", "داریوش", "سیامک", "سهراب", "سامان", "ساسان",
+                "کامران", "کیوان", "مازیار", "مهرداد", "فرزاد", "فرزین", "شهاب", "شایان", "سینا",
+                "نیما", "نوید", "وحید", "حمید", "مجید", "نادر", "ناصر", "یاسر", "یونس", "یوسف",
+                "ابراهیم", "اسماعیل", "سلیمان", "داوود", "محسن", "احسان", "عرفان", "ایمان", "پیمان",
+                "آرمان", "اشکان", "امید", "میلاد", "میثم", "هومن", "هرمز", "بهروز", "شهرام", "شهریار"
+            ],
+            "اسم دختر": [
+                "سارا", "مریم", "زهرا", "فاطمه", "نرگس", "نازنین", "مهسا", "مونا", "مینا", "میترا",
+                "نگار", "نگین", "نسرین", "نسترن", "نیلوفر", "آزاده", "آرزو", "الهام", "افسانه",
+                "پریسا", "پرستو", "پانته آ", "ترانه", "تینا", "ثنا", "حمیرا", "دنیا", "دریا",
+                "راحله", "راضیه", "رویا", "ریحانه", "زهره", "زیبا", "ژاله", "سحر", "سمیرا", "سمیه",
+                "سپیده", "ستاره", "سیما", "شبنم", "شادی", "شیوا", "شهرزاد", "غزل", "فرزانه",
+                "فرشته", "کتایون", "کیانا", "گلنار", "لاله", "لیلا", "مهناز", "مرجان", "هستی", "یاسمن"
+            ],
+            "شهر": [
+                "تهران", "شیراز", "اصفهان", "تبریز", "مشهد", "اهواز", "کرمان", "رشت", "ساری", "گرگان",
+                "یزد", "قزوین", "زنجان", "همدان", "اراک", "قم", "کاشان", "بوشهر", "بندرعباس", "زاهدان",
+                "سنندج", "ایلام", "خرم آباد", "یاسوج", "شهرکرد", "اردبیل", "ارومیه", "سمنان", "بیرجند",
+                "بجنورد", "آبادان", "دزفول", "شوشتر", "بهبهان", "کازرون", "مرودشت", "جهرم", "فسا",
+                "لار", "لامرد", "گله دار", "اسیر", "مهر", "عسلویه", "کنگان", "برازجان", "بروجرد",
+                "ملایر", "نیشابور", "سبزوار", "تربت حیدریه", "بابل", "آمل", "نوشهر", "چالوس", "لاهیجان"
+            ],
+            "کشور": [
+                "ایران", "عراق", "ترکیه", "روسیه", "آلمان", "فرانسه", "ایتالیا", "اسپانیا", "پرتغال",
+                "برزیل", "آرژانتین", "کانادا", "مکزیک", "ژاپن", "چین", "هند", "پاکستان", "افغانستان",
+                "امارات", "قطر", "کویت", "عمان", "یمن", "سوریه", "لبنان", "اردن", "مصر", "مراکش",
+                "تونس", "الجزایر", "سوئد", "نروژ", "فنلاند", "دانمارک", "هلند", "بلژیک", "سوئیس",
+                "اتریش", "لهستان", "اوکراین", "یونان", "قبرس", "ارمنستان", "گرجستان", "آذربایجان",
+                "ازبکستان", "تاجیکستان", "ترکمنستان", "استرالیا", "کره جنوبی", "تایلند", "مالزی", "اندونزی"
+            ],
+            "شغل": [
+                "پزشک", "معلم", "مهندس", "وکیل", "خلبان", "پرستار", "داروساز", "دندانپزشک", "حسابدار",
+                "برنامه نویس", "طراح", "عکاس", "خبرنگار", "نویسنده", "بازیگر", "کارگردان", "خواننده",
+                "نقاش", "مجسمه ساز", "خیاط", "آرایشگر", "آشپز", "قناد", "نانوا", "قصاب", "میوه فروش",
+                "نجار", "آهنگر", "جوشکار", "برقکار", "لوله کش", "مکانیک", "صافکار", "راننده", "ملوان",
+                "کشاورز", "باغبان", "دامپزشک", "شیمیدان", "داروساز", "قاضی", "پلیس", "آتش نشان", "کتابدار"
+            ],
+            "ماشین": [
+                "پراید", "پژو", "سمند", "تیبا", "ساینا", "کوییک", "شاهین", "دنا", "رانا", "تارا",
+                "پیکان", "زانتیا", "مگان", "ال نود", "ساندرو", "داستر", "مزدا", "تویوتا", "هیوندای",
+                "کیا", "نیسان", "سوزوکی", "میتسوبیشی", "هوندا", "بنز", "بی ام و", "آئودی", "فولکس",
+                "پورشه", "ولوو", "فورد", "شورلت", "دوج", "جیپ", "لندکروز", "پرادو", "کمری", "کرولا",
+                "سوناتا", "آزرا", "سانتافه", "توسان", "اسپورتیج", "سراتو", "اپتیما", "ماکسیما", "جک", "تیگو"
+            ],
+            "خوراک": [
+                "کباب", "قورمه سبزی", "قیمه", "فسنجان", "زرشک پلو", "باقالی پلو", "عدس پلو", "لوبیا پلو",
+                "ته چین", "آبگوشت", "دیزی", "اشکنه", "کوکو سبزی", "کوکو سیب زمینی", "کتلت", "شامی",
+                "دلمه", "کوفته", "آش رشته", "آش جو", "حلیم", "عدسی", "املت", "نیمرو", "پیتزا", "پاستا",
+                "لازانیا", "همبرگر", "فلافل", "سمبوسه", "الویه", "میرزا قاسمی", "کشک بادمجان", "ماکارونی",
+                "شیربرنج", "فرنی", "شله زرد", "باقلوا", "زولبیا", "بامیه", "سوهان", "گز", "حلوا"
+            ]
+        };
+
+        const ORDINALS = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم", "نهم", "دهم"];
+
+        // نرمال‌سازی حروف فارسی و حذف فاصله برای تطبیق دقیق
+        function normalizeFa(str) {
+            return str
+                .trim()
+                .replace(/\s+/g, '')
+                .replace(/ي/g, 'ی')
+                .replace(/ك/g, 'ک')
+                .replace(/آ/g, 'ا')
+                .replace(/أ/g, 'ا')
+                .replace(/إ/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/[\u064B-\u065F]/g, '');
+        }
+
+        let isOnlineMode = false;
+        let myScore = 0;
+        let currentCategory = "";
+        let targetWordRaw = "";
+        let targetWordNorm = "";
+        let revealedIndices = [];
+        let roundPoints = 100;
+        let hintTimer = 8;
+        let timerInterval = null;
+        let onlineSyncInterval = null;
+        let currentRoundId = null;
+
+        // بررسی وضعیت Firebase
+        const hasFirebase = FIREBASE_DB_URL && !FIREBASE_DB_URL.includes('PASTE_YOUR');
+        if (!hasFirebase) {
+            document.getElementById('firebase-warn').textContent = '⚠️ برای فعال شدن رقابت گروهی هم‌زمان، لینک Firebase را در کد وارد کنید (بخش تک‌نفره فعال است).';
+        }
+
+        function createChallenge() {
+            const categories = Object.keys(DATABASE);
+            const cat = categories[Math.floor(Math.random() * categories.length)];
+            const list = DATABASE[cat];
+            const chosen = list[Math.floor(Math.random() * list.length)];
+            const norm = normalizeFa(chosen);
+            const firstHintIdx = Math.floor(Math.random() * norm.length);
+
+            return {
+                roundId: Date.now() + '_' + Math.floor(Math.random() * 1000),
+                category: cat,
+                targetRaw: chosen,
+                targetNorm: norm,
+                revealed: [firstHintIdx],
+                winner: null
+            };
+        }
+
+        function loadRoundUI(roundData) {
+            currentRoundId = roundData.roundId;
+            currentCategory = roundData.category;
+            targetWordRaw = roundData.targetRaw;
+            targetWordNorm = roundData.targetNorm;
+            revealedIndices = [...roundData.revealed];
+            roundPoints = 100;
+            hintTimer = 8;
+
+            document.getElementById('cat-name').textContent = currentCategory;
+            document.getElementById('round-points').textContent = roundPoints;
+            document.getElementById('hint-countdown').textContent = hintTimer;
+            document.getElementById('feedback-msg').textContent = '';
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+
+            renderClueAndBoxes();
+        }
+
+        function renderClueAndBoxes() {
+            const len = targetWordNorm.length;
+            const firstIdx = revealedIndices[0];
+            const firstChar = targetWordNorm[firstIdx];
+
+            document.getElementById('clue-desc').innerHTML =
+                `${currentCategory} <strong>${len} حرفی</strong> که حرف <strong>${ORDINALS[firstIdx]}</strong> آن «<span style="color:#FBBF24; font-size:21px;">${firstChar}</span>» است`;
+
+            // محاسبه تعداد کل جواب‌های درست در دیتابیس که با حروف رو شده مطابقت دارند
+            const matchingWords = getMatchingWords();
+            document.getElementById('valid-count').textContent = matchingWords.length;
+
+            const container = document.getElementById('letters-container');
+            container.innerHTML = '';
+
+            for (let i = 0; i < len; i++) {
+                const box = document.createElement('div');
+                box.className = 'letter-box';
+                if (revealedIndices.includes(i)) {
+                    box.classList.add('revealed');
+                    box.textContent = targetWordNorm[i];
+                } else {
+                    box.textContent = '؟';
+                }
+                container.appendChild(box);
+            }
+        }
+
+        // پیدا کردن تمام کلمات مجاز در آن دسته که طول و حروف رو شده یکسانی دارند
+        function getMatchingWords() {
+            const list = DATABASE[currentCategory] || [];
+            const len = targetWordNorm.length;
+
+            return list.filter(word => {
+                const norm = normalizeFa(word);
+                if (norm.length !== len) return false;
+                for (const idx of revealedIndices) {
+                    if (norm[idx] !== targetWordNorm[idx]) return false;
+                }
+                return true;
+            });
+        }
+
+        function revealNextHint() {
+            const unrevealed = [];
+            for (let i = 0; i < targetWordNorm.length; i++) {
+                if (!revealedIndices.includes(i)) unrevealed.push(i);
+            }
+
+            if (unrevealed.length > 1) {
+                const nextIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+                revealedIndices.push(nextIdx);
+                roundPoints = Math.max(20, roundPoints - 20);
+                document.getElementById('round-points').textContent = roundPoints;
+                renderClueAndBoxes();
+            } else {
+                // اگر همه حروف لو رفت و کسی جواب نداد
+                showFeedback(`⏰ وقت تمام شد! یکی از جواب‌ها: «${targetWordRaw}»`, '#F87171');
+                setTimeout(() => {
+                    if (isOnlineMode) pushNewOnlineRound();
+                    else loadRoundUI(createChallenge());
+                }, 2200);
+            }
+        }
+
+        function startTimerLoop() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                hintTimer--;
+                if (hintTimer <= 0) {
+                    hintTimer = 8;
+                    revealNextHint();
+                }
+                document.getElementById('hint-countdown').textContent = hintTimer;
+            }, 1000);
+        }
+
+        function showFeedback(msg, color) {
+            const el = document.getElementById('feedback-msg');
+            el.textContent = msg;
+            el.style.color = color;
+        }
+
+        function submitAnswer() {
+            const rawInput = document.getElementById('answer-input').value;
+            const userNorm = normalizeFa(rawInput);
+            if (!userNorm) return;
+
+            if (userNorm.length !== targetWordNorm.length) {
+                showFeedback(`❌ باید دقیقاً ${targetWordNorm.length} حرف باشد!`, '#F87171');
+                return;
+            }
+
+            for (const idx of revealedIndices) {
+                if (userNorm[idx] !== targetWordNorm[idx]) {
+                    showFeedback(`❌ حرف ${ORDINALS[idx]} باید «${targetWordNorm[idx]}» باشد!`, '#F87171');
+                    return;
+                }
+            }
+
+            // بررسی اینکه آیا کلمه کاربر در دیتابیس این دسته وجود دارد یا خیر
+            const allInCategory = (DATABASE[currentCategory] || []).map(w => normalizeFa(w));
+            if (!allInCategory.includes(userNorm)) {
+                showFeedback(`❌ «${rawInput}» در لیست ${currentCategory}های مجاز نیست!`, '#FBBF24');
+                return;
+            }
+
+            // جواب کاملاً درست است!
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            myScore += roundPoints;
+            document.getElementById('my-score').textContent = myScore;
+            showFeedback(`🎉 آفرین! «${rawInput}» درست بود (+${roundPoints} امتیاز)`, '#34D399');
+
+            clearInterval(timerInterval);
+
+            if (isOnlineMode) {
+                claimOnlineWin(rawInput);
+            } else {
+                setTimeout(() => {
+                    loadRoundUI(createChallenge());
+                    startTimerLoop();
+                }, 1400);
+            }
+        }
+
+        document.getElementById('answer-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') submitAnswer();
+        });
+
+        function skipQuestion() {
+            clearInterval(timerInterval);
+            showFeedback(`💡 جواب پیشنهادی: «${targetWordRaw}»`, '#38BDF8');
+            setTimeout(() => {
+                loadRoundUI(createChallenge());
+                startTimerLoop();
+            }, 1600);
+        }
+
+        // --- حالت تک‌نفره ---
+        function startSolo() {
+            isOnlineMode = false;
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('online-panel').classList.add('hidden');
+            document.getElementById('skip-btn').classList.remove('hidden');
+            document.getElementById('mode-label').textContent = '👤 بازی تک‌نفره';
+
+            loadRoundUI(createChallenge());
+            startTimerLoop();
+        }
+
+        // --- حالت آنلاین هم‌زمان (چندنفره) ---
+        async function joinOnlineRoom() {
+            if (!hasFirebase) {
+                alert('ابتدا لینک رایگان Firebase Realtime Database را در کد قرار دهید تا اتاق آنلاین فعال شود.');
+                return;
+            }
+
+            isOnlineMode = true;
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('online-panel').classList.remove('hidden');
+            document.getElementById('skip-btn').classList.add('hidden');
+            document.getElementById('mode-label').textContent = '🌐 اتاق آنلاین @chalbazi';
+
+            // ثبت بازیکن در اتاق
+            await fetch(`${FIREBASE_DB_URL}/room/players/${user.id}.json`, {
+                method: 'PUT',
+                body: JSON.stringify({ name: user.name, score: myScore, lastSeen: Date.now() })
+            });
+
+            // بررسی وجود سوال فعال در اتاق
+            const res = await fetch(`${FIREBASE_DB_URL}/room/currentRound.json`);
+            const data = await res.json();
+
+            if (!data || data.winner) {
+                await pushNewOnlineRound();
+            } else {
+                loadRoundUI(data);
+                startTimerLoop();
+            }
+
+            // همگام‌سازی لحظه‌ای هر ۱.۵ ثانیه برای تمام بازیکنان اتاق
+            onlineSyncInterval = setInterval(syncOnlineRoom, 1500);
+        }
+
+        async function pushNewOnlineRound() {
+            const newRound = createChallenge();
+            await fetch(`${FIREBASE_DB_URL}/room/currentRound.json`, {
+                method: 'PUT',
+                body: JSON.stringify(newRound)
+            });
+            loadRoundUI(newRound);
+            startTimerLoop();
+        }
+
+        async function claimOnlineWin(wordUsed) {
+            // آپدیت امتیاز بازیکن در اتاق
+            await fetch(`${FIREBASE_DB_URL}/room/players/${user.id}.json`, {
+                method: 'PUT',
+                body: JSON.stringify({ name: user.name, score: myScore, lastSeen: Date.now() })
+            });
+
+            // اعلام برنده این دور به همه بازیکنان اتاق
+            await fetch(`${FIREBASE_DB_URL}/room/currentRound/winner.json`, {
+                method: 'PUT',
+                body: JSON.stringify({ name: user.name, word: wordUsed })
+            });
+
+            // بعد از ۲ ثانیه سوال بعدی را برای همه بفرست
+            setTimeout(() => {
+                pushNewOnlineRound();
+            }, 2000);
+        }
+
+        async function syncOnlineRoom() {
+            try {
+                const res = await fetch(`${FIREBASE_DB_URL}/room.json`);
+                const room = await res.json();
+                if (!room) return;
+
+                // آپدیت جدول امتیازات زنده
+                if (room.players) {
+                    const playersArr = Object.values(room.players).sort((a, b) => b.score - a.score);
+                    const listEl = document.getElementById('scoreboard-list');
+                    listEl.innerHTML = playersArr.slice(0, 8).map((p, i) => `
+                        <div class="player-row">
+                            <span>${i + 1}. ${p.name}</span>
+                            <strong style="color:#FBBF24;">${p.score} امتیاز</strong>
+                        </div>
+                    `).join('');
+                }
+
+                // بررسی تغییر سوال یا برنده شدن بازیکن دیگر
+                const round = room.currentRound;
+                if (!round) return;
+
+                if (round.winner && round.roundId === currentRoundId) {
+                    clearInterval(timerInterval);
+                    showFeedback(`⚡ «${round.winner.name}» زودتر جواب داد: «${round.winner.word}»!`, '#FBBF24');
+                } else if (round.roundId !== currentRoundId && !round.winner) {
+                    loadRoundUI(round);
+                    startTimerLoop();
+                }
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>
