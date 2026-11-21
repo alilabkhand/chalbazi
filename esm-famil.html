@@ -185,6 +185,16 @@
             background: linear-gradient(135deg, #10B981, #059669);
         }
 
+        .btn-hint {
+            background: rgba(56, 189, 248, 0.18);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38BDF8;
+            width: 100%;
+            margin-top: 10px;
+            padding: 9px;
+            font-size: 13px;
+        }
+
         .btn-mode {
             width: 100%;
             padding: 15px;
@@ -256,17 +266,15 @@
     </div>
 
     <div class="container">
-        <!-- منوی شروع و جدول برترین‌های تک‌نفره -->
         <div id="menu-screen" class="card" style="text-align: center;">
             <div class="category-pill">@chalbazi</div>
             <h2 style="margin: 6px 0;">چالش حدس کلمه</h2>
             <p style="font-size: 13px; color: #CBD5E1; line-height: 1.6; margin-bottom: 16px;">
-                اول <strong>۱ حرف</strong> راهنما داری؛ بعد از ۸ ثانیه <strong>حرف دوم</strong> رو میشه. اگه با ۲ حرف هم نتونی حدس بزنی <strong>۱ جان (❤️)</strong> از دست میدی!
+                اول <strong>حرف اول</strong> مشخصه و ۱۵ ثانیه وقت داری؛ بعدش <strong>حرف دوم</strong> هم رو میشه. اگه نتونی حدس بزنی <strong>۱ جان (❤️)</strong> کم میشه!
             </p>
             <button class="btn btn-mode btn-solo" onclick="startSolo()">👤 بازی تک‌نفره (ثبت رکورد همگانی)</button>
             <button class="btn btn-mode btn-multi" onclick="joinOnlineRoom()">🌐 رقابت آنلاین هم‌زمان (گروهی)</button>
 
-            <!-- جدول برترین رکوردهای تک‌نفره کانال -->
             <div class="board-box">
                 <h4>
                     <span>🏆 برترین رکوردهای تک‌نفره کانال</span>
@@ -276,7 +284,6 @@
             </div>
         </div>
 
-        <!-- صفحه اصلی بازی -->
         <div id="game-screen" class="hidden">
             <div class="card" style="text-align: center;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -290,7 +297,7 @@
                 <div class="letters-row" id="letters-container"></div>
 
                 <div class="round-info">
-                    <span>⏳ زمان مرحله: <strong id="hint-countdown">8</strong> ثانیه</span>
+                    <span>⏳ زمان مرحله: <strong id="hint-countdown">15</strong> ثانیه</span>
                     <span>جواب‌های مجاز: <strong id="valid-count">1</strong> مورد</span>
                 </div>
 
@@ -299,10 +306,11 @@
                     <button class="btn btn-submit" onclick="submitAnswer()">ثبت ✓</button>
                 </div>
 
+                <button id="instant-hint-btn" class="btn btn-hint" onclick="useInstantHint()">💡 نمایش حرف دوم همین الان (-۳۰ امتیاز)</button>
+
                 <div class="feedback" id="feedback-msg"></div>
             </div>
 
-            <!-- جدول زنده بازیکنان آنلاین -->
             <div id="online-panel" class="board-box hidden">
                 <h4>
                     <span>⚡ جدول لحظه‌ای اتاق (@chalbazi)</span>
@@ -312,7 +320,6 @@
             </div>
         </div>
 
-        <!-- صفحه پایان بازی تک‌نفره -->
         <div id="gameover-screen" class="card hidden" style="text-align: center;">
             <div class="category-pill">@chalbazi</div>
             <h2 style="color: #F87171; margin: 8px 0;">💔 جان‌هایت تمام شد!</h2>
@@ -330,9 +337,9 @@
     </div>
 
     <script>
-        // لینک دقیق دیتابیس خود را بدون اسلش انتها اینجا بگذارید:
         const FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
         const CHANNEL_URL = 'https://t.me/chalbazi';
+        const STEP_SECONDS = 15; // زمان هر مرحله (۱۵ ثانیه)
 
         const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         let user = {
@@ -375,7 +382,7 @@
         let targetWordNorm = "";
         let revealedIndices = [];
         let roundPoints = 100;
-        let hintTimer = 8;
+        let hintTimer = STEP_SECONDS;
         let timerInterval = null;
         let onlineSyncInterval = null;
         let currentRoundId = null;
@@ -401,12 +408,12 @@
             try {
                 const res = await fetch(`${CLEAN_DB_URL}/soloLeaderboard.json`);
                 if (!res.ok) {
-                    el.innerHTML = `<div style="font-size:12px; color:#F87171;">❌ خطای اتصال (${res.status}): احتمالا Rules در Firebase روی true نیست.</div>`;
+                    el.innerHTML = `<div style="font-size:12px; color:#F87171;">❌ خطای اتصال (${res.status})</div>`;
                     return;
                 }
                 const data = await res.json();
                 if (!data) {
-                    el.innerHTML = '<div style="font-size:12px; color:#34D399;">✅ اتصال برقرار است! هنوز رکوردی ثبت نشده، اولین نفر باش!</div>';
+                    el.innerHTML = '<div style="font-size:12px; color:#34D399;">✅ هنوز رکوردی ثبت نشده. اولین نفر باش!</div>';
                     return;
                 }
                 const list = Object.values(data).sort((a, b) => b.score - a.score).slice(0, 10);
@@ -417,7 +424,7 @@
                     </div>
                 `).join('');
             } catch (e) {
-                el.innerHTML = `<div style="font-size:12px; color:#F87171;">❌ خطای شبکه یا مسدود بودن دسترسی: ${e.message}</div>`;
+                el.innerHTML = `<div style="font-size:12px; color:#F87171;">❌ خطای شبکه: ${e.message}</div>`;
             }
         }
 
@@ -438,7 +445,14 @@
         function createChallenge() {
             const categories = Object.keys(DATABASE);
             const cat = categories[Math.floor(Math.random() * categories.length)];
-            const list = DATABASE[cat];
+            let list = DATABASE[cat];
+
+            // در امتیازهای پایین‌تر، کلمات کوتاه‌تر (حداکثر ۵ حرف) اولویت دارند تا بازی راحت‌تر شروع شود
+            if (!isOnlineMode && myScore < 400) {
+                const easierList = list.filter(w => normalizeFa(w).length <= 5);
+                if (easierList.length >= 10) list = easierList;
+            }
+
             let chosen = list[Math.floor(Math.random() * list.length)];
             let tries = 0;
             while (usedWords.has(chosen) && tries < 25) {
@@ -446,8 +460,11 @@
                 tries++;
             }
             usedWords.add(chosen);
+
             const norm = normalizeFa(chosen);
-            const firstHintIdx = Math.floor(Math.random() * norm.length);
+            // همیشه با حرف اول (اندیس 0) شروع می‌کنیم تا حدس زدن بسیار روان‌تر باشد
+            const firstHintIdx = 0;
+
             return {
                 roundId: Date.now() + '_' + Math.floor(Math.random() * 1000),
                 category: cat,
@@ -465,13 +482,14 @@
             targetWordNorm = roundData.targetNorm;
             revealedIndices = [...roundData.revealed];
             roundPoints = 100;
-            hintTimer = 8;
+            hintTimer = STEP_SECONDS;
 
             document.getElementById('cat-name').textContent = currentCategory;
             document.getElementById('round-points').textContent = roundPoints;
             document.getElementById('hint-countdown').textContent = hintTimer;
             document.getElementById('feedback-msg').textContent = '';
             document.getElementById('answer-input').value = '';
+            document.getElementById('instant-hint-btn').classList.remove('hidden');
             document.getElementById('answer-input').focus();
             renderClueAndBoxes();
         }
@@ -518,33 +536,47 @@
             }
         }
 
+        function revealSecondLetter() {
+            if (revealedIndices.length > 1 || targetWordNorm.length <= 2) return false;
+            const unrevealed = [];
+            for (let i = 0; i < targetWordNorm.length; i++) {
+                if (!revealedIndices.includes(i)) unrevealed.push(i);
+            }
+            const nextIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+            revealedIndices.push(nextIdx);
+            roundPoints = 70;
+            document.getElementById('round-points').textContent = roundPoints;
+            document.getElementById('instant-hint-btn').classList.add('hidden');
+            renderClueAndBoxes();
+            showFeedback('💡 حرف دوم اضافه شد! (امتیاز سوال: ۷۰)', '#38BDF8');
+            return true;
+        }
+
+        function useInstantHint() {
+            if (revealSecondLetter()) {
+                hintTimer = STEP_SECONDS;
+                document.getElementById('hint-countdown').textContent = hintTimer;
+            }
+        }
+
         function handleTimeStep() {
-            if (revealedIndices.length === 1 && targetWordNorm.length > 2) {
-                const unrevealed = [];
-                for (let i = 0; i < targetWordNorm.length; i++) {
-                    if (!revealedIndices.includes(i)) unrevealed.push(i);
-                }
-                const nextIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
-                revealedIndices.push(nextIdx);
-                roundPoints = 70;
-                document.getElementById('round-points').textContent = roundPoints;
-                renderClueAndBoxes();
-                showFeedback('💡 راهنمایی حرف دوم اضافه شد! (امتیاز سوال: ۷۰)', '#38BDF8');
+            if (revealSecondLetter()) {
+                return;
+            }
+
+            clearInterval(timerInterval);
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            if (!isOnlineMode) {
+                lives--;
+                updateLivesUI();
+                showFeedback(`💔 وقت تمام شد! جواب: «${targetWordRaw}» (یک جان کم شد)`, '#F87171');
+                setTimeout(() => {
+                    if (lives <= 0) endSoloGame();
+                    else { loadRoundUI(createChallenge()); startTimerLoop(); }
+                }, 2200);
             } else {
-                clearInterval(timerInterval);
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                if (!isOnlineMode) {
-                    lives--;
-                    updateLivesUI();
-                    showFeedback(`💔 وقت تمام شد! جواب: «${targetWordRaw}» (یک جان کم شد)`, '#F87171');
-                    setTimeout(() => {
-                        if (lives <= 0) endSoloGame();
-                        else { loadRoundUI(createChallenge()); startTimerLoop(); }
-                    }, 2200);
-                } else {
-                    showFeedback(`⏰ وقت تمام شد! جواب: «${targetWordRaw}»`, '#F87171');
-                    setTimeout(() => pushNewOnlineRound(), 2200);
-                }
+                showFeedback(`⏰ وقت تمام شد! جواب: «${targetWordRaw}»`, '#F87171');
+                setTimeout(() => pushNewOnlineRound(), 2200);
             }
         }
 
@@ -553,7 +585,7 @@
             timerInterval = setInterval(() => {
                 hintTimer--;
                 if (hintTimer <= 0) {
-                    hintTimer = 8;
+                    hintTimer = STEP_SECONDS;
                     handleTimeStep();
                 }
                 document.getElementById('hint-countdown').textContent = hintTimer;
@@ -651,7 +683,7 @@
                 });
 
                 if (!testRes.ok) {
-                    alert(`خطا در ورود به اتاق آنلاین (کد ${testRes.status}):\nحتما در کنسول Firebase بخش Rules را روی read: true و write: true بگذارید و Publish کنید.`);
+                    alert(`خطا در ورود به اتاق آنلاین (کد ${testRes.status})`);
                     return;
                 }
 
