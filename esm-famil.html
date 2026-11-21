@@ -330,7 +330,7 @@
     </div>
 
     <script>
-        // آدرس دیتابیس Firebase خود را اینجا قرار دهید
+        // لینک دقیق دیتابیس خود را بدون اسلش انتها اینجا بگذارید:
         const FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
         const CHANNEL_URL = 'https://t.me/chalbazi';
 
@@ -350,26 +350,22 @@
             }
         }
 
-        const DATABASE = typeof WORDS_DB !== 'undefined' ? WORDS_DB : {
-            "کشور": ["ایران", "عراق", "ترکیه", "آلمان", "فرانسه", "ژاپن"]
+        const CLEAN_DB_URL = FIREBASE_DB_URL.replace(/\/+$/, '');
+        const hasFirebase = CLEAN_DB_URL && !CLEAN_DB_URL.includes('PASTE_YOUR') && CLEAN_DB_URL.startsWith('https://');
+
+        const DATABASE = (typeof WORDS_DB !== 'undefined' && Object.keys(WORDS_DB).length > 0) ? WORDS_DB : {
+            "کشور": ["ایران", "عراق", "ترکیه", "آلمان", "فرانسه", "ژاپن", "برزیل", "کانادا"],
+            "شهر": ["تهران", "شیراز", "اصفهان", "تبریز", "مشهد", "اهواز", "رشت", "یزد"]
         };
 
         const ORDINALS = ["اول","دوم","سوم","چهارم","پنجم","ششم","هفتم","هشتم","نهم","دهم","یازدهم","دوازدهم"];
 
         function normalizeFa(str) {
-            return str
-                .trim()
-                .replace(/\s+/g, '')
-                .replace(/ي/g, 'ی')
-                .replace(/ك/g, 'ک')
-                .replace(/آ/g, 'ا')
-                .replace(/أ/g, 'ا')
-                .replace(/إ/g, 'ا')
-                .replace(/ة/g, 'ه')
-                .replace(/[\u064B-\u065F]/g, '');
+            return str.trim().replace(/\s+/g, '')
+                .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
+                .replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا')
+                .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
         }
-
-        const hasFirebase = FIREBASE_DB_URL && !FIREBASE_DB_URL.includes('PASTE_YOUR');
 
         let isOnlineMode = false;
         let myScore = 0;
@@ -391,27 +387,26 @@
                 return;
             }
             let hearts = '';
-            for (let i = 0; i < 3; i++) {
-                hearts += i < lives ? '❤️' : '🖤';
-            }
+            for (let i = 0; i < 3; i++) hearts += i < lives ? '❤️' : '🖤';
             document.getElementById('lives-display').textContent = hearts;
         }
 
-        // بارگذاری جدول برترین‌های تک‌نفره برای نمایش به همه
         async function fetchSoloLeaderboard(targetElementId = 'solo-leaderboard') {
             const el = document.getElementById(targetElementId);
             if (!hasFirebase) {
-                const localBest = localStorage.getItem('chalbazi_word_best') || 0;
-                el.innerHTML = `<div class="player-row"><span>1. ${user.name} (شما)</span><strong style="color:#FBBF24;">${localBest} امتیاز</strong></div>
-                <div style="font-size:11px; color:#94A3B8; margin-top:6px;">برای نمایش رکورد همه اعضای کانال، لینک Firebase را در کد قرار دهید.</div>`;
+                el.innerHTML = '<div style="font-size:12px; color:#F87171;">⚠️ لینک Firebase در کد نامعتبر است.</div>';
                 return;
             }
 
             try {
-                const res = await fetch(`${FIREBASE_DB_URL}/soloLeaderboard.json`);
+                const res = await fetch(`${CLEAN_DB_URL}/soloLeaderboard.json`);
+                if (!res.ok) {
+                    el.innerHTML = `<div style="font-size:12px; color:#F87171;">❌ خطای اتصال (${res.status}): احتمالا Rules در Firebase روی true نیست.</div>`;
+                    return;
+                }
                 const data = await res.json();
                 if (!data) {
-                    el.innerHTML = '<div style="font-size:12px; color:#94A3B8;">هنوز رکوردی ثبت نشده. اولین نفر باش!</div>';
+                    el.innerHTML = '<div style="font-size:12px; color:#34D399;">✅ اتصال برقرار است! هنوز رکوردی ثبت نشده، اولین نفر باش!</div>';
                     return;
                 }
                 const list = Object.values(data).sort((a, b) => b.score - a.score).slice(0, 10);
@@ -422,29 +417,19 @@
                     </div>
                 `).join('');
             } catch (e) {
-                el.innerHTML = '<div style="font-size:12px; color:#F87171;">خطا در دریافت جدول امتیازات</div>';
+                el.innerHTML = `<div style="font-size:12px; color:#F87171;">❌ خطای شبکه یا مسدود بودن دسترسی: ${e.message}</div>`;
             }
         }
 
         async function saveSoloRecord(scoreVal) {
-            const prevBest = Number(localStorage.getItem('chalbazi_word_best') || 0);
-            if (scoreVal > prevBest) {
-                localStorage.setItem('chalbazi_word_best', scoreVal);
-            }
-
             if (!hasFirebase || scoreVal <= 0) return;
-
             try {
-                const res = await fetch(`${FIREBASE_DB_URL}/soloLeaderboard/${user.id}.json`);
+                const res = await fetch(`${CLEAN_DB_URL}/soloLeaderboard/${user.id}.json`);
                 const existing = await res.json();
                 if (!existing || scoreVal > existing.score) {
-                    await fetch(`${FIREBASE_DB_URL}/soloLeaderboard/${user.id}.json`, {
+                    await fetch(`${CLEAN_DB_URL}/soloLeaderboard/${user.id}.json`, {
                         method: 'PUT',
-                        body: JSON.stringify({
-                            name: user.name,
-                            score: scoreVal,
-                            updatedAt: Date.now()
-                        })
+                        body: JSON.stringify({ name: user.name, score: scoreVal, updatedAt: Date.now() })
                     });
                 }
             } catch (e) {}
@@ -454,7 +439,6 @@
             const categories = Object.keys(DATABASE);
             const cat = categories[Math.floor(Math.random() * categories.length)];
             const list = DATABASE[cat];
-
             let chosen = list[Math.floor(Math.random() * list.length)];
             let tries = 0;
             while (usedWords.has(chosen) && tries < 25) {
@@ -462,10 +446,8 @@
                 tries++;
             }
             usedWords.add(chosen);
-
             const norm = normalizeFa(chosen);
             const firstHintIdx = Math.floor(Math.random() * norm.length);
-
             return {
                 roundId: Date.now() + '_' + Math.floor(Math.random() * 1000),
                 category: cat,
@@ -491,14 +473,12 @@
             document.getElementById('feedback-msg').textContent = '';
             document.getElementById('answer-input').value = '';
             document.getElementById('answer-input').focus();
-
             renderClueAndBoxes();
         }
 
         function getMatchingWords() {
             const list = DATABASE[currentCategory] || [];
             const len = targetWordNorm.length;
-
             return list.filter(word => {
                 const norm = normalizeFa(word);
                 if (norm.length !== len) return false;
@@ -513,7 +493,6 @@
             const len = targetWordNorm.length;
             const firstIdx = revealedIndices[0];
             const firstChar = targetWordNorm[firstIdx];
-
             let clueHtml = `${currentCategory} <strong>${len} حرفی</strong> که حرف <strong>${ORDINALS[firstIdx]}</strong> آن «<span style="color:#FBBF24; font-size:20px;">${firstChar}</span>»`;
             if (revealedIndices.length > 1) {
                 const secIdx = revealedIndices[1];
@@ -521,13 +500,11 @@
                 clueHtml += ` و حرف <strong>${ORDINALS[secIdx]}</strong> آن «<span style="color:#38BDF8; font-size:20px;">${secChar}</span>»`;
             }
             clueHtml += ' است';
-
             document.getElementById('clue-desc').innerHTML = clueHtml;
             document.getElementById('valid-count').textContent = getMatchingWords().length;
 
             const container = document.getElementById('letters-container');
             container.innerHTML = '';
-
             for (let i = 0; i < len; i++) {
                 const box = document.createElement('div');
                 box.className = 'letter-box';
@@ -542,7 +519,6 @@
         }
 
         function handleTimeStep() {
-            // اگر هنوز فقط ۱ حرف راهنما داده شده و طول کلمه بیشتر از ۲ حرف است، حرف دوم را رو کن
             if (revealedIndices.length === 1 && targetWordNorm.length > 2) {
                 const unrevealed = [];
                 for (let i = 0; i < targetWordNorm.length; i++) {
@@ -555,25 +531,18 @@
                 renderClueAndBoxes();
                 showFeedback('💡 راهنمایی حرف دوم اضافه شد! (امتیاز سوال: ۷۰)', '#38BDF8');
             } else {
-                // با وجود راهنمایی دو حرف هم نتوانست جواب دهد -> کسر یک جان
                 clearInterval(timerInterval);
                 if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-
                 if (!isOnlineMode) {
                     lives--;
                     updateLivesUI();
                     showFeedback(`💔 وقت تمام شد! جواب: «${targetWordRaw}» (یک جان کم شد)`, '#F87171');
-
                     setTimeout(() => {
-                        if (lives <= 0) {
-                            endSoloGame();
-                        } else {
-                            loadRoundUI(createChallenge());
-                            startTimerLoop();
-                        }
+                        if (lives <= 0) endSoloGame();
+                        else { loadRoundUI(createChallenge()); startTimerLoop(); }
                     }, 2200);
                 } else {
-                    showFeedback(`⏰ وقت این سوال تمام شد! جواب: «${targetWordRaw}»`, '#F87171');
+                    showFeedback(`⏰ وقت تمام شد! جواب: «${targetWordRaw}»`, '#F87171');
                     setTimeout(() => pushNewOnlineRound(), 2200);
                 }
             }
@@ -606,14 +575,12 @@
                 showFeedback(`❌ باید دقیقاً ${targetWordNorm.length} حرف باشد!`, '#F87171');
                 return;
             }
-
             for (const idx of revealedIndices) {
                 if (userNorm[idx] !== targetWordNorm[idx]) {
                     showFeedback(`❌ حرف ${ORDINALS[idx]} باید «${targetWordNorm[idx]}» باشد!`, '#F87171');
                     return;
                 }
             }
-
             const allInCategory = (DATABASE[currentCategory] || []).map(w => normalizeFa(w));
             if (!allInCategory.includes(userNorm)) {
                 showFeedback(`❌ «${rawInput}» در لیست ${currentCategory}های مجاز نیست!`, '#FBBF24');
@@ -624,16 +591,12 @@
             myScore += roundPoints;
             document.getElementById('my-score').textContent = myScore;
             showFeedback(`🎉 آفرین! «${rawInput}» درست بود (+${roundPoints} امتیاز)`, '#34D399');
-
             clearInterval(timerInterval);
 
             if (isOnlineMode) {
                 claimOnlineWin(rawInput);
             } else {
-                setTimeout(() => {
-                    loadRoundUI(createChallenge());
-                    startTimerLoop();
-                }, 1300);
+                setTimeout(() => { loadRoundUI(createChallenge()); startTimerLoop(); }, 1300);
             }
         }
 
@@ -664,7 +627,6 @@
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('gameover-screen').classList.remove('hidden');
             document.getElementById('final-score').textContent = myScore;
-
             await saveSoloRecord(myScore);
             await fetchSoloLeaderboard('gameover-leaderboard');
         }
@@ -676,45 +638,54 @@
             else window.open(url, '_blank');
         }
 
-        // --- بخش آنلاین هم‌زمان ---
         async function joinOnlineRoom() {
             if (!hasFirebase) {
-                alert('ابتدا لینک Firebase Realtime Database را در کد قرار دهید.');
+                alert('لینک Firebase در کد نامعتبر است.');
                 return;
             }
 
-            isOnlineMode = true;
-            myScore = 0;
-            document.getElementById('my-score').textContent = '0';
-            updateLivesUI();
+            try {
+                const testRes = await fetch(`${CLEAN_DB_URL}/room/players/${user.id}.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ name: user.name, score: 0, lastSeen: Date.now() })
+                });
 
-            document.getElementById('menu-screen').classList.add('hidden');
-            document.getElementById('gameover-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            document.getElementById('online-panel').classList.remove('hidden');
-            document.getElementById('mode-label').textContent = '🌐 اتاق آنلاین @chalbazi';
+                if (!testRes.ok) {
+                    alert(`خطا در ورود به اتاق آنلاین (کد ${testRes.status}):\nحتما در کنسول Firebase بخش Rules را روی read: true و write: true بگذارید و Publish کنید.`);
+                    return;
+                }
 
-            await fetch(`${FIREBASE_DB_URL}/room/players/${user.id}.json`, {
-                method: 'PUT',
-                body: JSON.stringify({ name: user.name, score: myScore, lastSeen: Date.now() })
-            });
+                isOnlineMode = true;
+                myScore = 0;
+                document.getElementById('my-score').textContent = '0';
+                updateLivesUI();
 
-            const res = await fetch(`${FIREBASE_DB_URL}/room/currentRound.json`);
-            const data = await res.json();
+                document.getElementById('menu-screen').classList.add('hidden');
+                document.getElementById('gameover-screen').classList.add('hidden');
+                document.getElementById('game-screen').classList.remove('hidden');
+                document.getElementById('online-panel').classList.remove('hidden');
+                document.getElementById('mode-label').textContent = '🌐 اتاق آنلاین @chalbazi';
 
-            if (!data || data.winner) {
-                await pushNewOnlineRound();
-            } else {
-                loadRoundUI(data);
-                startTimerLoop();
+                const res = await fetch(`${CLEAN_DB_URL}/room/currentRound.json`);
+                const data = await res.json();
+
+                if (!data || data.winner || !data.targetNorm) {
+                    await pushNewOnlineRound();
+                } else {
+                    loadRoundUI(data);
+                    startTimerLoop();
+                }
+
+                clearInterval(onlineSyncInterval);
+                onlineSyncInterval = setInterval(syncOnlineRoom, 1500);
+            } catch (e) {
+                alert('خطا در اتصال به سرور آنلاین: ' + e.message);
             }
-
-            onlineSyncInterval = setInterval(syncOnlineRoom, 1500);
         }
 
         async function pushNewOnlineRound() {
             const newRound = createChallenge();
-            await fetch(`${FIREBASE_DB_URL}/room/currentRound.json`, {
+            await fetch(`${CLEAN_DB_URL}/room/currentRound.json`, {
                 method: 'PUT',
                 body: JSON.stringify(newRound)
             });
@@ -723,31 +694,28 @@
         }
 
         async function claimOnlineWin(wordUsed) {
-            await fetch(`${FIREBASE_DB_URL}/room/players/${user.id}.json`, {
+            await fetch(`${CLEAN_DB_URL}/room/players/${user.id}.json`, {
                 method: 'PUT',
                 body: JSON.stringify({ name: user.name, score: myScore, lastSeen: Date.now() })
             });
 
-            await fetch(`${FIREBASE_DB_URL}/room/currentRound/winner.json`, {
+            await fetch(`${CLEAN_DB_URL}/room/currentRound/winner.json`, {
                 method: 'PUT',
                 body: JSON.stringify({ name: user.name, word: wordUsed })
             });
 
-            setTimeout(() => {
-                pushNewOnlineRound();
-            }, 2000);
+            setTimeout(() => pushNewOnlineRound(), 2000);
         }
 
         async function syncOnlineRoom() {
             try {
-                const res = await fetch(`${FIREBASE_DB_URL}/room.json`);
+                const res = await fetch(`${CLEAN_DB_URL}/room.json`);
                 const room = await res.json();
                 if (!room) return;
 
                 if (room.players) {
                     const playersArr = Object.values(room.players).sort((a, b) => b.score - a.score);
-                    const listEl = document.getElementById('online-scoreboard');
-                    listEl.innerHTML = playersArr.slice(0, 10).map((p, i) => `
+                    document.getElementById('online-scoreboard').innerHTML = playersArr.slice(0, 10).map((p, i) => `
                         <div class="player-row">
                             <span>${i + 1}. ${p.name}</span>
                             <strong style="color:#FBBF24;">${p.score} امتیاز</strong>
@@ -761,14 +729,13 @@
                 if (round.winner && round.roundId === currentRoundId) {
                     clearInterval(timerInterval);
                     showFeedback(`⚡ «${round.winner.name}» زودتر جواب داد: «${round.winner.word}»!`, '#FBBF24');
-                } else if (round.roundId !== currentRoundId && !round.winner) {
+                } else if (round.roundId !== currentRoundId && !round.winner && round.targetNorm) {
                     loadRoundUI(round);
                     startTimerLoop();
                 }
             } catch (e) {}
         }
 
-        // بارگذاری جدول برترین‌های تک‌نفره هنگام ورود
         fetchSoloLeaderboard('solo-leaderboard');
     </script>
 </body>
