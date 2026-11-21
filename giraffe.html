@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>زرافه چوب‌بر | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #4FC3F7 0%, #B3E5FC 65%, #66BB6A 65%, #388E3C 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 480px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.85);
+            color: #1B5E20;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 900;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .score-badge {
+            background: #FF8F00;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 18px;
+            font-size: 18px;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .timer-container {
+            width: 75%;
+            max-width: 340px;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 12px;
+            padding: 2px;
+            border: 2px solid #fff;
+            z-index: 10;
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #FF3D00, #FFEA00, #00E676);
+            border-radius: 8px;
+            transition: width 0.05s linear;
+        }
+
+        #game-canvas {
+            flex: 1;
+            width: 100%;
+            max-width: 480px;
+            display: block;
+        }
+
+        .controls-hint {
+            position: fixed;
+            bottom: 18px;
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 28px;
+            pointer-events: none;
+            opacity: 0.7;
+            font-weight: 900;
+            color: #fff;
+            font-size: 14px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            color: #212121;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+        }
+
+        .channel-tag {
+            display: inline-block;
+            background: #FFF8E1;
+            color: #E65100;
+            font-weight: 900;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            direction: ltr;
+        }
+
+        .card h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            color: #E65100;
+        }
+
+        .card p {
+            margin: 0 0 18px;
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-play {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(245, 124, 0, 0.4);
+        }
+
+        .btn-tg {
+            background: linear-gradient(135deg, #29B6F6, #0288D1);
+            color: #fff;
+        }
+
+        .btn-lobby {
+            background: #ECEFF1;
+            color: #37474F;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn">🏠 لابی</a>
+        <div class="score-badge">امتیاز: <span id="score">0</span></div>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="timer-container">
+        <div id="timer-bar"></div>
+    </div>
+
+    <canvas id="game-canvas"></canvas>
+
+    <div class="controls-hint">
+        <span>◀ ضربه چپ</span>
+        <span>ضربه راست ▶</span>
+    </div>
+
+    <!-- صفحه شروع -->
+    <div id="start-modal" class="overlay">
+        <div class="card">
+            <div class="channel-tag">@chalbazi</div>
+            <h1>🦒 زرافه چوب‌بر</h1>
+            <p>به چپ یا راست صفحه ضربه بزن تا درخت رو قطع کنی! مراقب شاخه‌ها باش تا به سر زرافه نخورن.</p>
+            <button class="btn btn-play" onclick="startGame()">شروع بازی 🪓</button>
+            <a href="index.html" class="btn btn-lobby">بازگشت به منوی بازی‌ها</a>
+        </div>
+    </div>
+
+    <!-- صفحه پایان -->
+    <div id="gameover-modal" class="overlay hidden">
+        <div class="card">
+            <div class="channel-tag">@chalbazi</div>
+            <h1 id="over-title">💥 شاخه خورد تو سرت!</h1>
+            <p>امتیاز شما: <strong id="final-score" style="font-size: 22px; color: #E65100;">0</strong><br>
+            بهترین رکورد شخصی: <strong id="best-score">0</strong></p>
+            <button class="btn btn-tg" onclick="shareScore()">📤 ارسال رکورد در @chalbazi</button>
+            <button class="btn btn-play" onclick="startGame()">🔄 بازی مجدد</button>
+            <a href="index.html" class="btn btn-lobby">🏠 بازگشت به لابی</a>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE';
+        const CHANNEL_URL = 'https://t.me/chalbazi';
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+        let currentUser = {
+            id: 'guest_' + (localStorage.getItem('chalbazi_uid') || Math.floor(Math.random() * 1000000)),
+            name: 'بازیکن چالبازی',
+            username: ''
+        };
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                currentUser.id = String(u.id);
+                currentUser.name = [u.first_name, u.last_name].filter(Boolean).join(' ');
+                currentUser.username = u.username ? '@' + u.username : '';
+            }
+        }
+
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let score = 0;
+        let timeLeft = 100; // از 0 تا 100
+        let gameActive = false;
+        let giraffeSide = 'left'; // 'left' یا 'right'
+        let segments = []; // 'none', 'left', 'right'
+        let chopAnim = 0;
+        let flyingLogs = [];
+        let lastFrameTime = 0;
+
+        function generateNextSegment(prev) {
+            if (prev === 'left' || prev === 'right') {
+                // بعد از شاخه، حداقل یک تنه خالی می‌گذاریم تا جابه‌جایی همیشه ممکن باشد
+                return 'none';
+            }
+            const r = Math.random();
+            if (r < 0.42) return 'left';
+            if (r < 0.84) return 'right';
+            return 'none';
+        }
+
+        function initTree() {
+            segments = ['none', 'none', 'none'];
+            for (let i = 3; i < 12; i++) {
+                segments.push(generateNextSegment(segments[i - 1]));
+            }
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 100;
+            giraffeSide = 'left';
+            flyingLogs = [];
+            document.getElementById('score').textContent = '0';
+            document.getElementById('start-modal').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+            initTree();
+            gameActive = true;
+            lastFrameTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function chop(side) {
+            if (!gameActive) return;
+
+            giraffeSide = side;
+            chopAnim = 1;
+
+            // بررسی برخورد قبل از برش (شاخه فعلی هم‌سطح زرافه)
+            if (segments[0] === giraffeSide) {
+                endGame('💥 شاخه خورد تو سر زرافه!');
+                return;
+            }
+
+            // پرتاب تکه چوب بریده شده
+            flyingLogs.push({
+                x: canvas.width / 2,
+                y: canvas.height - 130,
+                vx: side === 'left' ? 7 : -7,
+                vy: -5,
+                rot: 0
+            });
+
+            // حذف پایین‌ترین بخش درخت و اضافه کردن بخش جدید در بالا
+            segments.shift();
+            segments.push(generateNextSegment(segments[segments.length - 1]));
+
+            // بررسی برخورد با شاخه‌ای که تازه پایین آمده
+            if (segments[0] === giraffeSide) {
+                endGame('💥 شاخه پایین اومد و خورد تو سرت!');
+                return;
+            }
+
+            score++;
+            document.getElementById('score').textContent = score;
+
+            // فرمول اصلاح‌شده تمدید زمان: همیشه حداقل 5.5 واحد زمان اضافه می‌کند
+            const timeBonus = Math.max(5.5, 9 - score * 0.03);
+            timeLeft = Math.min(100, timeLeft + timeBonus);
+
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        function endGame(reason) {
+            gameActive = false;
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+
+            const best = Math.max(score, Number(localStorage.getItem('chalbazi_giraffe_best') || 0));
+            localStorage.setItem('chalbazi_giraffe_best', best);
+
+            document.getElementById('over-title').textContent = reason;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('best-score').textContent = best;
+            document.getElementById('gameover-modal').classList.remove('hidden');
+
+            if (score > 0 && GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: currentUser.id,
+                        name: currentUser.name + ' (زرافه)',
+                        username: currentUser.username,
+                        score: score
+                    })
+                }).catch(() => {});
+            }
+        }
+
+        function shareScore() {
+            const text = `🦒 من (${currentUser.name}) توی بازی «زرافه چوب‌بر» کانال @chalbazi امتیاز ${score} رو زدم! 🪓🔥\nمی‌تونی رکوردم رو بشکنی؟ 👇`;
+            const url = `https://t.me/share/url?url=${encodeURIComponent(CHANNEL_URL)}&text=${encodeURIComponent(text)}`;
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+
+        // کنترل لمسی و کیبورد
+        canvas.addEventListener('pointerdown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            if (clickX < rect.width / 2) chop('left');
+            else chop('right');
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') chop('left');
+            if (e.key === 'ArrowRight') chop('right');
+        });
+
+        function drawGiraffe(x, y, side, isChopping) {
+            ctx.save();
+            ctx.translate(x, y);
+            if (side === 'right') ctx.scale(-1, 1);
+
+            // بدن زرافه
+            ctx.fillStyle = '#FFB300';
+            ctx.beginPath();
+            ctx.roundRect(-22, -35, 44, 45, 14);
+            ctx.fill();
+
+            // گردن بلند
+            ctx.beginPath();
+            ctx.roundRect(-8, -95, 20, 68, 10);
+            ctx.fill();
+
+            // خال‌های قهوه‌ای
+            ctx.fillStyle = '#6D4C41';
+            ctx.beginPath(); ctx.arc(-6, -15, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(8, -22, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(2, -62, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(4, -80, 4, 0, Math.PI * 2); ctx.fill();
+
+            // سر زرافه
+            ctx.fillStyle = '#FFB300';
+            ctx.beginPath();
+            ctx.roundRect(-10, -118, 34, 26, 12);
+            ctx.fill();
+
+            // شاخک‌ها
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(-4, -128, 4, 12);
+            ctx.fillRect(6, -128, 4, 12);
+            ctx.beginPath(); ctx.arc(-2, -129, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(8, -129, 4, 0, Math.PI * 2); ctx.fill();
+
+            // چشم
+            ctx.fillStyle = '#212121';
+            ctx.beginPath(); ctx.arc(14, -106, 3.5, 0, Math.PI * 2); ctx.fill();
+
+            // تبر در دست
+            ctx.save();
+            ctx.translate(18, -32);
+            ctx.rotate(isChopping ? 0.65 : -0.35);
+            ctx.fillStyle = '#8D6E63';
+            ctx.fillRect(0, -4, 38, 7);
+            ctx.fillStyle = '#B0BEC5';
+            ctx.beginPath();
+            ctx.moveTo(28, -14);
+            ctx.lineTo(42, -14);
+            ctx.lineTo(38, 12);
+            ctx.lineTo(28, 8);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        function gameLoop(now) {
+            if (!gameActive) return;
+
+            const dt = (now - lastFrameTime) / 1000;
+            lastFrameTime = now;
+
+            // سرعت کاهش زمان بر ثانیه (در امتیازهای بالا سرعت متعادل و منطقی می‌ماند)
+            const drainPerSecond = 16 + Math.min(28, score * 0.25);
+            timeLeft -= drainPerSecond * dt;
+
+            if (timeLeft <= 0) {
+                timeLeft = 0;
+                document.getElementById('timer-bar').style.width = '0%';
+                endGame('⏰ وقتت تموم شد!');
+                return;
+            }
+
+            document.getElementById('timer-bar').style.width = timeLeft + '%';
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            const groundY = canvas.height - 65;
+            const trunkW = 74;
+            const segH = 68;
+
+            // چمن پایین
+            ctx.fillStyle = '#2E7D32';
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+
+            // رسم تنه درخت و شاخه‌ها
+            for (let i = 0; i < segments.length; i++) {
+                const y = groundY - (i + 1) * segH;
+
+                // تنه
+                ctx.fillStyle = i % 2 === 0 ? '#795548' : '#6D4C41';
+                ctx.fillRect(cx - trunkW / 2, y, trunkW, segH);
+
+                // بافت عمودی تنه
+                ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                ctx.fillRect(cx - 12, y + 8, 5, segH - 16);
+                ctx.fillRect(cx + 15, y + 12, 4, segH - 24);
+
+                // شاخه چپ یا راست
+                if (segments[i] === 'left') {
+                    ctx.fillStyle = '#5D4037';
+                    ctx.beginPath();
+                    ctx.roundRect(cx - trunkW / 2 - 78, y + 22, 82, 22, 10);
+                    ctx.fill();
+                    // برگ‌های شاخه
+                    ctx.fillStyle = '#43A047';
+                    ctx.beginPath();
+                    ctx.arc(cx - trunkW / 2 - 65, y + 24, 18, 0, Math.PI * 2);
+                    ctx.arc(cx - trunkW / 2 - 42, y + 20, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (segments[i] === 'right') {
+                    ctx.fillStyle = '#5D4037';
+                    ctx.beginPath();
+                    ctx.roundRect(cx + trunkW / 2 - 4, y + 22, 82, 22, 10);
+                    ctx.fill();
+                    // برگ‌های شاخه
+                    ctx.fillStyle = '#43A047';
+                    ctx.beginPath();
+                    ctx.arc(cx + trunkW / 2 + 65, y + 24, 18, 0, Math.PI * 2);
+                    ctx.arc(cx + trunkW / 2 + 42, y + 20, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // رسم تکه‌های چوب در حال پرتاب
+            for (let i = flyingLogs.length - 1; i >= 0; i--) {
+                const log = flyingLogs[i];
+                log.x += log.vx;
+                log.y += log.vy;
+                log.vy += 0.45;
+                log.rot += 0.15;
+
+                ctx.save();
+                ctx.translate(log.x, log.y);
+                ctx.rotate(log.rot);
+                ctx.fillStyle = '#8D6E63';
+                ctx.fillRect(-25, -18, 50, 36);
+                ctx.restore();
+
+                if (log.y > canvas.height + 50) flyingLogs.splice(i, 1);
+            }
+
+            // رسم زرافه
+            const gx = giraffeSide === 'left' ? cx - trunkW / 2 - 44 : cx + trunkW / 2 + 44;
+            drawGiraffe(gx, groundY, giraffeSide, chopAnim > 0);
+            if (chopAnim > 0) chopAnim = Math.max(0, chopAnim - dt * 8);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        initTree();
+    </script>
+</body>
+</html>
