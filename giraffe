@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>زرافه چوب‌بر | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 70%, #81C784 70%, #388E3C 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header {
+            width: 100%;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .player-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            font-weight: 700;
+            font-size: 13px;
+            color: #2E7D32;
+        }
+
+        .score-box {
+            background: #FF8F00;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .timer-container {
+            width: 85%;
+            max-width: 360px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+            border: 2px solid #fff;
+            z-index: 10;
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #FF5252, #FFCA28, #66BB6A);
+            transition: width 0.1s linear;
+        }
+
+        #game-canvas {
+            flex: 1;
+            width: 100%;
+            max-width: 450px;
+            display: block;
+        }
+
+        .controls-hint {
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 24px;
+            padding: 22px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            animation: popIn 0.25s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .channel-tag {
+            display: inline-block;
+            background: #E1F5FE;
+            color: #0277BD;
+            font-weight: 900;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            direction: ltr;
+        }
+
+        .card h1 {
+            margin: 0 0 6px;
+            font-size: 23px;
+            color: #E65100;
+        }
+
+        .card p {
+            margin: 0 0 14px;
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .input-name {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #FFB300;
+            border-radius: 12px;
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(245, 124, 0, 0.4);
+        }
+
+        .btn-tg {
+            background: linear-gradient(135deg, #29B6F6, #0288D1);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.35);
+        }
+
+        .leaderboard {
+            background: #FAFAFA;
+            border-radius: 14px;
+            padding: 10px;
+            margin: 10px 0 14px;
+            max-height: 190px;
+            overflow-y: auto;
+            border: 1px solid #EEE;
+            text-align: right;
+        }
+
+        .lb-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 4px;
+            background: #fff;
+            border: 1px solid #F0F0F0;
+        }
+
+        .lb-row.me {
+            background: #FFF8E1;
+            border-color: #FFD54F;
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="player-badge">
+            <span>🦒</span>
+            <span id="player-name-display">بازیکن</span>
+        </div>
+        <div class="score-box">امتیاز: <span id="score-display">0</span></div>
+    </div>
+
+    <div class="timer-container">
+        <div id="timer-bar"></div>
+    </div>
+
+    <canvas id="game-canvas"></canvas>
+
+    <div class="controls-hint">
+        <span>👈 ضربه به راست: قطع از راست</span>
+        <span>ضربه به چپ: قطع از چپ 👉</span>
+    </div>
+
+    <!-- صفحه شروع -->
+    <div id="start-modal" class="overlay">
+        <div class="card">
+            <div class="channel-tag">@chalbazi</div>
+            <h1>🦒 زرافه چوب‌بر</h1>
+            <p>چالش سرعت کانال چالبازی! درخت رو قطع کن و نذار شاخه‌ها به سر زرافه بخورن.</p>
+            
+            <div id="manual-name-box" class="hidden">
+                <input type="text" id="manual-name-input" class="input-name" placeholder="نام خود را وارد کنید...">
+            </div>
+
+            <div class="leaderboard">
+                <div class="lb-title">
+                    <span>🏆 جدول برترین‌های @chalbazi</span>
+                    <span id="sync-status" style="color:#0288D1; font-size:11px;">در حال بروزرسانی...</span>
+                </div>
+                <div id="start-lb-list"></div>
+            </div>
+
+            <button class="btn btn-primary" onclick="startGame()">شروع چالش ⚡</button>
+        </div>
+    </div>
+
+    <!-- صفحه پایان بازی -->
+    <div id="gameover-modal" class="overlay hidden">
+        <div class="card">
+            <div class="channel-tag">@chalbazi</div>
+            <h1>💥 اُپس! شاخه خورد به سرت!</h1>
+            <p>امتیاز این دور: <strong id="final-score" style="font-size: 20px; color: #E65100;">0</strong></p>
+
+            <div class="leaderboard">
+                <div class="lb-title">
+                    <span>📊 جدول زنده @chalbazi</span>
+                    <span id="new-record-tag" class="hidden" style="color: #D84315;">🔥 رکورد جدید!</span>
+                </div>
+                <div id="end-lb-list"></div>
+            </div>
+
+            <button class="btn btn-tg" onclick="shareScoreToTelegram()">📤 ارسال رکورد برای بچه‌های @chalbazi</button>
+            <button class="btn btn-primary" onclick="startGame()">🔄 تلاش مجدد</button>
+        </div>
+    </div>
+
+    <script>
+        // لینک Google Apps Script خود را اینجا قرار دهید:
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFvnQMQjinFJYRv_BPIAzPWO7IN4zMcb5LbibAXGxVjS4PoaBM57n1ZXFQ7sKDCPLbcw/exec';
+
+        const CHANNEL_HANDLE = '@chalbazi';
+        const CHANNEL_URL = 'https://t.me/chalbazi';
+
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        let currentUser = {
+            id: 'guest_' + (localStorage.getItem('chalbazi_uid') || Math.floor(Math.random() * 1000000)),
+            name: 'بازیکن مهمان',
+            username: ''
+        };
+        localStorage.setItem('chalbazi_uid', currentUser.id.replace('guest_', ''));
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                currentUser.id = String(u.id);
+                currentUser.name = [u.first_name, u.last_name].filter(Boolean).join(' ');
+                currentUser.username = u.username ? '@' + u.username : '';
+            }
+        }
+
+        const nameDisplay = document.getElementById('player-name-display');
+        const manualNameBox = document.getElementById('manual-name-box');
+        const manualNameInput = document.getElementById('manual-name-input');
+
+        if (currentUser.name === 'بازیکن مهمان') {
+            const savedName = localStorage.getItem('chalbazi_giraffe_guest');
+            if (savedName) {
+                currentUser.name = savedName;
+                manualNameInput.value = savedName;
+            }
+            manualNameBox.classList.remove('hidden');
+        }
+        nameDisplay.textContent = currentUser.name;
+
+        let leaderboardData = [];
+
+        // دریافت لیست زنده رکوردها از Google Sheets
+        async function fetchGlobalLeaderboard() {
+            const statusEl = document.getElementById('sync-status');
+            try {
+                const local = JSON.parse(localStorage.getItem('chalbazi_giraffe_lb') || '[]');
+                if (Array.isArray(local) && local.length > 0) {
+                    leaderboardData = local;
+                    renderLeaderboards();
+                }
+            } catch (e) {}
+
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                statusEl.textContent = 'حالت آفلاین';
+                renderLeaderboards();
+                return;
+            }
+
+            try {
+                statusEl.textContent = 'در حال دریافت...';
+                const res = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    leaderboardData = data;
+                    localStorage.setItem('chalbazi_giraffe_lb', JSON.stringify(data));
+                    renderLeaderboards();
+                }
+                statusEl.textContent = 'آنلاین 🟢';
+            } catch (err) {
+                statusEl.textContent = 'خطا در اتصال';
+                renderLeaderboards();
+            }
+        }
+
+        // ارسال امتیاز به Google Sheets
+        async function submitScoreToCloud(finalScore) {
+            let idx = leaderboardData.findIndex(item => item.id === currentUser.id);
+            let isNewRecord = false;
+
+            if (idx === -1) {
+                leaderboardData.push({ id: currentUser.id, name: currentUser.name, username: currentUser.username, score: finalScore });
+                isNewRecord = finalScore > 0;
+            } else {
+                leaderboardData[idx].name = currentUser.name;
+                leaderboardData[idx].username = currentUser.username;
+                if (finalScore > leaderboardData[idx].score) {
+                    leaderboardData[idx].score = finalScore;
+                    isNewRecord = true;
+                }
+            }
+
+            leaderboardData.sort((a, b) => b.score - a.score);
+            localStorage.setItem('chalbazi_giraffe_lb', JSON.stringify(leaderboardData));
+            renderLeaderboards();
+
+            if (isNewRecord) {
+                document.getElementById('new-record-tag').classList.remove('hidden');
+            }
+
+            if (finalScore > 0 && GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: currentUser.id,
+                            name: currentUser.name,
+                            username: currentUser.username,
+                            score: finalScore
+                        })
+                    });
+                    setTimeout(fetchGlobalLeaderboard, 1200);
+                } catch (e) {}
+            }
+        }
+
+        function renderLeaderboards() {
+            const html = leaderboardData.length === 0
+                ? '<div style="text-align:center; color:#888; font-size:12px; padding:12px;">هنوز رکوردی ثبت نشده! اولین نفر باش</div>'
+                : leaderboardData.slice(0, 20).map((item, i) => {
+                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+                    const isMe = String(item.id) === String(currentUser.id) ? 'me' : '';
+                    const userTag = item.username ? ` <span style="color:#777; font-size:11px; direction:ltr;">(${item.username})</span>` : '';
+                    return `
+                        <div class="lb-row ${isMe}">
+                            <span>${medal} ${item.name}${userTag}</span>
+                            <strong style="color:#E65100;">${item.score}</strong>
+                        </div>
+                    `;
+                }).join('');
+
+            document.getElementById('start-lb-list').innerHTML = html;
+            document.getElementById('end-lb-list').innerHTML = html;
+        }
+
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let score = 0;
+        let timeLeft = 100;
+        let gameActive = false;
+        let giraffeSide = 'left';
+        let treeSegments = [];
+        let chopAnim = 0;
+        let flyingLogs = [];
+        let lastTime = 0;
+
+        function initTree() {
+            treeSegments = ['none', 'none'];
+            for (let i = 0; i < 8; i++) {
+                addTreeSegment();
+            }
+        }
+
+        function addTreeSegment() {
+            const prev = treeSegments[treeSegments.length - 1];
+            if (prev !== 'none') {
+                treeSegments.push('none');
+            } else {
+                const r = Math.random();
+                if (r < 0.38) treeSegments.push('left');
+                else if (r < 0.76) treeSegments.push('right');
+                else treeSegments.push('none');
+            }
+        }
+
+        function startGame() {
+            if (!manualNameBox.classList.contains('hidden')) {
+                const typed = manualNameInput.value.trim();
+                if (typed) {
+                    currentUser.name = typed;
+                    localStorage.setItem('chalbazi_giraffe_guest', typed);
+                    nameDisplay.textContent = typed;
+                }
+            }
+
+            score = 0;
+            timeLeft = 100;
+            giraffeSide = 'left';
+            flyingLogs = [];
+            document.getElementById('score-display').textContent = '0';
+            document.getElementById('start-modal').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('new-record-tag').classList.add('hidden');
+
+            initTree();
+            gameActive = true;
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function chop(side) {
+            if (!gameActive) return;
+
+            giraffeSide = side;
+            chopAnim = 1;
+
+            if (treeSegments[0] === giraffeSide) {
+                endGame();
+                return;
+            }
+
+            flyingLogs.push({
+                x: canvas.width / 2,
+                y: canvas.height - 130,
+                vx: side === 'left' ? 9 : -9,
+                vy: -6,
+                rot: 0
+            });
+
+            treeSegments.shift();
+            addTreeSegment();
+
+            if (treeSegments[0] === giraffeSide) {
+                endGame();
+                return;
+            }
+
+            score++;
+            timeLeft = Math.min(100, timeLeft + 3.2);
+            document.getElementById('score-display').textContent = score;
+
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('gameover-modal').classList.remove('hidden');
+            submitScoreToCloud(score);
+        }
+
+        function shareScoreToTelegram() {
+            const text = `🦒 من (${currentUser.name}) توی چالش زرافه چوب‌بر کانال ${CHANNEL_HANDLE} امتیاز ${score} رو ثبت کردم! 💪🔥\nتو هم بیا رکوردم رو بزن 👇`;
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(CHANNEL_URL)}&text=${encodeURIComponent(text)}`;
+            if (tg && tg.openTelegramLink) {
+                tg.openTelegramLink(shareUrl);
+            } else {
+                window.open(shareUrl, '_blank');
+            }
+        }
+
+        canvas.addEventListener('pointerdown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < rect.width / 2) chop('left');
+            else chop('right');
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') chop('left');
+            if (e.key === 'ArrowRight' || e.key === 'd') chop('right');
+        });
+
+        function drawGiraffe(x, y, side, isChopping) {
+            ctx.save();
+            ctx.translate(x, y);
+            if (side === 'right') ctx.scale(-1, 1);
+
+            ctx.fillStyle = '#FFCA28';
+            ctx.beginPath();
+            ctx.roundRect(-22, -45, 44, 55, 14);
+            ctx.fill();
+
+            ctx.fillStyle = '#8D6E63';
+            ctx.beginPath();
+            ctx.arc(-6, -25, 6, 0, Math.PI * 2);
+            ctx.arc(8, -12, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FFCA28';
+            ctx.fillRect(-10, -115, 20, 75);
+
+            ctx.fillStyle = '#8D6E63';
+            ctx.beginPath();
+            ctx.arc(0, -90, 5, 0, Math.PI * 2);
+            ctx.arc(-2, -68, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FFD54F';
+            ctx.beginPath();
+            ctx.roundRect(-14, -142, 34, 28, 10);
+            ctx.fill();
+
+            ctx.fillStyle = '#6D4C41';
+            ctx.fillRect(-8, -152, 4, 12);
+            ctx.fillRect(4, -152, 4, 12);
+
+            ctx.fillStyle = '#212121';
+            ctx.beginPath();
+            ctx.arc(8, -130, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.save();
+            ctx.translate(15, -35);
+            ctx.rotate(isChopping ? 0.35 : -0.25);
+            ctx.fillStyle = '#D32F2F';
+            ctx.fillRect(0, -10, 26, 20);
+            ctx.fillStyle = '#B0BEC5';
+            ctx.beginPath();
+            ctx.roundRect(24, -6, 36, 12, 4);
+            ctx.fill();
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        function drawTree() {
+            const centerX = canvas.width / 2;
+            const baseY = canvas.height - 90;
+            const segHeight = 72;
+            const trunkWidth = 76;
+
+            ctx.fillStyle = '#2E7D32';
+            ctx.beginPath();
+            ctx.ellipse(centerX, baseY + 15, 130, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            for (let i = 0; i < treeSegments.length; i++) {
+                const y = baseY - (i + 1) * segHeight;
+                ctx.fillStyle = i % 2 === 0 ? '#6D4C41' : '#5D4037';
+                ctx.fillRect(centerX - trunkWidth / 2, y, trunkWidth, segHeight);
+
+                ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                ctx.fillRect(centerX - 12, y + 10, 6, segHeight - 20);
+                ctx.fillRect(centerX + 14, y + 18, 5, segHeight - 30);
+
+                const branch = treeSegments[i];
+                if (branch === 'left') {
+                    ctx.fillStyle = '#5D4037';
+                    ctx.fillRect(centerX - trunkWidth / 2 - 75, y + 24, 75, 22);
+                    ctx.fillStyle = '#43A047';
+                    ctx.beginPath();
+                    ctx.arc(centerX - trunkWidth / 2 - 70, y + 32, 24, 0, Math.PI * 2);
+                    ctx.arc(centerX - trunkWidth / 2 - 45, y + 22, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (branch === 'right') {
+                    ctx.fillStyle = '#5D4037';
+                    ctx.fillRect(centerX + trunkWidth / 2, y + 24, 75, 22);
+                    ctx.fillStyle = '#43A047';
+                    ctx.beginPath();
+                    ctx.arc(centerX + trunkWidth / 2 + 70, y + 32, 24, 0, Math.PI * 2);
+                    ctx.arc(centerX + trunkWidth / 2 + 45, y + 22, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        function gameLoop(now) {
+            if (!gameActive) return;
+
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            const drainSpeed = 16 + Math.min(28, score * 0.28);
+            timeLeft -= drainSpeed * dt;
+            document.getElementById('timer-bar').style.width = Math.max(0, timeLeft) + '%';
+
+            if (timeLeft <= 0) {
+                endGame();
+                return;
+            }
+
+            if (chopAnim > 0) chopAnim = Math.max(0, chopAnim - dt * 8);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTree();
+
+            const centerX = canvas.width / 2;
+            const gX = giraffeSide === 'left' ? centerX - 85 : centerX + 85;
+            drawGiraffe(gX, canvas.height - 85, giraffeSide, chopAnim > 0.2);
+
+            for (let i = flyingLogs.length - 1; i >= 0; i--) {
+                const log = flyingLogs[i];
+                log.x += log.vx;
+                log.y += log.vy;
+                log.vy += 0.6;
+                log.rot += 0.2;
+
+                ctx.save();
+                ctx.translate(log.x, log.y);
+                ctx.rotate(log.rot);
+                ctx.fillStyle = '#6D4C41';
+                ctx.fillRect(-38, -36, 76, 72);
+                ctx.restore();
+
+                if (log.y > canvas.height + 100) flyingLogs.splice(i, 1);
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        resizeCanvas();
+        initTree();
+        drawTree();
+        drawGiraffe(canvas.width / 2 - 85, canvas.height - 85, 'left', false);
+        fetchGlobalLeaderboard();
+    </script>
+</body>
+</html>
