@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>جدول کلمات ۸×۸ | @chalbazi</title>
+    <title>جدول کلمات ۸×۸ (زنده) | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="words.js"></script>
     <script src="dictionary.js"></script>
@@ -50,23 +50,66 @@
             font-weight: 700;
         }
 
+        .live-pill {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #6EE7B7;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulse 1.4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
         .badge {
             background: linear-gradient(135deg, #F59E0B, #D97706);
             color: #fff;
-            padding: 5px 14px;
+            padding: 5px 12px;
             border-radius: 14px;
             font-weight: 900;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .container {
             width: 100%;
             max-width: 480px;
-            padding: 10px 14px 20px;
+            padding: 10px 14px 24px;
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        .live-ticker {
+            width: 100%;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #BAE6FD;
+            text-align: center;
+            margin-bottom: 8px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .targets-panel {
@@ -74,22 +117,22 @@
             background: rgba(15, 23, 42, 0.75);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
-            padding: 10px 12px;
+            padding: 8px 10px;
             margin-bottom: 8px;
         }
 
         .targets-header {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
+            font-size: 11px;
             color: #94A3B8;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .targets-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 5px;
             justify-content: center;
         }
 
@@ -97,29 +140,35 @@
             background: rgba(59, 130, 246, 0.2);
             border: 1.5px solid #3B82F6;
             color: #93C5FD;
-            padding: 4px 10px;
+            padding: 3px 9px;
             border-radius: 10px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
             transition: all 0.25s;
         }
 
         .target-chip.found {
-            background: rgba(16, 185, 129, 0.25);
+            background: rgba(16, 185, 129, 0.2);
             border-color: #10B981;
             color: #6EE7B7;
-            text-decoration: line-through;
+        }
+
+        .target-chip small {
+            font-weight: 400;
+            opacity: 0.85;
+            font-size: 10px;
+            margin-right: 3px;
         }
 
         .current-word-bar {
             width: 100%;
-            min-height: 40px;
+            min-height: 38px;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 900;
             color: #FBBF24;
             letter-spacing: 2px;
@@ -134,7 +183,7 @@
             background: rgba(15, 23, 42, 0.85);
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 18px;
-            padding: 8px;
+            padding: 7px;
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             grid-template-rows: repeat(8, 1fr);
@@ -164,6 +213,12 @@
             z-index: 2;
         }
 
+        .cell.hint-flash {
+            background: linear-gradient(135deg, #EC4899, #DB2777) !important;
+            border-color: #FBCFE8 !important;
+            transform: scale(1.12);
+        }
+
         .cell.cleared {
             background: rgba(15, 23, 42, 0.35);
             border: 1px dashed rgba(255, 255, 255, 0.08);
@@ -173,10 +228,10 @@
         }
 
         .feedback {
-            min-height: 24px;
-            font-size: 13px;
+            min-height: 22px;
+            font-size: 12px;
             font-weight: 700;
-            margin-top: 8px;
+            margin-top: 6px;
             text-align: center;
         }
 
@@ -186,7 +241,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
+            margin-top: 6px;
             font-size: 12px;
             color: #CBD5E1;
         }
@@ -195,17 +250,53 @@
             background: rgba(255, 255, 255, 0.14);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
-            padding: 6px 12px;
+            padding: 5px 11px;
             border-radius: 10px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             cursor: pointer;
+        }
+
+        .live-board {
+            width: 100%;
+            max-width: 390px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 10px 12px;
+            margin-top: 10px;
+        }
+
+        .live-board-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 900;
+            color: #FBBF24;
+            margin-bottom: 6px;
+        }
+
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            font-size: 12px;
+        }
+
+        .player-row:last-child { border-bottom: none; }
+
+        .player-row.me {
+            background: rgba(59, 130, 246, 0.18);
+            border-radius: 8px;
+            padding: 5px 8px;
         }
 
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.82);
+            background: rgba(0, 0, 0, 0.84);
             backdrop-filter: blur(6px);
             display: flex;
             align-items: center;
@@ -281,24 +372,6 @@
         .btn-blue { background: linear-gradient(135deg, #0288D1, #03A9F4); }
         .btn-gray { background: rgba(255, 255, 255, 0.12); }
 
-        .board-box {
-            background: rgba(15, 23, 42, 0.7);
-            border-radius: 14px;
-            padding: 10px 12px;
-            margin-top: 10px;
-            text-align: right;
-            max-height: 160px;
-            overflow-y: auto;
-        }
-
-        .player-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 2px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            font-size: 12px;
-        }
-
         .hidden { display: none !important; }
     </style>
 </head>
@@ -306,15 +379,20 @@
 
     <div class="header">
         <a href="index.html" class="back-btn">🏠 لابی</a>
-        <div style="font-weight: 900; font-size: 14px;">جدول ۸×۸ 🧩</div>
+        <div class="live-pill">
+            <span class="live-dot"></span>
+            <span id="online-count">در حال اتصال...</span>
+        </div>
         <div class="badge">امتیاز: <span id="score-val">0</span></div>
     </div>
 
     <div class="container">
+        <div class="live-ticker" id="live-ticker">🌐 متصل به پازل مشترک کانال @chalbazi</div>
+
         <div class="targets-panel">
             <div class="targets-header">
-                <span>🎯 کلمات کلیدی (باقی‌مانده: <strong id="rem-count" style="color:#FBBF24;">0</strong>)</span>
-                <span>ضریب فعلی: <strong id="mult-val" style="color:#34D399;">×1</strong></span>
+                <span>🎯 کلمات کلیدی باقی‌مانده: <strong id="rem-count" style="color:#FBBF24;">-</strong></span>
+                <span>ضریب فعلی: <strong id="mult-val" style="color:#34D399;">×-</strong></span>
             </div>
             <div class="targets-list" id="targets-container"></div>
         </div>
@@ -326,45 +404,54 @@
         <div class="feedback" id="feedback-msg"></div>
 
         <div class="stats-bar">
-            <span>کلمات عادی پیداشده: <strong id="bonus-count" style="color:#38BDF8;">0</strong></span>
-            <button class="btn-small" onclick="useHint()">💡 راهنمای شروع کلمه (-۱۵ امتیاز)</button>
+            <span>کلمات عادی من: <strong id="bonus-count" style="color:#38BDF8;">0</strong></span>
+            <button class="btn-small" onclick="useHint()">💡 راهنما (-۱۵ امتیاز)</button>
+        </div>
+
+        <div class="live-board">
+            <div class="live-board-title">
+                <span>🏆 رده‌بندی زنده همین پازل</span>
+                <span id="puzzle-num-badge" style="color:#94A3B8; font-weight:700;">پازل زنده</span>
+            </div>
+            <div id="live-scoreboard">در حال دریافت لیست بازیکنان...</div>
         </div>
     </div>
 
-    <!-- صفحه شروع -->
+    <!-- صفحه ورود به اتاق زنده -->
     <div id="start-modal" class="overlay">
         <div class="card">
             <div class="pill">@chalbazi</div>
-            <h2 style="margin: 4px 0; font-size: 20px;">🧩 پازل کلمات ۸×۸</h2>
+            <h2 style="margin: 4px 0; font-size: 20px;">🧩 پازل زنده ۸×۸ (همگانی)</h2>
             <div class="dict-badge" id="dict-status">در حال بارگذاری دیکشنری...</div>
             <div class="rules-list">
-                🔹 کل جدول ۶۴ حرفی با چند <strong>کلمه کلیدی</strong> پر شده است.<br>
-                🔹 حروف کلمه باید به هم متصل باشند (افقی، عمودی یا اریب).<br>
-                🔹 با یافتن هر کلمه کلیدی، حروفش پاک می‌شوند و امتیازش برابر است با: <strong>تعداد حروف × تعداد کلمات کلیدی باقیمانده</strong>.<br>
-                🔸 هر کلمه معتبر دیگر (حداقل ۳ حرف) به عنوان <strong>کلمه عادی</strong> به ازای هر حرف <strong>۱ امتیاز</strong> دارد!
+                🌐 در هر لحظه فقط <strong>یک پازل مشترک</strong> برای همه باز است.<br>
+                🔹 هر کلمه کلیدی که کسی پیدا کند برای همه پاک می‌شود (امتیاز: <strong>تعداد حروف × کلمات باقیمانده</strong>).<br>
+                🔸 هر زمان وارد شوید می‌توانید از ادامه جدول بازی کنید و با کلمات عادی هم امتیاز بگیرید.<br>
+                🏁 با پیدا شدن آخرین کلمه کلیدی، برنده مشخص شده و پازل بعدی خودکار شروع می‌شود!
             </div>
-            <button class="btn-main btn-green" onclick="startNewGame()">شروع بازی جدید 🎮</button>
+            <button class="btn-main btn-green" onclick="enterLiveGame()">ورود به پازل زنده 🚀</button>
             <a href="index.html" class="btn-main btn-gray">بازگشت به لابی</a>
         </div>
     </div>
 
-    <!-- صفحه پایان بازی -->
+    <!-- صفحه پایان پازل فعلی -->
     <div id="win-modal" class="overlay hidden">
         <div class="card">
             <div class="pill">@chalbazi</div>
-            <h2 style="color: #34D399; margin: 4px 0;">🏆 جدول کامل پاکسازی شد!</h2>
-            <p style="font-size: 14px; margin: 8px 0;">
-                امتیاز کل شما: <strong id="final-score" style="font-size: 24px; color: #FBBF24;">0</strong><br>
-                <span style="font-size: 12px; color: #94A3B8;">کلمات عادی کشف‌شده: <strong id="final-bonus">0</strong> کلمه</span>
-            </p>
-            <button class="btn-main btn-blue" onclick="shareScore()">📤 ارسال رکورد در @chalbazi</button>
-            <button class="btn-main btn-green" onclick="startNewGame()">🔄 جدول جدید</button>
-            <a href="index.html" class="btn-main btn-gray">🏠 بازگشت به لابی</a>
+            <h2 style="color: #34D399; margin: 4px 0;">🏆 این پازل تمام شد!</h2>
+            <p id="winner-summary" style="font-size: 13px; color: #CBD5E1; margin: 6px 0 12px;"></p>
 
-            <div class="board-box">
-                <div style="font-size: 12px; font-weight: 900; color: #FBBF24; margin-bottom: 6px;">🏆 رکوردهای برتر جدول ۸×۸</div>
-                <div id="leaderboard-list">در حال بارگذاری...</div>
+            <div class="live-board" style="margin: 0 0 14px; text-align: right; max-height: 180px; overflow-y: auto;">
+                <div class="live-board-title"><span>🥇 نفرات برتر این پازل</span></div>
+                <div id="final-round-board"></div>
             </div>
+
+            <div id="next-countdown" style="font-size: 13px; font-weight: 900; color: #FBBF24; margin-bottom: 12px;">
+                ⏳ ساخت پازل جدید تا ۱۰ ثانیه دیگر...
+            </div>
+
+            <button class="btn-main btn-blue" onclick="shareScore()">📤 اشتراک‌گذاری نتیجه در @chalbazi</button>
+            <button id="force-next-btn" class="btn-main btn-green hidden" onclick="createAndPushNewPuzzle()">🔄 ساخت پازل جدید</button>
         </div>
     </div>
 
@@ -372,10 +459,15 @@
         const FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
         const CHANNEL_URL = 'https://t.me/chalbazi';
         const CLEAN_DB_URL = FIREBASE_DB_URL.replace(/\/+$/, '');
+        const LIVE_PATH = `${CLEAN_DB_URL}/grid8Live`;
 
         const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         let user = {
-            id: 'u_' + (localStorage.getItem('chalbazi_uid') || Math.floor(Math.random() * 999999)),
+            id: 'u_' + (localStorage.getItem('chalbazi_uid') || (() => {
+                const r = Math.floor(Math.random() * 999999);
+                localStorage.setItem('chalbazi_uid', r);
+                return r;
+            })()),
             name: 'بازیکن چالبازی'
         };
 
@@ -419,86 +511,53 @@
         const WORDS_BY_LEN = {};
 
         function buildDictionary() {
-            const keyPool = [...EXTRA_WORDS];
+            // ۱. افزودن کلمات پایه و فایل words.js
+            const basePool = [...EXTRA_WORDS];
             if (typeof WORDS_DB !== 'undefined') {
-                Object.values(WORDS_DB).forEach(arr => keyPool.push(...arr));
+                Object.values(WORDS_DB).forEach(arr => basePool.push(...arr));
             }
-            keyPool.forEach(w => {
-                const norm = normalizeFa(w);
+            for (let i = 0; i < basePool.length; i++) {
+                const norm = normalizeFa(basePool[i]);
                 if (norm.length >= 3 && norm.length <= 10) {
                     VALID_WORDS_SET.add(norm);
-                    if (!WORDS_BY_LEN[norm.length]) WORDS_BY_LEN[norm.length] = [];
-                    if (!WORDS_BY_LEN[norm.length].includes(norm)) {
-                        WORDS_BY_LEN[norm.length].push(norm);
-                    }
                 }
-            });
+            }
 
-            // افزودن دیکشنری جامع فارسی (dictionary.js) برای پذیرش ده‌ها هزار کلمه عادی
+            // ۲. افزودن کل دیکشنری جامع (dictionary.js) هم برای کلمات کلیدی و هم برای کلمات عادی
             if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
                 for (let i = 0; i < BIG_PERSIAN_DICT.length; i++) {
                     const w = BIG_PERSIAN_DICT[i];
-                    if (w && w.length >= 3) VALID_WORDS_SET.add(w);
+                    if (w && w.length >= 3 && w.length <= 10) {
+                        VALID_WORDS_SET.add(w);
+                    }
                 }
             }
 
+            // ۳. دسته‌بندی سریع تمام واژگان ۴ تا ۸ حرفی برای ساخت کلمات کلیدی جدول
+            VALID_WORDS_SET.forEach(w => {
+                const len = w.length;
+                if (len >= 4 && len <= 8) {
+                    if (!WORDS_BY_LEN[len]) WORDS_BY_LEN[len] = [];
+                    WORDS_BY_LEN[len].push(w);
+                }
+            });
+
             const statusEl = document.getElementById('dict-status');
             if (statusEl) {
-                statusEl.textContent = `📚 دیکشنری فعال: ${VALID_WORDS_SET.size.toLocaleString('fa-IR')} واژه فارسی`;
+                statusEl.textContent = `📚 دیکشنری فعال (کلیدی + عادی): ${VALID_WORDS_SET.size.toLocaleString('fa-IR')} واژه`;
             }
         }
         buildDictionary();
 
-        function generateConnectedPaths(targetLengths) {
-            const totalCells = 64;
-            for (let attempt = 0; attempt < 150; attempt++) {
-                const visited = Array(totalCells).fill(false);
-                const paths = [];
-                let success = true;
-
-                for (const len of targetLengths) {
-                    const unvisitedCells = [];
-                    for (let i = 0; i < totalCells; i++) {
-                        if (!visited[i]) unvisitedCells.push(i);
-                    }
-                    if (unvisitedCells.length < len) { success = false; break; }
-
-                    unvisitedCells.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
-                    const minDeg = getFreeNeighbors(unvisitedCells[0], visited).length;
-                    const candidates = unvisitedCells.filter(c => getFreeNeighbors(c, visited).length === minDeg);
-                    let curr = candidates[Math.floor(Math.random() * candidates.length)];
-
-                    const path = [curr];
-                    visited[curr] = true;
-
-                    for (let step = 1; step < len; step++) {
-                        const neighbors = getFreeNeighbors(curr, visited);
-                        if (neighbors.length === 0) {
-                            success = false;
-                            break;
-                        }
-                        neighbors.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
-                        const bestDeg = getFreeNeighbors(neighbors[0], visited).length;
-                        const bestNeighbors = neighbors.filter(n => getFreeNeighbors(n, visited).length === bestDeg);
-                        curr = bestNeighbors[Math.floor(Math.random() * bestNeighbors.length)];
-                        path.push(curr);
-                        visited[curr] = true;
-                    }
-
-                    if (!success) break;
-                    paths.push(path);
-                }
-
-                if (success && paths.length === targetLengths.length) {
-                    return paths;
-                }
-            }
-            return null;
-        }
+        const PARTITION_PRESETS = [
+            [7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5],
+            [8, 7, 7, 6, 6, 6, 6, 6, 6, 6],
+            [7, 6, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4],
+            [8, 8, 7, 7, 6, 6, 6, 6, 5, 5]
+        ];
 
         function getFreeNeighbors(idx, visited) {
-            const r = Math.floor(idx / 8);
-            const c = idx % 8;
+            const r = Math.floor(idx / 8), c = idx % 8;
             const res = [];
             for (let dr = -1; dr <= 1; dr++) {
                 for (let dc = -1; dc <= 1; dc++) {
@@ -513,45 +572,54 @@
             return res;
         }
 
-        const PARTITION_PRESETS = [
-            [7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5],
-            [8, 7, 7, 6, 6, 6, 6, 6, 6, 6],
-            [7, 6, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4],
-            [8, 8, 7, 7, 6, 6, 6, 6, 5, 5]
-        ];
+        function generateConnectedPaths(targetLengths) {
+            for (let attempt = 0; attempt < 150; attempt++) {
+                const visited = Array(64).fill(false);
+                const paths = [];
+                let success = true;
 
-        let gridLetters = Array(64).fill('');
-        let clearedCells = Array(64).fill(false);
-        let keyWords = [];
-        let foundBonusWords = new Set();
-        let score = 0;
-        let selectedPath = [];
-        let isDragging = false;
+                for (const len of targetLengths) {
+                    const unvisitedCells = [];
+                    for (let i = 0; i < 64; i++) if (!visited[i]) unvisitedCells.push(i);
+                    if (unvisitedCells.length < len) { success = false; break; }
 
-        function startNewGame() {
-            document.getElementById('start-modal').classList.add('hidden');
-            document.getElementById('win-modal').classList.add('hidden');
+                    unvisitedCells.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
+                    const minDeg = getFreeNeighbors(unvisitedCells[0], visited).length;
+                    const candidates = unvisitedCells.filter(c => getFreeNeighbors(c, visited).length === minDeg);
+                    let curr = candidates[Math.floor(Math.random() * candidates.length)];
 
-            score = 0;
-            foundBonusWords.clear();
-            clearedCells = Array(64).fill(false);
-            gridLetters = Array(64).fill('');
-            keyWords = [];
-            selectedPath = [];
+                    const path = [curr];
+                    visited[curr] = true;
 
+                    for (let step = 1; step < len; step++) {
+                        const neighbors = getFreeNeighbors(curr, visited);
+                        if (neighbors.length === 0) { success = false; break; }
+                        neighbors.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
+                        const bestDeg = getFreeNeighbors(neighbors[0], visited).length;
+                        const bestNeighbors = neighbors.filter(n => getFreeNeighbors(n, visited).length === bestDeg);
+                        curr = bestNeighbors[Math.floor(Math.random() * bestNeighbors.length)];
+                        path.push(curr);
+                        visited[curr] = true;
+                    }
+                    if (!success) break;
+                    paths.push(path);
+                }
+                if (success && paths.length === targetLengths.length) return paths;
+            }
+            return null;
+        }
+
+        function buildNewPuzzleData(nextNumber) {
             const preset = PARTITION_PRESETS[Math.floor(Math.random() * PARTITION_PRESETS.length)];
             const lengths = [...preset].sort(() => Math.random() - 0.5);
-
             let paths = generateConnectedPaths(lengths);
+
             if (!paths) {
                 paths = [];
                 let snake = [];
                 for (let r = 0; r < 8; r++) {
-                    if (r % 2 === 0) {
-                        for (let c = 0; c < 8; c++) snake.push(r * 8 + c);
-                    } else {
-                        for (let c = 7; c >= 0; c--) snake.push(r * 8 + c);
-                    }
+                    if (r % 2 === 0) for (let c = 0; c < 8; c++) snake.push(r * 8 + c);
+                    else for (let c = 7; c >= 0; c--) snake.push(r * 8 + c);
                 }
                 let cursor = 0;
                 for (const len of lengths) {
@@ -560,58 +628,267 @@
                 }
             }
 
-            const usedInThisGrid = new Set();
-            paths.forEach(path => {
-                const len = path.length;
-                const pool = WORDS_BY_LEN[len] || ["ستاره"];
+            const letters = Array(64).fill('');
+            const kWords = {};
+            const used = new Set();
+
+            paths.forEach((path, idx) => {
+                const pool = WORDS_BY_LEN[path.length] || ["ستاره"];
                 let word = pool[Math.floor(Math.random() * pool.length)];
                 let tries = 0;
-                while (usedInThisGrid.has(word) && tries < 40) {
+                while (used.has(word) && tries < 40) {
                     word = pool[Math.floor(Math.random() * pool.length)];
                     tries++;
                 }
-                usedInThisGrid.add(word);
-
-                for (let i = 0; i < len; i++) {
-                    gridLetters[path[i]] = word[i];
-                }
-                keyWords.push({ word, path, found: false });
+                used.add(word);
+                for (let i = 0; i < path.length; i++) letters[path[i]] = word[i];
+                kWords[idx] = { word, path, found: false, foundBy: "" };
             });
 
-            updateUI();
-            renderGrid();
-            showFeedback('کلمات کلیدی مشخص‌شده در بالا را پیدا کنید!', '#CBD5E1');
+            return {
+                puzzleId: 'p_' + Date.now(),
+                puzzleNumber: nextNumber,
+                gridLetters: letters,
+                keyWords: kWords,
+                finishedAt: 0,
+                finishedById: "",
+                lastEvent: { text: `🚀 پازل شماره ${nextNumber} شروع شد! اولین کلمه کلیدی رو کی پیدا می‌کنه؟`, ts: Date.now() },
+                players: {
+                    [user.id]: { name: user.name, score: 0, bonusCount: 0, lastSeen: Date.now() }
+                }
+            };
         }
 
-        function updateUI() {
-            document.getElementById('score-val').textContent = score;
+        let currentPuzzleId = null;
+        let currentPuzzleNumber = 1;
+        let gridLetters = Array(64).fill('');
+        let keyWordsArr = [];
+        let clearedCells = Array(64).fill(false);
+        let foundBonusWords = new Set();
+        let myScore = 0;
+        let selectedPath = [];
+        let isDragging = false;
+        let syncInterval = null;
+        let heartbeatInterval = null;
+        let countdownInterval = null;
+        let isCreatingNext = false;
+
+        const gridEl = document.getElementById('grid');
+        const cellElements = [];
+        for (let i = 0; i < 64; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.index = i;
+            gridEl.appendChild(cell);
+            cellElements.push(cell);
+        }
+
+        async function enterLiveGame() {
+            document.getElementById('start-modal').classList.add('hidden');
+            await syncRoom(true);
+            clearInterval(syncInterval);
+            syncInterval = setInterval(() => syncRoom(false), 1500);
+
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = setInterval(sendHeartbeat, 10000);
+        }
+
+        async function sendHeartbeat() {
+            if (!currentPuzzleId) return;
+            try {
+                await fetch(`${LIVE_PATH}/players/${user.id}/lastSeen.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(Date.now())
+                });
+            } catch (e) {}
+        }
+
+        async function registerPlayerInCurrentRoom() {
+            try {
+                await fetch(`${LIVE_PATH}/players/${user.id}.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: user.name,
+                        score: myScore,
+                        bonusCount: foundBonusWords.size,
+                        lastSeen: Date.now()
+                    })
+                });
+            } catch (e) {}
+        }
+
+        async function createAndPushNewPuzzle() {
+            if (isCreatingNext) return;
+            isCreatingNext = true;
+            try {
+                const checkRes = await fetch(`${LIVE_PATH}.json`);
+                const current = await checkRes.json();
+                if (current && current.puzzleId !== currentPuzzleId && !current.finishedAt) {
+                    applyRoomState(current);
+                    isCreatingNext = false;
+                    return;
+                }
+                const nextNum = (current && current.puzzleNumber ? current.puzzleNumber : 0) + 1;
+                const newData = buildNewPuzzleData(nextNum);
+                await fetch(`${LIVE_PATH}.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(newData)
+                });
+                applyRoomState(newData);
+            } catch (e) {}
+            isCreatingNext = false;
+        }
+
+        async function syncRoom(isInitial) {
+            try {
+                const res = await fetch(`${LIVE_PATH}.json`);
+                if (!res.ok) return;
+                const data = await res.json();
+
+                if (!data || !data.gridLetters || !data.keyWords) {
+                    await createAndPushNewPuzzle();
+                    return;
+                }
+
+                if (data.finishedAt && (Date.now() - data.finishedAt > 20000)) {
+                    currentPuzzleId = data.puzzleId;
+                    await createAndPushNewPuzzle();
+                    return;
+                }
+
+                applyRoomState(data, isInitial);
+            } catch (e) {}
+        }
+
+        function applyRoomState(data, isInitial = false) {
+            const isNewPuzzle = (data.puzzleId !== currentPuzzleId);
+
+            if (isNewPuzzle) {
+                currentPuzzleId = data.puzzleId;
+                currentPuzzleNumber = data.puzzleNumber || 1;
+                gridLetters = data.gridLetters;
+                selectedPath = [];
+                isDragging = false;
+                clearInterval(countdownInterval);
+                document.getElementById('win-modal').classList.add('hidden');
+                document.getElementById('force-next-btn').classList.add('hidden');
+
+                const savedBonus = JSON.parse(localStorage.getItem('g8_bonus_' + currentPuzzleId) || '[]');
+                foundBonusWords = new Set(savedBonus);
+
+                if (data.players && data.players[user.id]) {
+                    myScore = data.players[user.id].score || 0;
+                } else {
+                    myScore = 0;
+                    registerPlayerInCurrentRoom();
+                }
+
+                for (let i = 0; i < 64; i++) {
+                    cellElements[i].textContent = gridLetters[i] || '';
+                }
+                document.getElementById('puzzle-num-badge').textContent = `پازل #${currentPuzzleNumber}`;
+            } else if (isInitial && (!data.players || !data.players[user.id])) {
+                registerPlayerInCurrentRoom();
+            }
+
+            keyWordsArr = Object.keys(data.keyWords).map(k => ({
+                idx: k,
+                ...data.keyWords[k]
+            }));
+
+            const newCleared = Array(64).fill(false);
+            keyWordsArr.forEach(kw => {
+                if (kw.found && Array.isArray(kw.path)) {
+                    kw.path.forEach(cellIdx => newCleared[cellIdx] = true);
+                }
+            });
+            clearedCells = newCleared;
+
+            for (let i = 0; i < 64; i++) {
+                if (clearedCells[i]) {
+                    cellElements[i].classList.add('cleared');
+                    cellElements[i].classList.remove('selected');
+                    cellElements[i].textContent = '';
+                } else {
+                    cellElements[i].classList.remove('cleared');
+                    cellElements[i].textContent = gridLetters[i] || '';
+                }
+            }
+
+            if (data.lastEvent && data.lastEvent.text) {
+                document.getElementById('live-ticker').textContent = data.lastEvent.text;
+            }
+
+            const playersObj = data.players || {};
+            const now = Date.now();
+            const playersList = Object.entries(playersObj).map(([id, p]) => ({ id, ...p }));
+            const onlineCount = Math.max(1, playersList.filter(p => now - (p.lastSeen || 0) < 35000).length);
+            document.getElementById('online-count').textContent = `زنده | ${onlineCount} نفر`;
+
+            playersList.sort((a, b) => (b.score || 0) - (a.score || 0));
+            const boardHtml = playersList.slice(0, 10).map((p, i) => `
+                <div class="player-row ${p.id === user.id ? 'me' : ''}">
+                    <span>${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'} ${p.name}</span>
+                    <strong style="color:#FBBF24;">${p.score || 0} امتیاز</strong>
+                </div>
+            `).join('');
+            document.getElementById('live-scoreboard').innerHTML = boardHtml || '<div style="font-size:12px; color:#94A3B8;">اولین نفر باش!</div>';
+
+            updateTargetsAndScoreUI();
+
+            const allFound = keyWordsArr.length > 0 && keyWordsArr.every(k => k.found);
+            if (allFound || data.finishedAt) {
+                showRoundFinishedModal(data, playersList, boardHtml);
+            }
+        }
+
+        function updateTargetsAndScoreUI() {
+            document.getElementById('score-val').textContent = myScore;
             document.getElementById('bonus-count').textContent = foundBonusWords.size;
 
-            const remaining = keyWords.filter(k => !k.found).length;
+            const remaining = keyWordsArr.filter(k => !k.found).length;
             document.getElementById('rem-count').textContent = remaining;
             document.getElementById('mult-val').textContent = `×${remaining}`;
 
-            const container = document.getElementById('targets-container');
-            const sorted = [...keyWords].sort((a, b) => b.word.length - a.word.length);
-            container.innerHTML = sorted.map(k => `
+            const sorted = [...keyWordsArr].sort((a, b) => b.word.length - a.word.length);
+            document.getElementById('targets-container').innerHTML = sorted.map(k => `
                 <div class="target-chip ${k.found ? 'found' : ''}">
-                    ${k.found ? k.word : `${k.word.length} حرفی`}
+                    ${k.found ? `✓ ${k.word}<small>(${(k.foundBy || '').split(' ')[0]})</small>` : `${k.word.length} حرفی`}
                 </div>
             `).join('');
         }
 
-        function renderGrid() {
-            const gridEl = document.getElementById('grid');
-            gridEl.innerHTML = '';
-            for (let i = 0; i < 64; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                if (clearedCells[i]) cell.classList.add('cleared');
-                if (selectedPath.includes(i)) cell.classList.add('selected');
-                cell.dataset.index = i;
-                cell.textContent = clearedCells[i] ? '' : gridLetters[i];
-                gridEl.appendChild(cell);
-            }
+        function showRoundFinishedModal(data, playersList, boardHtml) {
+            const modal = document.getElementById('win-modal');
+            if (!modal.classList.contains('hidden')) return;
+
+            modal.classList.remove('hidden');
+            const topPlayer = playersList[0];
+            document.getElementById('winner-summary').innerHTML = topPlayer
+                ? `👑 قهرمان پازل #${currentPuzzleNumber}: <strong style="color:#FBBF24;">${topPlayer.name}</strong> با ${topPlayer.score} امتیاز`
+                : `پازل #${currentPuzzleNumber} کامل شد!`;
+            document.getElementById('final-round-board').innerHTML = boardHtml;
+
+            const finishedAt = data.finishedAt || Date.now();
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const secLeft = Math.max(0, Math.ceil((finishedAt + 10000 - Date.now()) / 1000));
+                const cdEl = document.getElementById('next-countdown');
+                if (secLeft > 0) {
+                    cdEl.textContent = `⏳ پازل بعدی تا ${secLeft} ثانیه دیگر شروع می‌شود...`;
+                } else {
+                    cdEl.textContent = '🚀 در حال آماده‌سازی پازل جدید...';
+                    clearInterval(countdownInterval);
+                    document.getElementById('force-next-btn').classList.remove('hidden');
+
+                    const delay = (data.finishedById === user.id) ? 300 : (1800 + Math.random() * 1500);
+                    setTimeout(() => {
+                        if (!document.getElementById('win-modal').classList.contains('hidden')) {
+                            createAndPushNewPuzzle();
+                        }
+                    }, delay);
+                }
+            }, 500);
         }
 
         function areAdjacent(idx1, idx2) {
@@ -628,7 +905,6 @@
                 updateSelectionVisuals();
                 return;
             }
-
             if (selectedPath.includes(idx)) return;
 
             if (selectedPath.length === 0 || areAdjacent(selectedPath[selectedPath.length - 1], idx)) {
@@ -639,78 +915,100 @@
         }
 
         function updateSelectionVisuals() {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach((c, idx) => {
-                if (selectedPath.includes(idx)) c.classList.add('selected');
-                else c.classList.remove('selected');
-            });
-
-            const wordBar = document.getElementById('current-word');
-            if (selectedPath.length === 0) {
-                wordBar.textContent = 'انگشت را روی حروف بکشید';
-            } else {
-                wordBar.textContent = selectedPath.map(i => gridLetters[i]).join('');
+            for (let i = 0; i < 64; i++) {
+                if (selectedPath.includes(i) && !clearedCells[i]) cellElements[i].classList.add('selected');
+                else cellElements[i].classList.remove('selected');
             }
+            const wordBar = document.getElementById('current-word');
+            wordBar.textContent = selectedPath.length === 0
+                ? 'انگشت را روی حروف بکشید'
+                : selectedPath.map(i => gridLetters[i]).join('');
         }
 
-        function finalizeWord() {
+        async function finalizeWord() {
             if (selectedPath.length === 0) return;
 
-            const formedWord = selectedPath.map(i => gridLetters[i]).join('');
-            const remainingKeys = keyWords.filter(k => !k.found);
+            if (selectedPath.some(idx => clearedCells[idx])) {
+                showFeedback('⚡ یکی از این حروف همین الان توسط بازیکن دیگری پاک شد!', '#FBBF24');
+                selectedPath = [];
+                updateSelectionVisuals();
+                return;
+            }
 
-            // ۱. اولویت با تطابق دقیق مسیر کلمه کلیدی
+            const formedWord = selectedPath.map(i => gridLetters[i]).join('');
+            const remainingKeys = keyWordsArr.filter(k => !k.found);
+
             let matchedKey = remainingKeys.find(k =>
                 k.path.length === selectedPath.length && k.path.every((val, idx) => val === selectedPath[idx])
             );
-
-            // ۲. اگر متن دقیق کلمه کلیدی با کمی اختلاف در حروف همسایه هم‌نام کشیده شد، فقط مسیر اصلی آن کلمه پاک می‌شود تا سایر کلمات خراب نشوند
             if (!matchedKey) {
                 matchedKey = remainingKeys.find(k =>
                     k.word === formedWord && k.path.some(cellIdx => selectedPath.includes(cellIdx))
                 );
             }
 
+            selectedPath = [];
+            updateSelectionVisuals();
+
             if (matchedKey) {
-                const multiplier = remainingKeys.length;
-                const earned = formedWord.length * multiplier;
-                score += earned;
-                matchedKey.found = true;
+                try {
+                    const checkRes = await fetch(`${LIVE_PATH}/keyWords/${matchedKey.idx}.json`);
+                    const liveKw = await checkRes.json();
+                    if (!liveKw || liveKw.found) {
+                        showFeedback(`⚡ «${liveKw ? liveKw.foundBy : 'یک بازیکن'}» یک لحظه زودتر این کلمه را زد!`, '#FBBF24');
+                        syncRoom(false);
+                        return;
+                    }
 
-                matchedKey.path.forEach(idx => clearedCells[idx] = true);
+                    const multiplier = remainingKeys.length;
+                    const earned = formedWord.length * multiplier;
+                    myScore += earned;
 
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                showFeedback(`🌟 کلمه کلیدی «${formedWord}» پیدا شد! (+${earned} امتیاز = ${formedWord.length}×${multiplier})`, '#34D399');
+                    await fetch(`${LIVE_PATH}/keyWords/${matchedKey.idx}.json`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ found: true, foundBy: user.name })
+                    });
 
-                selectedPath = [];
-                updateSelectionVisuals();
-                updateUI();
-                renderGrid();
+                    await registerPlayerInCurrentRoom();
+                    const eventMsg = `🌟 ${user.name} کلمه کلیدی «${formedWord}» را پیدا کرد! (+${earned})`;
+                    await fetch(`${LIVE_PATH}/lastEvent.json`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ text: eventMsg, ts: Date.now() })
+                    });
 
-                if (keyWords.every(k => k.found)) {
-                    setTimeout(handleWinGame, 900);
+                    if (multiplier === 1) {
+                        await fetch(`${LIVE_PATH}.json`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id })
+                        });
+                    }
+
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    showFeedback(`🌟 عالی! «${formedWord}» (+${earned} امتیاز = ${formedWord.length}×${multiplier})`, '#34D399');
+                    syncRoom(false);
+                } catch (e) {
+                    showFeedback('❌ خطا در ثبت کلمه روی سرور', '#F87171');
                 }
                 return;
             }
 
-            // ۳. بررسی به عنوان کلمه عادی با دیکشنری جامع ۵۰٬۰۰۰+ کلمه
             if (formedWord.length >= 3 && VALID_WORDS_SET.has(formedWord)) {
                 if (foundBonusWords.has(formedWord)) {
                     showFeedback(`⚠️ کلمه عادی «${formedWord}» را قبلاً پیدا کرده‌اید!`, '#FBBF24');
                 } else {
                     foundBonusWords.add(formedWord);
+                    localStorage.setItem('g8_bonus_' + currentPuzzleId, JSON.stringify([...foundBonusWords]));
                     const earned = formedWord.length;
-                    score += earned;
+                    myScore += earned;
+
                     if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                     showFeedback(`✨ کلمه عادی «${formedWord}» (+${earned} امتیاز)`, '#38BDF8');
-                    updateUI();
+                    updateTargetsAndScoreUI();
+                    registerPlayerInCurrentRoom();
                 }
             } else if (formedWord.length >= 2) {
                 showFeedback(`❌ «${formedWord}» در دیکشنری معتبر نیست`, '#F87171');
             }
-
-            selectedPath = [];
-            updateSelectionVisuals();
         }
 
         function showFeedback(msg, color) {
@@ -720,105 +1018,15 @@
         }
 
         function useHint() {
-            const rem = keyWords.filter(k => !k.found);
+            const rem = keyWordsArr.filter(k => !k.found);
             if (rem.length === 0) return;
-            if (score < 15) {
+            if (myScore < 15) {
                 showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۵ امتیاز نیاز دارید!', '#FBBF24');
                 return;
             }
-            score -= 15;
-            updateUI();
+            myScore -= 15;
+            updateTargetsAndScoreUI();
+            registerPlayerInCurrentRoom();
 
-            const target = rem[0];
-            const firstCellIdx = target.path[0];
-            const cellEl = document.querySelector(`.cell[data-index="${firstCellIdx}"]`);
-            if (cellEl) {
-                cellEl.style.background = '#EC4899';
-                cellEl.style.transform = 'scale(1.15)';
-                setTimeout(() => renderGrid(), 1500);
-            }
-            showFeedback(`💡 خانه چشمک‌زن، حرف اول کلمه «${target.word.length} حرفی» است!`, '#F472B6');
-        }
-
-        const gridEl = document.getElementById('grid');
-
-        function getCellFromPoint(x, y) {
-            const target = document.elementFromPoint(x, y);
-            if (target && target.classList.contains('cell')) {
-                return Number(target.dataset.index);
-            }
-            return null;
-        }
-
-        gridEl.addEventListener('pointerdown', (e) => {
-            isDragging = true;
-            selectedPath = [];
-            const idx = getCellFromPoint(e.clientX, e.clientY);
-            handleSelectCell(idx);
-        });
-
-        window.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            const idx = getCellFromPoint(e.clientX, e.clientY);
-            handleSelectCell(idx);
-        });
-
-        window.addEventListener('pointerup', () => {
-            if (!isDragging) return;
-            isDragging = false;
-            finalizeWord();
-        });
-
-        async function handleWinGame() {
-            document.getElementById('final-score').textContent = score;
-            document.getElementById('final-bonus').textContent = foundBonusWords.size;
-            document.getElementById('win-modal').classList.remove('hidden');
-
-            await saveRecord(score);
-            await loadLeaderboard();
-        }
-
-        async function saveRecord(val) {
-            if (!CLEAN_DB_URL.startsWith('https://') || val <= 0) return;
-            try {
-                const res = await fetch(`${CLEAN_DB_URL}/grid8Leaderboard/${user.id}.json`);
-                const prev = await res.json();
-                if (!prev || val > prev.score) {
-                    await fetch(`${CLEAN_DB_URL}/grid8Leaderboard/${user.id}.json`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ name: user.name, score: val, updatedAt: Date.now() })
-                    });
-                }
-            } catch (e) {}
-        }
-
-        async function loadLeaderboard() {
-            const listEl = document.getElementById('leaderboard-list');
-            try {
-                const res = await fetch(`${CLEAN_DB_URL}/grid8Leaderboard.json`);
-                const data = await res.json();
-                if (!data) {
-                    listEl.innerHTML = '<div style="font-size:12px; color:#94A3B8;">اولین رکورد ثبت شد!</div>';
-                    return;
-                }
-                const arr = Object.values(data).sort((a, b) => b.score - a.score).slice(0, 10);
-                listEl.innerHTML = arr.map((p, i) => `
-                    <div class="player-row">
-                        <span>${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'} ${p.name}</span>
-                        <strong style="color:#FBBF24;">${p.score} امتیاز</strong>
-                    </div>
-                `).join('');
-            } catch (e) {
-                listEl.innerHTML = '<div style="font-size:12px; color:#F87171;">خطا در دریافت جدول</div>';
-            }
-        }
-
-        function shareScore() {
-            const text = `🧩 من (${user.name}) جدول کلمات ۸×۸ کانال @chalbazi رو با امتیاز ${score} و کشف ${foundBonusWords.size} کلمه عادی حل کردم! 🔥\nمی‌تونی رکوردم رو بزنی؟ 👇`;
-            const url = `https://t.me/share/url?url=${encodeURIComponent(CHANNEL_URL)}&text=${encodeURIComponent(text)}`;
-            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-            else window.open(url, '_blank');
-        }
-    </script>
-</body>
-</html>
+            const target = rem[Math.floor(Math.random() * rem.length)];
+            const firstIdx =
