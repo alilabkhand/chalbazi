@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>جدول کلمات ۸×۸ | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="words.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(160deg, #0B132B 0%, #1C2541 60%, #1B4332 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 480px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 10px 14px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* پنل شرایط کلمات کلیدی */
+        .targets-panel {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .targets-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #94A3B8;
+            margin-bottom: 8px;
+        }
+
+        .targets-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .target-chip {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1.5px solid #3B82F6;
+            color: #93C5FD;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 900;
+            transition: all 0.25s;
+        }
+
+        .target-chip.found {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: #10B981;
+            color: #6EE7B7;
+            text-decoration: line-through;
+        }
+
+        /* نمایش کلمه در حال انتخاب */
+        .current-word-bar {
+            width: 100%;
+            min-height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #FBBF24;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            padding: 4px 12px;
+        }
+
+        /* جدول ۸ در ۸ */
+        .grid-wrapper {
+            width: 100%;
+            max-width: 390px;
+            aspect-ratio: 1 / 1;
+            background: rgba(15, 23, 42, 0.85);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 5px;
+            touch-action: none;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        .cell {
+            background: linear-gradient(145deg, #1E293B, #334155);
+            border: 1.5px solid #475569;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            font-weight: 900;
+            color: #F8FAFC;
+            transition: transform 0.1s, background 0.15s;
+        }
+
+        .cell.selected {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-color: #FDE68A;
+            color: #fff;
+            transform: scale(1.08);
+            z-index: 2;
+        }
+
+        .cell.cleared {
+            background: rgba(15, 23, 42, 0.35);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            color: transparent;
+            pointer-events: none;
+            transform: scale(0.92);
+        }
+
+        .feedback {
+            min-height: 24px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .stats-bar {
+            width: 100%;
+            max-width: 390px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #CBD5E1;
+        }
+
+        .btn-small {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* مودال شروع و پایان */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 18px;
+        }
+
+        .card {
+            background: #1E293B;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 24px;
+            padding: 22px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .pill {
+            display: inline-block;
+            background: linear-gradient(135deg, #10B981, #059669);
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            direction: ltr;
+        }
+
+        .rules-list {
+            text-align: right;
+            font-size: 12px;
+            color: #CBD5E1;
+            line-height: 1.7;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 12px 14px;
+            border-radius: 14px;
+            margin: 12px 0 16px;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-bottom: 8px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
+        .btn-blue { background: linear-gradient(135deg, #0288D1, #03A9F4); }
+        .btn-gray { background: rgba(255, 255, 255, 0.12); }
+
+        .board-box {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 14px;
+            padding: 10px 12px;
+            margin-top: 10px;
+            text-align: right;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            font-size: 12px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="back-btn">🏠 لابی</a>
+        <div style="font-weight: 900; font-size: 14px;">جدول ۸×۸ 🧩</div>
+        <div class="badge">امتیاز: <span id="score-val">0</span></div>
+    </div>
+
+    <div class="container">
+        <div class="targets-panel">
+            <div class="targets-header">
+                <span>🎯 کلمات کلیدی (باقی‌مانده: <strong id="rem-count" style="color:#FBBF24;">0</strong>)</span>
+                <span>ضریب فعلی: <strong id="mult-val" style="color:#34D399;">×1</strong></span>
+            </div>
+            <div class="targets-list" id="targets-container"></div>
+        </div>
+
+        <div class="current-word-bar" id="current-word">انگشت را روی حروف بکشید</div>
+
+        <div class="grid-wrapper" id="grid"></div>
+
+        <div class="feedback" id="feedback-msg"></div>
+
+        <div class="stats-bar">
+            <span>کلمات عادی پیداشده: <strong id="bonus-count" style="color:#38BDF8;">0</strong></span>
+            <button class="btn-small" onclick="useHint()">💡 راهنمای شروع کلمه (-۱۵ امتیاز)</button>
+        </div>
+    </div>
+
+    <!-- صفحه شروع -->
+    <div id="start-modal" class="overlay">
+        <div class="card">
+            <div class="pill">@chalbazi</div>
+            <h2 style="margin: 4px 0; font-size: 20px;">🧩 پازل کلمات ۸×۸</h2>
+            <div class="rules-list">
+                🔹 کل جدول ۶۴ حرفی با چند <strong>کلمه کلیدی</strong> پر شده است.<br>
+                🔹 حروف کلمه باید به هم متصل باشند (افقی، عمودی یا اریب).<br>
+                🔹 با یافتن هر کلمه کلیدی، حروفش پاک می‌شوند و امتیازش برابر است با: <strong>تعداد حروف × تعداد کلمات کلیدی باقیمانده</strong>.<br>
+                🔸 هر کلمه معتبر دیگر (حداقل ۳ حرف) به عنوان <strong>کلمه عادی</strong> به ازای هر حرف <strong>۱ امتیاز</strong> دارد!
+            </div>
+            <button class="btn-main btn-green" onclick="startNewGame()">شروع بازی جدید 🎮</button>
+            <a href="index.html" class="btn-main btn-gray">بازگشت به لابی</a>
+        </div>
+    </div>
+
+    <!-- صفحه پایان بازی -->
+    <div id="win-modal" class="overlay hidden">
+        <div class="card">
+            <div class="pill">@chalbazi</div>
+            <h2 style="color: #34D399; margin: 4px 0;">🏆 جدول کامل پاکسازی شد!</h2>
+            <p style="font-size: 14px; margin: 8px 0;">
+                امتیاز کل شما: <strong id="final-score" style="font-size: 24px; color: #FBBF24;">0</strong><br>
+                <span style="font-size: 12px; color: #94A3B8;">کلمات عادی کشف‌شده: <strong id="final-bonus">0</strong> کلمه</span>
+            </p>
+            <button class="btn-main btn-blue" onclick="shareScore()">📤 ارسال رکورد در @chalbazi</button>
+            <button class="btn-main btn-green" onclick="startNewGame()">🔄 جدول جدید</button>
+            <a href="index.html" class="btn-main btn-gray">🏠 بازگشت به لابی</a>
+
+            <div class="board-box">
+                <div style="font-size: 12px; font-weight: 900; color: #FBBF24; margin-bottom: 6px;">🏆 رکوردهای برتر جدول ۸×۸</div>
+                <div id="leaderboard-list">در حال بارگذاری...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
+        const CHANNEL_URL = 'https://t.me/chalbazi';
+        const CLEAN_DB_URL = FIREBASE_DB_URL.replace(/\/+$/, '');
+
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        let user = {
+            id: 'u_' + (localStorage.getItem('chalbazi_uid') || Math.floor(Math.random() * 999999)),
+            name: 'بازیکن چالبازی'
+        };
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                user.id = 'tg_' + u.id;
+                user.name = [u.first_name, u.last_name].filter(Boolean).join(' ');
+            }
+        }
+
+        function normalizeFa(str) {
+            return str.trim().replace(/\s+/g, '')
+                .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
+                .replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا')
+                .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
+        }
+
+        // جمع‌آوری بانک کلمات از words.js + کلمات پرکاربرد فارسی برای کلمات عادی و کلیدی
+        const EXTRA_WORDS = [
+            "درخت","زندگی","حشره","ستاره","آسمان","خورشید","باران","دریاچه","کوهستان","پرنده",
+            "پروانه","زنبور","عقرب","زرافه","پلنگ","شیر","گرگ","روباه","خرگوش","گنجشک","کبوتر",
+            "مدرسه","دانشگاه","کتابخانه","بیمارستان","فرودگاه","ایستگاه","خیابان","میدان","ساختمان",
+            "پنجره","دیوار","صندلی","کامپیوتر","موبایل","تلویزیون","یخچال","ساعت","عینک","کیف",
+            "کفش","پیراهن","شلوار","کلاه","انگشتر","گردنبند","زمستان","تابستان","بهار","پاییز",
+            "فروردین","اردیبهشت","خرداد","مرداد","شهریور","آبان","آذر","بهمن","اسفند","شنبه",
+            "دوشنبه","چهارشنبه","پنجشنبه","جمعه","صبحانه","ناهار","شام","نوشابه","بستنی","شکلات",
+            "شیرینی","هندوانه","پرتقال","نارنگی","انگور","انار","گیلاس","آلبالو","زردآلو","هلو",
+            "گلابی","خیار","گوجه","بادمجان","سیب","موز","لیمو","گردو","بادام","پسته","فندق",
+            "زعفران","دارچین","زنجبیل","نعنا","ریحان","جعفری","پیاز","سیر","قارچ","ذرت","برنج",
+            "گندم","خورشید","مهتاب","کهکشان","سیاره","زمین","مریخ","زحل","مشتری","اقیانوس",
+            "جنگل","کویر","بیابان","آبشار","چشمه","رودخانه","ساحل","جزیره","کشتی","قایق",
+            "هواپیما","قطار","اتوبوس","دوچرخه","موتور","تراکتور","آمبولانس","آتش","بارانی",
+            "طوفان","رعدوبرق","رنگین","لبخند","مهربان","شجاع","باهوش","قهرمان","پیروزی","موفقیت",
+            "دوستی","خانواده","پدر","مادر","برادر","خواهر","فرزند","همسایه","مسافر","ورزشکار",
+            "فوتبال","والیبال","بسکتبال","شنا","کشتی","شطرنج","تنیس","پینگ","تلاش","امیدوار"
+        ];
+
+        const VALID_WORDS_SET = new Set();
+        const WORDS_BY_LEN = {};
+
+        function buildDictionary() {
+            const rawList = [...EXTRA_WORDS];
+            if (typeof WORDS_DB !== 'undefined') {
+                Object.values(WORDS_DB).forEach(arr => rawList.push(...arr));
+            }
+            rawList.forEach(w => {
+                const norm = normalizeFa(w);
+                if (norm.length >= 3 && norm.length <= 10) {
+                    VALID_WORDS_SET.add(norm);
+                    if (!WORDS_BY_LEN[norm.length]) WORDS_BY_LEN[norm.length] = [];
+                    if (!WORDS_BY_LEN[norm.length].includes(norm)) {
+                        WORDS_BY_LEN[norm.length].push(norm);
+                    }
+                }
+            });
+        }
+        buildDictionary();
+
+        // الگوریتم پوشش کامل جدول ۸×۸ با مسیرهای متصل (Hamiltonian-style Random Walk)
+        function generateConnectedPaths(targetLengths) {
+            const totalCells = 64;
+            for (let attempt = 0; attempt < 150; attempt++) {
+                const visited = Array(totalCells).fill(false);
+                const paths = [];
+                let success = true;
+
+                for (const len of targetLengths) {
+                    // انتخاب نقطه شروع ترجیحاً از گوشه‌ها یا خانه‌های دارای کمترین همسایه آزاد (Warnsdorff's rule)
+                    const unvisitedCells = [];
+                    for (let i = 0; i < totalCells; i++) {
+                        if (!visited[i]) unvisitedCells.push(i);
+                    }
+                    if (unvisitedCells.length < len) { success = false; break; }
+
+                    unvisitedCells.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
+                    const minDeg = getFreeNeighbors(unvisitedCells[0], visited).length;
+                    const candidates = unvisitedCells.filter(c => getFreeNeighbors(c, visited).length === minDeg);
+                    let curr = candidates[Math.floor(Math.random() * candidates.length)];
+
+                    const path = [curr];
+                    visited[curr] = true;
+
+                    for (let step = 1; step < len; step++) {
+                        const neighbors = getFreeNeighbors(curr, visited);
+                        if (neighbors.length === 0) {
+                            success = false;
+                            break;
+                        }
+                        // انتخاب همسایه‌ای که کمترین راه خروج دارد تا بن‌بست ایجاد نشود
+                        neighbors.sort((a, b) => getFreeNeighbors(a, visited).length - getFreeNeighbors(b, visited).length);
+                        const bestDeg = getFreeNeighbors(neighbors[0], visited).length;
+                        const bestNeighbors = neighbors.filter(n => getFreeNeighbors(n, visited).length === bestDeg);
+                        curr = bestNeighbors[Math.floor(Math.random() * bestNeighbors.length)];
+                        path.push(curr);
+                        visited[curr] = true;
+                    }
+
+                    if (!success) break;
+                    paths.push(path);
+                }
+
+                if (success && paths.length === targetLengths.length) {
+                    return paths;
+                }
+            }
+            return null;
+        }
+
+        function getFreeNeighbors(idx, visited) {
+            const r = Math.floor(idx / 8);
+            const c = idx % 8;
+            const res = [];
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        const nIdx = nr * 8 + nc;
+                        if (!visited[nIdx]) res.push(nIdx);
+                    }
+                }
+            }
+            return res;
+        }
+
+        // ترکیب‌های طول کلمات که مجموعشان دقیقاً ۶۴ خانه جدول می‌شود
+        const PARTITION_PRESETS = [
+            [7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5],       // 11 کلمه (مجموع 64)
+            [8, 7, 7, 6, 6, 6, 6, 6, 6, 6],          // 10 کلمه (مجموع 64)
+            [7, 6, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4],    // 12 کلمه (مجموع 64)
+            [8, 8, 7, 7, 6, 6, 6, 6, 5, 5]           // 10 کلمه (مجموع 64)
+        ];
+
+        let gridLetters = Array(64).fill('');
+        let clearedCells = Array(64).fill(false);
+        let keyWords = []; // { word, path, found }
+        let foundBonusWords = new Set();
+        let score = 0;
+        let selectedPath = [];
+        let isDragging = false;
+
+        function startNewGame() {
+            document.getElementById('start-modal').classList.add('hidden');
+            document.getElementById('win-modal').classList.add('hidden');
+
+            score = 0;
+            foundBonusWords.clear();
+            clearedCells = Array(64).fill(false);
+            gridLetters = Array(64).fill('');
+            keyWords = [];
+            selectedPath = [];
+
+            // انتخاب یک الگوی ۶۴ خانه‌ای
+            const preset = PARTITION_PRESETS[Math.floor(Math.random() * PARTITION_PRESETS.length)];
+            // مخلوط کردن ترتیب طول‌ها
+            const lengths = [...preset].sort(() => Math.random() - 0.5);
+
+            let paths = generateConnectedPaths(lengths);
+            // پشتیبان قطعی در صورت نیاز (مسیر مارپیچی ردیفی برای تضمین ۱۰۰٪ پوشش ۶۴ خانه)
+            if (!paths) {
+                paths = [];
+                let snake = [];
+                for (let r = 0; r < 8; r++) {
+                    if (r % 2 === 0) {
+                        for (let c = 0; c < 8; c++) snake.push(r * 8 + c);
+                    } else {
+                        for (let c = 7; c >= 0; c--) snake.push(r * 8 + c);
+                    }
+                }
+                let cursor = 0;
+                for (const len of lengths) {
+                    paths.push(snake.slice(cursor, cursor + len));
+                    cursor += len;
+                }
+            }
+
+            const usedInThisGrid = new Set();
+            paths.forEach(path => {
+                const len = path.length;
+                const pool = WORDS_BY_LEN[len] || ["ستاره"];
+                let word = pool[Math.floor(Math.random() * pool.length)];
+                let tries = 0;
+                while (usedInThisGrid.has(word) && tries < 40) {
+                    word = pool[Math.floor(Math.random() * pool.length)];
+                    tries++;
+                }
+                usedInThisGrid.add(word);
+
+                for (let i = 0; i < len; i++) {
+                    gridLetters[path[i]] = word[i];
+                }
+                keyWords.push({ word, path, found: false });
+            });
+
+            updateUI();
+            renderGrid();
+            showFeedback('کلمات کلیدی مشخص‌شده در بالا را پیدا کنید!', '#CBD5E1');
+        }
+
+        function updateUI() {
+            document.getElementById('score-val').textContent = score;
+            document.getElementById('bonus-count').textContent = foundBonusWords.size;
+
+            const remaining = keyWords.filter(k => !k.found).length;
+            document.getElementById('rem-count').textContent = remaining;
+            document.getElementById('mult-val').textContent = `×${remaining}`;
+
+            const container = document.getElementById('targets-container');
+            // مرتب‌سازی نمایشی بر اساس طول کلمه
+            const sorted = [...keyWords].sort((a, b) => b.word.length - a.word.length);
+            container.innerHTML = sorted.map(k => `
+                <div class="target-chip ${k.found ? 'found' : ''}">
+                    ${k.found ? k.word : `${k.word.length} حرفی`}
+                </div>
+            `).join('');
+        }
+
+        function renderGrid() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (clearedCells[i]) cell.classList.add('cleared');
+                if (selectedPath.includes(i)) cell.classList.add('selected');
+                cell.dataset.index = i;
+                cell.textContent = clearedCells[i] ? '' : gridLetters[i];
+                gridEl.appendChild(cell);
+            }
+        }
+
+        function areAdjacent(idx1, idx2) {
+            const r1 = Math.floor(idx1 / 8), c1 = idx1 % 8;
+            const r2 = Math.floor(idx2 / 8), c2 = idx2 % 8;
+            return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && idx1 !== idx2;
+        }
+
+        function handleSelectCell(idx) {
+            if (idx === null || isNaN(idx) || clearedCells[idx]) return;
+
+            // اگر کاربر به خانه قبلی برگشت، خانه آخر را از انتخاب خارج کن (عقب‌گرد)
+            if (selectedPath.length >= 2 && selectedPath[selectedPath.length - 2] === idx) {
+                selectedPath.pop();
+                updateSelectionVisuals();
+                return;
+            }
+
+            if (selectedPath.includes(idx)) return;
+
+            if (selectedPath.length === 0 || areAdjacent(selectedPath[selectedPath.length - 1], idx)) {
+                selectedPath.push(idx);
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+                updateSelectionVisuals();
+            }
+        }
+
+        function updateSelectionVisuals() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((c, idx) => {
+                if (selectedPath.includes(idx)) c.classList.add('selected');
+                else c.classList.remove('selected');
+            });
+
+            const wordBar = document.getElementById('current-word');
+            if (selectedPath.length === 0) {
+                wordBar.textContent = 'انگشت را روی حروف بکشید';
+            } else {
+                wordBar.textContent = selectedPath.map(i => gridLetters[i]).join('');
+            }
+        }
+
+        function finalizeWord() {
+            if (selectedPath.length === 0) return;
+
+            const formedWord = selectedPath.map(i => gridLetters[i]).join('');
+            const remainingKeys = keyWords.filter(k => !k.found);
+
+            // ۱. بررسی تطابق با یکی از کلمات کلیدی باقیمانده (یا از نظر مسیر یا از نظر متن کلمه با همان طول)
+            let matchedKey = remainingKeys.find(k =>
+                k.path.length === selectedPath.length && k.path.every((val, idx) => val === selectedPath[idx])
+            );
+
+            // اگر کاربر همان کلمه کلیدی را از مسیر معتبر دیگری در جدول ساخت
+            if (!matchedKey) {
+                matchedKey = remainingKeys.find(k => k.word === formedWord);
+            }
+
+            if (matchedKey) {
+                const multiplier = remainingKeys.length;
+                const earned = formedWord.length * multiplier;
+                score += earned;
+                matchedKey.found = true;
+
+                // پاک کردن خانه‌های انتخاب‌شده از جدول
+                selectedPath.forEach(idx => clearedCells[idx] = true);
+
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                showFeedback(`🌟 کلمه کلیدی «${formedWord}» پیدا شد! (+${earned} امتیاز = ${formedWord.length}×${multiplier})`, '#34D399');
+
+                selectedPath = [];
+                updateSelectionVisuals();
+                updateUI();
+                renderGrid();
+
+                // بررسی پایان بازی (پیدا شدن همه کلمات کلیدی)
+                if (keyWords.every(k => k.found)) {
+                    setTimeout(handleWinGame, 900);
+                }
+                return;
+            }
+
+            // ۲. بررسی به عنوان کلمه عادی (حداقل ۳ حرف و موجود در دیکشنری)
+            if (formedWord.length >= 3 && VALID_WORDS_SET.has(formedWord)) {
+                if (foundBonusWords.has(formedWord)) {
+                    showFeedback(`⚠️ کلمه عادی «${formedWord}» را قبلاً پیدا کرده‌اید!`, '#FBBF24');
+                } else {
+                    foundBonusWords.add(formedWord);
+                    const earned = formedWord.length * 1;
+                    score += earned;
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                    showFeedback(`✨ کلمه عادی «${formedWord}» (+${earned} امتیاز)`, '#38BDF8');
+                    updateUI();
+                }
+            } else if (formedWord.length >= 2) {
+                showFeedback(`❌ «${formedWord}» در لیست کلمات معتبر نیست`, '#F87171');
+            }
+
+            selectedPath = [];
+            updateSelectionVisuals();
+        }
+
+        function showFeedback(msg, color) {
+            const el = document.getElementById('feedback-msg');
+            el.textContent = msg;
+            el.style.color = color;
+        }
+
+        function useHint() {
+            const rem = keyWords.filter(k => !k.found);
+            if (rem.length === 0) return;
+            if (score < 15) {
+                showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۵ امتیاز نیاز دارید!', '#FBBF24');
+                return;
+            }
+            score -= 15;
+            updateUI();
+
+            const target = rem[0];
+            const firstCellIdx = target.path[0];
+            const cellEl = document.querySelector(`.cell[data-index="${firstCellIdx}"]`);
+            if (cellEl) {
+                cellEl.style.background = '#EC4899';
+                cellEl.style.transform = 'scale(1.15)';
+                setTimeout(() => renderGrid(), 1500);
+            }
+            showFeedback(`💡 خانه چشمک‌زن، حرف اول کلمه «${target.word.length} حرفی» است!`, '#F472B6');
+        }
+
+        // رویدادهای لمس و موس روی جدول
+        const gridEl = document.getElementById('grid');
+
+        function getCellFromPoint(x, y) {
+            const target = document.elementFromPoint(x, y);
+            if (target && target.classList.contains('cell')) {
+                return Number(target.dataset.index);
+            }
+            return null;
+        }
+
+        gridEl.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            selectedPath = [];
+            const idx = getCellFromPoint(e.clientX, e.clientY);
+            handleSelectCell(idx);
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            const idx = getCellFromPoint(e.clientX, e.clientY);
+            handleSelectCell(idx);
+        });
+
+        window.addEventListener('pointerup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            finalizeWord();
+        });
+
+        async function handleWinGame() {
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-bonus').textContent = foundBonusWords.size;
+            document.getElementById('win-modal').classList.remove('hidden');
+
+            await saveRecord(score);
+            await loadLeaderboard();
+        }
+
+        async function saveRecord(val) {
+            if (!CLEAN_DB_URL.startsWith('https://') || val <= 0) return;
+            try {
+                const res = await fetch(`${CLEAN_DB_URL}/grid8Leaderboard/${user.id}.json`);
+                const prev = await res.json();
+                if (!prev || val > prev.score) {
+                    await fetch(`${CLEAN_DB_URL}/grid8Leaderboard/${user.id}.json`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ name: user.name, score: val, updatedAt: Date.now() })
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function loadLeaderboard() {
+            const listEl = document.getElementById('leaderboard-list');
+            try {
+                const res = await fetch(`${CLEAN_DB_URL}/grid8Leaderboard.json`);
+                const data = await res.json();
+                if (!data) {
+                    listEl.innerHTML = '<div style="font-size:12px; color:#94A3B8;">اولین رکورد ثبت شد!</div>';
+                    return;
+                }
+                const arr = Object.values(data).sort((a, b) => b.score - a.score).slice(0, 10);
+                listEl.innerHTML = arr.map((p, i) => `
+                    <div class="player-row">
+                        <span>${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'} ${p.name}</span>
+                        <strong style="color:#FBBF24;">${p.score} امتیاز</strong>
+                    </div>
+                `).join('');
+            } catch (e) {
+                listEl.innerHTML = '<div style="font-size:12px; color:#F87171;">خطا در دریافت جدول</div>';
+            }
+        }
+
+        function shareScore() {
+            const text = `🧩 من (${user.name}) جدول کلمات ۸×۸ کانال @chalbazi رو با امتیاز ${score} و کشف ${foundBonusWords.size} کلمه عادی حل کردم! 🔥\nمی‌تونی رکوردم رو بزنی؟ 👇`;
+            const url = `https://t.me/share/url?url=${encodeURIComponent(CHANNEL_URL)}&text=${encodeURIComponent(text)}`;
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
