@@ -1,9 +1,1886 @@
-<!-- بازی جدید: سوپر فوتبال (ماریو فوتبالی) -->
-        <a href="football-mario.html?v=1" class="game-card" onclick="return openGame(this, event)">
-            <div class="game-icon" style="background: linear-gradient(135deg, #DCFCE7, #BBF7D0); border: 2px solid #16A34A;">⚽</div>
-            <div class="game-details">
-                <h2 class="game-title">سوپر فوتبال (رکوردی)</h2>
-                <p class="game-desc">با مسی، یامال، هالند، امباپه یا رونالدو تا جام قهرمانی بدو و رکورد زمان رو بشکن!</p>
-            </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سوپر فوتبال | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="score-manager.js?v=1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            background: #060D1F;
+            color: #fff;
+            touch-action: none;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 520px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #0A1633 0%, #071024 100%);
+            position: relative;
+        }
+
+        /* نوار بالای صفحه */
+        .top-hud {
+            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.92);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .hud-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #fff;
+            border-radius: 10px;
+            padding: 5px 9px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:active { transform: scale(0.94); }
+
+        .timer-pill {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            color: #FDE047;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 900;
+            direction: ltr;
+            min-width: 74px;
+            text-align: center;
+        }
+
+        .ball-pill {
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(52, 211, 153, 0.45);
+            color: #6EE7B7;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        /* نوار پیشرفت مرحله و رکورد فعلی */
+        .progress-strip {
+            padding: 6px 12px;
+            background: rgba(10, 20, 42, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            flex-shrink: 0;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #CBD5E1;
+            margin-bottom: 4px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10B981, #38BDF8, #FBBF24);
+            border-radius: 99px;
+            transition: width 0.1s linear;
+        }
+
+        /* محفظه کانواس بازی */
+        .stage-wrap {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #040814;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            max-height: 410px;
+            display: block;
+            image-rendering: auto;
+        }
+
+        .shield-toast {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: rgba(56, 189, 248, 0.25);
+            border: 1px solid #38BDF8;
+            color: #E0F2FE;
+            padding: 3px 9px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 900;
+            pointer-events: none;
+        }
+
+        /* پنل دکمه‌های لمسی موبایل (چیدمان استاندارد گیم‌پد چپ‌به-راست) */
+        .controls-deck {
+            direction: ltr;
+            flex-shrink: 0;
+            padding: 12px 16px 18px;
+            background: linear-gradient(180deg, #0F172A 0%, #070C1A 100%);
+            border-top: 2px solid rgba(56, 189, 248, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            touch-action: none;
+        }
+
+        .dpad-zone {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            touch-action: none;
+        }
+
+        .ctrl-btn {
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.22);
+            background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+            color: #F8FAFC;
+            font-weight: 900;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 0 #020617, 0 10px 20px rgba(0, 0, 0, 0.45);
+            transition: transform 0.06s, box-shadow 0.06s, background 0.08s;
+            touch-action: none;
+            cursor: pointer;
+        }
+
+        .dir-btn {
+            width: 72px;
+            height: 70px;
+            font-size: 26px;
+        }
+
+        .ctrl-btn.pressed {
+            transform: translateY(4px) scale(0.96);
+            box-shadow: 0 2px 0 #020617;
+            background: linear-gradient(180deg, #0284C7 0%, #0369A1 100%);
+            border-color: #7DD3FC;
+        }
+
+        .action-zone {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            touch-action: none;
+        }
+
+        .restart-mini {
+            width: 46px;
+            height: 46px;
+            border-radius: 15px;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            color: #E2E8F0;
+            box-shadow: 0 4px 0 #020617;
+        }
+
+        .jump-btn {
+            width: 96px;
+            height: 78px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, #10B981 0%, #047857 100%);
+            border: 2px solid #6EE7B7;
+            font-size: 16px;
+            gap: 2px;
+            box-shadow: 0 6px 0 #064E3B, 0 10px 22px rgba(16, 185, 129, 0.35);
+        }
+
+        .jump-btn.pressed {
+            transform: translateY(4px) scale(0.96);
+            box-shadow: 0 2px 0 #064E3B;
+            background: linear-gradient(180deg, #34D399 0%, #059669 100%);
+        }
+
+        /* مودال‌ها */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.88);
+            backdrop-filter: blur(7px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            overflow-y: auto;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 400px;
+            max-height: 92dvh;
+            overflow-y: auto;
+            background: linear-gradient(160deg, #1E293B 0%, #0F172A 100%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .pill {
+            display: inline-block;
+            background: linear-gradient(135deg, #10B981, #0284C7);
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        /* گرید انتخاب ۵ بازیکن فوتبالی */
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin: 12px 0 14px;
+        }
+
+        .char-card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 2px solid rgba(255, 255, 255, 0.14);
+            border-radius: 14px;
+            padding: 8px 3px 6px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.12s, border-color 0.15s, background 0.15s;
+        }
+
+        .char-card.selected {
+            border-color: #FBBF24;
+            background: rgba(245, 158, 11, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(245, 158, 11, 0.28);
+        }
+
+        .char-jersey {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 900;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .char-name {
+            font-size: 11px;
+            font-weight: 900;
+            color: #F8FAFC;
+        }
+
+        .char-tag {
+            font-size: 9px;
+            color: #94A3B8;
+        }
+
+        .info-box {
+            background: rgba(15, 23, 42, 0.65);
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #CBD5E1;
+            line-height: 1.7;
+            text-align: right;
+            margin-bottom: 12px;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-main:active { transform: scale(0.97); }
+        .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
+        .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
+        .btn-gold { background: linear-gradient(135deg, #F59E0B, #EA580C); }
+        .btn-gray { background: rgba(255, 255, 255, 0.12); }
+
+        .board-list {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 8px 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            text-align: right;
+            margin: 10px 0 12px;
+        }
+
+        .lb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            font-size: 12px;
+            gap: 6px;
+        }
+
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row.me { background: rgba(56, 189, 248, 0.18); border-radius: 8px; padding: 6px 8px; }
+
+        .lb-time {
+            color: #34D399;
+            font-weight: 900;
+            direction: ltr;
+            white-space: nowrap;
+        }
+
+        .lb-prog {
+            color: #FBBF24;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+    <!-- نوار بالایی -->
+    <div class="top-hud">
+        <div class="hud-group">
+            <a href="index.html" class="icon-btn" onclick="return goBackLobby(event)">🏠 لابی</a>
+            <button class="icon-btn" onclick="openLeaderboardModal()" title="جدول رکوردها">🏆</button>
+            <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="صدا">🔊</button>
+        </div>
+        <div class="hud-group">
+            <div class="ball-pill">⚽ <span id="hud-balls">0</span></div>
+            <div class="timer-pill" id="hud-timer">00:00.00</div>
+        </div>
+    </div>
+
+    <!-- نوار پیشرفت و رکورد جهانی بازی -->
+    <div class="progress-strip">
+        <div class="progress-meta">
+            <span>🏃 <strong id="hud-char-name">مسی</strong> • پیشرفت: <strong id="hud-prog" style="color:#38BDF8;">0%</strong></span>
+            <span id="world-record-label" style="color:#FBBF24;">👑 رکورد: در حال دریافت...</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- صفحه کانواس بازی -->
+    <div class="stage-wrap">
+        <canvas id="game-canvas" width="520" height="360"></canvas>
+        <div id="shield-toast" class="shield-toast hidden">🛡️ سپر طلایی فعال</div>
+    </div>
+
+    <!-- کنترل‌های لمسی موبایل -->
+    <div class="controls-deck" id="controls-deck">
+        <div class="dpad-zone" id="dpad-zone">
+            <button type="button" class="ctrl-btn dir-btn" id="btn-left">◀</button>
+            <button type="button" class="ctrl-btn dir-btn" id="btn-right">▶</button>
+        </div>
+        <div class="action-zone">
+            <button type="button" class="ctrl-btn restart-mini" id="btn-quick-restart" title="شروع مجدد سریع">🔄</button>
+            <button type="button" class="ctrl-btn jump-btn" id="btn-jump">
+                <span style="font-size:22px; line-height:1;">⬆️</span>
+                <span>پرش</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال انتخاب بازیکن و شروع -->
+<div id="start-modal" class="overlay">
+    <div class="modal-card">
+        <div class="pill">@chalbazi • سوپر فوتبال ⚽</div>
+        <h2 style="margin: 4px 0 2px; font-size: 19px;">ستاره‌ات رو انتخاب کن و رکورد بزن!</h2>
+        <p style="font-size: 11px; color: #94A3B8; margin: 0 0 6px;">فیزیک همه بازیکنان برابر است؛ سرعت و مهارتت تعیین‌کننده است</p>
+
+        <div class="char-grid" id="char-grid"></div>
+
+        <div class="info-box">
+            🏆 <strong>یک مرحله سخت تا جام قهرمانی!</strong><br>
+            ⚡ روی سر مدافعان و داورها بپر تا از بازی حذف بشن.<br>
+            ❓ به جعبه‌های علامت‌سوال از پایین ضربه بزن تا <strong>سپر طلایی</strong> بگیری.<br>
+            ⏱ هر کس تا انتها بره و در <strong>زمان کمتری</strong> تموم کنه، نفر اول جدول میشه!
+        </div>
+
+        <button class="btn-main btn-green" onclick="startRun()">شروع مسابقه 🚀</button>
+        <button class="btn-main btn-gold" onclick="openLeaderboardModal()">🏆 مشاهده جدول رکوردها</button>
+        <a href="index.html" class="btn-main btn-gray" onclick="return goBackLobby(event)">🏠 بازگشت به لابی</a>
+    </div>
+</div>
+
+<!-- مودال باخت (شروع مجدد سریع) -->
+<div id="gameover-modal" class="overlay hidden">
+    <div class="modal-card">
+        <div class="pill" style="background: linear-gradient(135deg, #EF4444, #B91C1C);">🟥 کارت قرمز / اخراج!</div>
+        <h2 id="go-reason" style="margin: 6px 0; font-size: 18px; color: #FCA5A5;">باختی!</h2>
+        <p id="go-stats" style="font-size: 13px; color: #CBD5E1; margin: 6px 0 14px;"></p>
+
+        <button class="btn-main btn-green" onclick="startRun()">🔄 تلاش مجدد سریع</button>
+        <button class="btn-main btn-gold" onclick="openCharSelect()">👕 تغییر بازیکن</button>
+        <button class="btn-main btn-blue" onclick="openLeaderboardModal()">🏆 جدول رکوردها</button>
+    </div>
+</div>
+
+<!-- مودال قهرمانی و ثبت رکورد زمان -->
+<div id="win-modal" class="overlay hidden">
+    <div class="modal-card">
+        <div class="pill" style="background: linear-gradient(135deg, #F59E0B, #10B981);">🏆 قهرمان استادیوم!</div>
+        <h2 style="margin: 6px 0; font-size: 20px; color: #FDE047;">مرحله رو تموم کردی!</h2>
+        <div id="win-time-box" style="font-size: 30px; font-weight: 900; color: #34D399; direction: ltr; margin: 6px 0;">00:00.00</div>
+        <p id="win-details" style="font-size: 12px; color: #CBD5E1; margin: 0 0 12px;"></p>
+
+        <button class="btn-main btn-blue" onclick="shareRecord()">📤 ارسال رکورد در @chalbazi</button>
+        <button class="btn-main btn-green" onclick="startRun()">⚡ تلاش برای زمان بهتر</button>
+        <button class="btn-main btn-gold" onclick="openLeaderboardModal()">🏆 جدول رکوردها</button>
+        <a href="index.html" class="btn-main btn-gray" onclick="return goBackLobby(event)">🏠 بازگشت به لابی</a>
+    </div>
+</div>
+
+<!-- مودال جدول رکوردهای همگانی -->
+<div id="lb-modal" class="overlay hidden" onclick="if(event.target===this) closeLeaderboardModal()">
+    <div class="modal-card">
+        <div class="pill">🏆 جدول رکوردهای سوپر فوتبال</div>
+        <p style="font-size: 11px; color: #94A3B8; margin: 2px 0 8px;">اولویت اول: سریع‌ترین زمان اتمام مرحله | اولویت دوم: بیشترین پیشرفت</p>
+        <div class="board-list" id="lb-modal-list">در حال دریافت...</div>
+        <button class="btn-main btn-gray" onclick="closeLeaderboardModal()">بستن</button>
+    </div>
+</div>
+
+<script>
+    var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
+    var CHANNEL_URL = 'https://t.me/chalbazi';
+    var RECORDS_PATH = FIREBASE_DB_URL.replace(/\/+$/, '') + '/footballMarioRecords';
+
+    function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+    function goBackLobby(ev) {
+        if (ev) ev.preventDefault();
+        window.location.href = 'index.html' + (window.location.hash || '');
+        return false;
+    }
+
+    var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg) {
+        try {
+            tg.ready();
+            tg.expand();
+            if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+        } catch (e) {}
+    }
+
+    var user = { id: 'u_guest', name: 'بازیکن چالبازی' };
+    if (window.ChalbaziScore) {
+        var csU = ChalbaziScore.getUser();
+        user.id = csU.id;
+        user.name = csU.name;
+    } else if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+        var tu = tg.initDataUnsafe.user;
+        user.id = 'tg_' + tu.id;
+        user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
+    }
+
+    // ==================== ۵ ستاره فوتبال ====================
+    var CHARACTERS = [
+        {
+            id: 'messi', name: 'مسی', num: '10', tag: 'آرژانتین',
+            jersey1: '#38BDF8', jersey2: '#FFFFFF', shorts: '#0F172A', socks: '#FFFFFF',
+            skin: '#F2C6A0', hair: '#4A2C1D', beard: true, hairStyle: 'short',
+            badgeBg: 'repeating-linear-gradient(90deg, #38BDF8 0 6px, #fff 6px 12px)', badgeColor: '#0F172A'
+        },
+        {
+            id: 'yamal', name: 'یامال', num: '19', tag: 'بارسا',
+            jersey1: '#1D4ED8', jersey2: '#BE123C', shorts: '#1E3A8A', socks: '#BE123C',
+            skin: '#C68B59', hair: '#1C1917', beard: false, hairStyle: 'curly',
+            badgeBg: 'repeating-linear-gradient(90deg, #1D4ED8 0 6px, #BE123C 6px 12px)', badgeColor: '#FDE047'
+        },
+        {
+            id: 'haaland', name: 'هالند', num: '9', tag: 'سیتی',
+            jersey1: '#7DD3FC', jersey2: '#7DD3FC', shorts: '#F8FAFC', socks: '#7DD3FC',
+            skin: '#FAD2B8', hair: '#FDE047', beard: false, hairStyle: 'ponytail',
+            badgeBg: '#7DD3FC', badgeColor: '#0F172A'
+        },
+        {
+            id: 'mbappe', name: 'امباپه', num: '9', tag: 'رئال',
+            jersey1: '#F8FAFC', jersey2: '#E2E8F0', shorts: '#F8FAFC', socks: '#F8FAFC',
+            skin: '#8D5524', hair: '#111827', beard: false, hairStyle: 'buzz',
+            badgeBg: '#F8FAFC', badgeColor: '#0F172A'
+        },
+        {
+            id: 'ronaldo', name: 'رونالدو', num: '7', tag: 'پرتغال',
+            jersey1: '#DC2626', jersey2: '#B91C1C', shorts: '#15803D', socks: '#DC2626',
+            skin: '#E0AC82', hair: '#1F2937', beard: false, hairStyle: 'styled',
+            badgeBg: 'linear-gradient(135deg, #DC2626 65%, #15803D 65%)', badgeColor: '#FDE047'
+        }
+    ];
+
+    var selectedCharId = safeGet('fm_char', 'messi');
+    function getCharObj(id) {
+        for (var i = 0; i < CHARACTERS.length; i++) {
+            if (CHARACTERS[i].id === id) return CHARACTERS[i];
+        }
+        return CHARACTERS[0];
+    }
+
+    function renderCharSelect() {
+        var grid = document.getElementById('char-grid');
+        var html = '';
+        for (var i = 0; i < CHARACTERS.length; i++) {
+            var c = CHARACTERS[i];
+            var sel = (c.id === selectedCharId) ? ' selected' : '';
+            html += '<div class="char-card' + sel + '" onclick="pickChar(\'' + c.id + '\')">'
+                + '<div class="char-jersey" style="background:' + c.badgeBg + '; color:' + c.badgeColor + ';">' + c.num + '</div>'
+                + '<div class="char-name">' + c.name + '</div>'
+                + '<div class="char-tag">' + c.tag + '</div>'
+                + '</div>';
+        }
+        grid.innerHTML = html;
+        var active = getCharObj(selectedCharId);
+        document.getElementById('hud-char-name').textContent = active.name;
+    }
+
+    function pickChar(id) {
+        selectedCharId = id;
+        safeSet('fm_char', id);
+        playSfx('coin');
+        renderCharSelect();
+    }
+    renderCharSelect();
+
+    // ==================== افکت‌های صوتی سبک (Web Audio API) ====================
+    var audioCtx = null;
+    var soundEnabled = safeGet('fm_sound', '1') !== '0';
+
+    function updateSoundIcon() {
+        document.getElementById('sound-btn').textContent = soundEnabled ? '🔊' : '🔇';
+    }
+    updateSoundIcon();
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        safeSet('fm_sound', soundEnabled ? '1' : '0');
+        updateSoundIcon();
+        if (soundEnabled) playSfx('coin');
+    }
+
+    function ensureAudio() {
+        if (!soundEnabled) return null;
+        if (!audioCtx) {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) audioCtx = new AC();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(function() {});
+        }
+        return audioCtx;
+    }
+
+    function beep(freq, endFreq, dur, type, vol, delay) {
+        var ctx = ensureAudio();
+        if (!ctx) return;
+        try {
+            var t0 = ctx.currentTime + (delay || 0);
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = type || 'triangle';
+            osc.frequency.setValueAtTime(freq, t0);
+            if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t0 + dur);
+            gain.gain.setValueAtTime(vol || 0.1, t0);
+            gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + dur + 0.01);
+        } catch (e) {}
+    }
+
+    function playSfx(kind) {
+        if (!soundEnabled) return;
+        if (kind === 'jump') {
+            beep(250, 560, 0.13, 'triangle', 0.11);
+        } else if (kind === 'spring') {
+            beep(220, 880, 0.22, 'sine', 0.13);
+        } else if (kind === 'coin') {
+            beep(988, 988, 0.06, 'sine', 0.09, 0);
+            beep(1318, 1318, 0.14, 'sine', 0.09, 0.06);
+        } else if (kind === 'stomp') {
+            beep(180, 70, 0.1, 'square', 0.09, 0);
+            beep(420, 620, 0.08, 'triangle', 0.08, 0.05);
+        } else if (kind === 'powerup') {
+            beep(523, 523, 0.07, 'triangle', 0.1, 0);
+            beep(659, 659, 0.07, 'triangle', 0.1, 0.07);
+            beep(784, 784, 0.07, 'triangle', 0.1, 0.14);
+            beep(1046, 1046, 0.16, 'triangle', 0.12, 0.21);
+        } else if (kind === 'shieldBreak') {
+            beep(480, 140, 0.22, 'sawtooth', 0.09, 0);
+        } else if (kind === 'death') {
+            beep(392, 370, 0.12, 'sawtooth', 0.1, 0);
+            beep(349, 311, 0.14, 'sawtooth', 0.1, 0.13);
+            beep(293, 180, 0.28, 'sawtooth', 0.1, 0.28);
+        } else if (kind === 'win') {
+            // سوت پایان + فنفار قهرمانی
+            beep(2600, 2750, 0.18, 'sine', 0.07, 0);
+            beep(523, 523, 0.1, 'triangle', 0.12, 0.2);
+            beep(659, 659, 0.1, 'triangle', 0.12, 0.31);
+            beep(784, 784, 0.1, 'triangle', 0.12, 0.42);
+            beep(1046, 1046, 0.35, 'triangle', 0.14, 0.54);
+        }
+    }
+
+    // ==================== موتور و طراحی مرحله چالشی ====================
+    var canvas = document.getElementById('game-canvas');
+    var ctx = canvas.getContext('2d');
+    var VIEW_W = 520;
+    var VIEW_H = 360;
+    var GY = 310; // سطح زمین استادیوم
+    var GOAL_X = 6780; // خط پایان (پرچم و جام)
+    var LEVEL_END_X = 7080;
+
+    var GRAVITY = 1650;
+    var VX_MAX = 285;
+    var ACCEL = 1850;
+    var FRICTION = 1750;
+    var VY_JUMP = -640;
+    var VY_SPRING = -840;
+
+    var state = 'menu'; // menu | playing | dead | won
+    var runStartTime = 0;
+    var elapsedMs = 0;
+    var runId = 0;
+    var cameraX = 0;
+    var maxReachedX = 0;
+    var ballsCollected = 0;
+    var worldRecordsCache = [];
+    var myLastWinMs = 0;
+
+    var input = { left: false, right: false, jump: false, jumpPressedAt: 0 };
+
+    var player = {};
+    var solids = [];
+    var movingPlats = [];
+    var qBlocks = [];
+    var spikes = [];
+    var springs = [];
+    var enemies = [];
+    var coins = [];
+    var particles = [];
+    var confetti = [];
+
+    function buildLevel() {
+        solids = [];
+        movingPlats = [];
+        qBlocks = [];
+        spikes = [];
+        springs = [];
+        enemies = [];
+        coins = [];
+        particles = [];
+        confetti = [];
+
+        function addGround(x1, x2) {
+            solids.push({ x: x1, y: GY, w: x2 - x1, h: 60, kind: 'ground' });
+        }
+        function addBlock(x, y, w, h, kind) {
+            solids.push({ x: x, y: y, w: w, h: h, kind: kind || 'plat' });
+        }
+        function addQ(x, y, reward) {
+            qBlocks.push({ x: x, y: y, w: 34, h: 34, reward: reward || 'ball', hit: false, bumpY: 0 });
+        }
+        function addCone(x, y) {
+            spikes.push({ x: x, y: (y !== undefined ? y : GY) - 24, w: 24, h: 24 });
+        }
+        function addSpring(x, y) {
+            springs.push({ x: x, y: (y !== undefined ? y : GY) - 16, w: 34, h: 16, bounceAnim: 0 });
+        }
+        function addEnemy(kind, x, y, minX, maxX, speed) {
+            var h = kind === 'ref' ? 30 : 34;
+            var w = 28;
+            enemies.push({
+                kind: kind, // defender | tackler | ref
+                x: x, y: y - h, w: w, h: h,
+                minX: minX, maxX: maxX,
+                vx: speed || 75,
+                baseY: y - h,
+                phase: Math.random() * 6.28,
+                alive: true
+            });
+        }
+        function addCoinArc(startX, y, count, stepX, curveH) {
+            for (var i = 0; i < count; i++) {
+                var t = count > 1 ? (i / (count - 1)) : 0.5;
+                var cy = y - Math.sin(t * Math.PI) * (curveH || 0);
+                coins.push({ x: startX + i * stepX, y: cy, r: 9, taken: false });
+            }
+        }
+
+        // ===== منطقه ۱: زمین تمرین (0 تا 1520) =====
+        addGround(0, 760);
+        addQ(240, 218, 'ball');
+        addQ(276, 218, 'shield'); // اولین سپر طلایی
+        addQ(312, 218, 'ball');
+        addCoinArc(410, 270, 3, 30, 18);
+        addEnemy('defender', 520, GY, 390, 640, 75);
+        addCone(690, GY);
+
+        // حفره ۱ (120px)
+        addGround(880, 1520);
+        addBlock(970, 232, 110, 22, 'stadium');
+        addCoinArc(990, 200, 3, 30, 0);
+        addEnemy('defender', 1120, GY, 940, 1250, 90);
+        addCone(1285, GY);
+        addBlock(1250, 215, 115, 22, 'stadium');
+        addQ(1290, 130, 'ball');
+        addEnemy('tackler', 1420, GY, 1320, 1485, 135);
+
+        // ===== منطقه ۲: خط میانی (1660 تا 3380) =====
+        // حفره ۲ (140px)
+        addGround(1660, 2180);
+        addBlock(1750, 240, 100, 22, 'stadium');
+        addBlock(1890, 185, 130, 22, 'stadium');
+        addCoinArc(1910, 150, 4, 28, 12);
+        addEnemy('defender', 1840, GY, 1700, 2020, 95);
+        addCone(2045, GY);
+        addCone(2072, GY);
+
+        // حفره بزرگ ۳ با سکوهای متحرک تبلیغاتی (2180 تا 2660)
+        movingPlats.push({ x: 2210, y: 262, w: 92, h: 20, minX: 2200, maxX: 2310, minY: 262, maxY: 262, vx: 85, vy: 0, dx: 0, dy: 0 });
+        addBlock(2395, 268, 95, 24, 'stadium');
+        addCoinArc(2415, 234, 3, 25, 10);
+        movingPlats.push({ x: 2520, y: 235, w: 88, h: 20, minX: 2505, maxX: 2595, minY: 235, maxY: 235, vx: -95, vy: 0, dx: 0, dy: 0 });
+
+        addGround(2660, 3380);
+        addSpring(2770, GY);
+        // مسیر بالایی جایزه با فنر
+        addBlock(2860, 152, 165, 22, 'stadium');
+        addCoinArc(2880, 122, 5, 30, 10);
+        addQ(2930, 75, 'shield'); // سپر مخفی در طبقه بالا
+        // مسیر پایینی پرخطر
+        addEnemy('tackler', 2980, GY, 2830, 3130, 155);
+        addCone(3165, GY);
+        addEnemy('ref', 3210, 215, 3040, 3330, 105);
+        addBlock(3220, 240, 95, 22, 'stadium');
+
+        // ===== منطقه ۳: محوطه جریمه (3530 تا 5360) =====
+        // حفره ۴ (150px)
+        addCoinArc(3415, 235, 3, 35, 24);
+        addGround(3530, 4020);
+        // تیرک‌های متوالی + مخروط
+        addBlock(3630, GY - 54, 42, 54, 'pillar');
+        addCone(3710, GY);
+        addBlock(3785, GY - 78, 42, 78, 'pillar');
+        addEnemy('defender', 3870, GY, 3835, 3925, 75);
+        addBlock(3935, GY - 54, 42, 54, 'pillar');
+        addCoinArc(3638, GY - 95, 3, 75, 25);
+
+        // حفره ۵ با ستون‌های دقیق + داور پرنده (4020 تا 4660)
+        addBlock(4125, 268, 82, 26, 'stadium');
+        addBlock(4310, 230, 76, 26, 'stadium');
+        addCoinArc(4325, 196, 2, 34, 0);
+        addBlock(4485, 262, 76, 26, 'stadium');
+        addEnemy('ref', 4280, 175, 4120, 4520, 120);
+
+        addGround(4660, 5360);
+        addQ(4745, 218, 'shield'); // سپر طلایی قبل از فینال
+        addEnemy('tackler', 4880, GY, 4760, 5050, 165);
+        addCone(5070, GY);
+        addBlock(4960, 215, 130, 22, 'stadium');
+        addBlock(5140, 175, 120, 22, 'stadium');
+        addCoinArc(5160, 144, 3, 30, 0);
+        addEnemy('tackler', 5240, GY, 5110, 5330, 170);
+
+        // ===== منطقه ۴: فینال جام قهرمانی (5360 تا پایان) =====
+        // حفره ۶: سکوی افقی + فنر + سکوی عمودی (5360 تا 5960)
+        movingPlats.push({ x: 5400, y: 265, w: 92, h: 20, minX: 5390, maxX: 5495, minY: 265, maxY: 265, vx: 105, vy: 0, dx: 0, dy: 0 });
+        addBlock(5585, 252, 92, 26, 'stadium');
+        addSpring(5625, 252);
+        addCoinArc(5670, 135, 3, 32, 18);
+        movingPlats.push({ x: 5775, y: 245, w: 90, h: 20, minX: 5775, maxX: 5775, minY: 165, maxY: 268, vx: 0, vy: -95, dx: 0, dy: 0 });
+
+        // خط مستقیم نهایی + پله‌های کلاسیک ماریو تا پرچم و دروازه
+        addGround(5960, LEVEL_END_X);
+        addEnemy('tackler', 6100, GY, 5990, 6250, 185);
+        addCone(6150, GY);
+        addEnemy('ref', 6220, 195, 6030, 6360, 135);
+        addEnemy('defender', 6290, GY, 6200, 6340, 110);
+
+        // پله‌های صعود به جام قهرمانی
+        for (var s = 0; s < 5; s++) {
+            var sh = (s + 1) * 28;
+            addBlock(6380 + s * 40, GY - sh, 40, sh, 'stair');
+        }
+        addCoinArc(6400, GY - 175, 4, 38, 16);
+    }
+
+    function resetPlayer() {
+        player = {
+            x: 60, y: GY - 42, w: 26, h: 42,
+            vx: 0, vy: 0,
+            facing: 1,
+            onGround: false,
+            coyoteTime: 0,
+            shield: false,
+            invuln: 0,
+            walkFrame: 0
+        };
+        cameraX = 0;
+        maxReachedX = 60;
+        ballsCollected = 0;
+        document.getElementById('hud-balls').textContent = '0';
+        document.getElementById('shield-toast').classList.add('hidden');
+    }
+
+    function startRun() {
+        ensureAudio();
+        document.getElementById('start-modal').classList.add('hidden');
+        document.getElementById('gameover-modal').classList.add('hidden');
+        document.getElementById('win-modal').classList.add('hidden');
+        document.getElementById('lb-modal').classList.add('hidden');
+
+        buildLevel();
+        resetPlayer();
+        runId = Date.now();
+        runStartTime = performance.now();
+        elapsedMs = 0;
+        state = 'playing';
+        input.left = false;
+        input.right = false;
+        input.jump = false;
+        input.jumpPressedAt = 0;
+        playSfx('jump');
+    }
+
+    function openCharSelect() {
+        state = 'menu';
+        document.getElementById('gameover-modal').classList.add('hidden');
+        document.getElementById('win-modal').classList.add('hidden');
+        document.getElementById('start-modal').classList.remove('hidden');
+    }
+
+    function spawnParticles(x, y, color, count) {
+        for (var i = 0; i < (count || 8); i++) {
+            var a = Math.random() * Math.PI * 2;
+            var sp = 60 + Math.random() * 170;
+            particles.push({
+                x: x, y: y,
+                vx: Math.cos(a) * sp,
+                vy: Math.sin(a) * sp - 70,
+                life: 0.35 + Math.random() * 0.25,
+                maxLife: 0.6,
+                color: color,
+                size: 3 + Math.random() * 3
+            });
+        }
+    }
+
+    function formatTimeMs(ms) {
+        var totalSec = Math.max(0, ms) / 1000;
+        var mins = Math.floor(totalSec / 60);
+        var secs = Math.floor(totalSec % 60);
+        var hundredths = Math.floor((ms % 1000) / 10);
+        var p = function(n) { return n < 10 ? '0' + n : String(n); };
+        return p(mins) + ':' + p(secs) + '.' + p(hundredths);
+    }
+
+    function rectOverlap(a, b) {
+        return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    function handlePlayerHit(reason) {
+        if (player.invuln > 0 || state !== 'playing') return;
+        if (player.shield) {
+            player.shield = false;
+            player.invuln = 1.6;
+            player.vy = -380;
+            document.getElementById('shield-toast').classList.add('hidden');
+            spawnParticles(player.x + player.w / 2, player.y + player.h / 2, '#38BDF8', 14);
+            playSfx('shieldBreak');
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+            return;
+        }
+        triggerDeath(reason);
+    }
+
+    function triggerDeath(reason) {
+        if (state !== 'playing') return;
+        state = 'dead';
+        playSfx('death');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        spawnParticles(player.x + player.w / 2, player.y + player.h / 2, '#EF4444', 18);
+
+        var pct = Math.min(99, Math.max(0, Math.floor((maxReachedX / GOAL_X) * 100)));
+        document.getElementById('go-reason').textContent = reason || 'باختی!';
+        document.getElementById('go-stats').innerHTML =
+            'پیشرفت در این تلاش: <strong style="color:#38BDF8;">' + pct + '%</strong> • زمان: <strong style="color:#FBBF24;">' + formatTimeMs(elapsedMs) + '</strong><br>' +
+            'توپ‌های جمع‌شده: <strong>' + ballsCollected + '</strong> ⚽';
+
+        saveAttemptRecord(false, 0, pct, ballsCollected);
+        if (pct >= 20 && window.ChalbaziScore) {
+            ChalbaziScore.addScore(Math.floor(pct / 5), 'football-mario', 'fm_try_' + runId);
+        }
+
+        setTimeout(function() {
+            if (state === 'dead') {
+                document.getElementById('gameover-modal').classList.remove('hidden');
+            }
+        }, 420);
+    }
+
+    function triggerWin() {
+        if (state !== 'playing') return;
+        state = 'won';
+        myLastWinMs = Math.round(elapsedMs);
+        playSfx('win');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+        // کاغذ رنگی قهرمانی
+        var cols = ['#FDE047', '#38BDF8', '#34D399', '#F472B6', '#FB923C', '#FFFFFF'];
+        for (var i = 0; i < 65; i++) {
+            confetti.push({
+                x: GOAL_X - 60 + Math.random() * 200,
+                y: 40 + Math.random() * 140,
+                vx: -90 + Math.random() * 180,
+                vy: -160 - Math.random() * 160,
+                color: cols[i % cols.length],
+                size: 4 + Math.random() * 4,
+                rot: Math.random() * 6.28
+            });
+        }
+
+        var ch = getCharObj(selectedCharId);
+        document.getElementById('win-time-box').textContent = formatTimeMs(myLastWinMs);
+        document.getElementById('win-details').innerHTML =
+            'با <strong>' + ch.name + '</strong> و جمع‌آوری <strong>' + ballsCollected + ' توپ طلایی ⚽</strong><br>' +
+            'رکوردت در جدول همگانی ثبت شد (+۱۵۰ امتیاز در لیدربورد کل کانال)!';
+
+        saveAttemptRecord(true, myLastWinMs, 100, ballsCollected);
+        if (window.ChalbaziScore) {
+            ChalbaziScore.addScore(150, 'football-mario', 'fm_win_' + runId);
+        }
+
+        setTimeout(function() {
+            if (state === 'won') {
+                document.getElementById('win-modal').classList.remove('hidden');
+            }
+        }, 900);
+    }
+
+    // ==================== به‌روزرسانی فیزیک ====================
+    function update(dt) {
+        // آپدیت ذرات و کاغذرنگی حتی پس از برد/باخت
+        for (var pi = particles.length - 1; pi >= 0; pi--) {
+            var pt = particles[pi];
+            pt.x += pt.vx * dt;
+            pt.y += pt.vy * dt;
+            pt.vy += 600 * dt;
+            pt.life -= dt;
+            if (pt.life <= 0) particles.splice(pi, 1);
+        }
+        for (var cf = 0; cf < confetti.length; cf++) {
+            var c = confetti[cf];
+            c.x += c.vx * dt;
+            c.y += c.vy * dt;
+            c.vy += 380 * dt;
+            c.rot += 5 * dt;
+        }
+
+        if (state !== 'playing') return;
+
+        elapsedMs = performance.now() - runStartTime;
+        document.getElementById('hud-timer').textContent = formatTimeMs(elapsedMs);
+
+        if (player.invuln > 0) player.invuln -= dt;
+
+        // ۱. حرکت سکوهای متحرک
+        for (var m = 0; m < movingPlats.length; m++) {
+            var mp = movingPlats[m];
+            var oldX = mp.x, oldY = mp.y;
+            mp.x += mp.vx * dt;
+            mp.y += mp.vy * dt;
+            if (mp.x < mp.minX) { mp.x = mp.minX; mp.vx = Math.abs(mp.vx); }
+            if (mp.x > mp.maxX) { mp.x = mp.maxX; mp.vx = -Math.abs(mp.vx); }
+            if (mp.y < mp.minY) { mp.y = mp.minY; mp.vy = Math.abs(mp.vy); }
+            if (mp.y > mp.maxY) { mp.y = mp.maxY; mp.vy = -Math.abs(mp.vy); }
+            mp.dx = mp.x - oldX;
+            mp.dy = mp.y - oldY;
+        }
+
+        // انیمیشن ضربه به بلوک‌های ?
+        for (var q = 0; q < qBlocks.length; q++) {
+            if (qBlocks[q].bumpY < 0) {
+                qBlocks[q].bumpY = Math.min(0, qBlocks[q].bumpY + 95 * dt);
+            }
+        }
+        for (var sp = 0; sp < springs.length; sp++) {
+            if (springs[sp].bounceAnim > 0) springs[sp].bounceAnim = Math.max(0, springs[sp].bounceAnim - 4 * dt);
+        }
+
+        // ۲. حرکت افقی بازیکن
+        var dir = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+        if (dir !== 0) {
+            player.facing = dir;
+            player.vx += dir * ACCEL * dt;
+            if (player.vx > VX_MAX) player.vx = VX_MAX;
+            if (player.vx < -VX_MAX) player.vx = -VX_MAX;
+            if (player.onGround) player.walkFrame += dt * 13;
+        } else {
+            if (player.vx > 0) player.vx = Math.max(0, player.vx - FRICTION * dt);
+            if (player.vx < 0) player.vx = Math.min(0, player.vx + FRICTION * dt);
+            player.walkFrame = 0;
+        }
+
+        // ۳. کایوتی تایم و بافر پرش (برای کنترل بی‌نقص روی موبایل)
+        if (player.onGround) player.coyoteTime = 0.11;
+        else player.coyoteTime = Math.max(0, player.coyoteTime - dt);
+
+        var jumpBuffered = (performance.now() - input.jumpPressedAt) < 130;
+        if (jumpBuffered && player.coyoteTime > 0) {
+            player.vy = VY_JUMP;
+            player.onGround = false;
+            player.coyoteTime = 0;
+            input.jumpPressedAt = 0;
+            playSfx('jump');
+            spawnParticles(player.x + player.w / 2, player.y + player.h, '#A7F3D0', 4);
+        }
+
+        // جاذبه هوشمند (رها کردن پرش = پرش کوتاه‌تر مثل ماریو)
+        var gScale = (player.vy < 0 && !input.jump) ? 1.85 : 1.0;
+        player.vy += GRAVITY * gScale * dt;
+        if (player.vy > 860) player.vy = 860;
+
+        // فهرست کل سطوح جامد
+        var allSolids = solids.concat(qBlocks).concat(movingPlats);
+
+        // ۴. برخورد محور X
+        player.x += player.vx * dt;
+        if (player.x < 0) { player.x = 0; player.vx = 0; }
+        for (var i = 0; i < allSolids.length; i++) {
+            var b = allSolids[i];
+            if (rectOverlap(player, b)) {
+                if (player.vx > 0) {
+                    player.x = b.x - player.w;
+                    player.vx = 0;
+                } else if (player.vx < 0) {
+                    player.x = b.x + b.w;
+                    player.vx = 0;
+                }
+            }
+        }
+
+        // ۵. برخورد محور Y
+        var prevBottom = player.y + player.h;
+        player.y += player.vy * dt;
+        player.onGround = false;
+        var standingPlat = null;
+
+        for (var j = 0; j < allSolids.length; j++) {
+            var s = allSolids[j];
+            if (rectOverlap(player, s)) {
+                if (player.vy >= 0) {
+                    player.y = s.y - player.h;
+                    player.vy = 0;
+                    player.onGround = true;
+                    if (s.dx !== undefined) standingPlat = s;
+                } else if (player.vy < 0) {
+                    player.y = s.y + s.h;
+                    player.vy = 0;
+                    // بررسی ضربه از پایین به جعبه علامت‌سوال
+                    if (s.reward && !s.hit) {
+                        s.hit = true;
+                        s.bumpY = -10;
+                        if (s.reward === 'shield') {
+                            player.shield = true;
+                            document.getElementById('shield-toast').classList.remove('hidden');
+                            playSfx('powerup');
+                            spawnParticles(s.x + 17, s.y, '#38BDF8', 14);
+                        } else {
+                            ballsCollected += 3;
+                            document.getElementById('hud-balls').textContent = ballsCollected;
+                            playSfx('coin');
+                            spawnParticles(s.x + 17, s.y, '#FDE047', 10);
+                        }
+                    }
+                }
+            }
+        }
+
+        // همراه شدن بازیکن با سکوی متحرک
+        if (standingPlat) {
+            player.x += standingPlat.dx;
+            player.y += standingPlat.dy;
+        }
+
+        // ۶. سقوط در چاله (حتی با سپر هم باعث باخت می‌شود)
+        if (player.y > VIEW_H + 45) {
+            triggerDeath('افتادی توی چاله استادیوم!');
+            return;
+        }
+
+        // ۷. فنرهای پرش بلند
+        for (var sr = 0; sr < springs.length; sr++) {
+            var spr = springs[sr];
+            if (rectOverlap(player, spr) && player.vy >= 0) {
+                player.vy = VY_SPRING;
+                player.onGround = false;
+                spr.bounceAnim = 1;
+                playSfx('spring');
+                spawnParticles(spr.x + spr.w / 2, spr.y, '#34D399', 10);
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
+
+        // ۸. جمع‌آوری توپ‌های طلایی
+        for (var ci = 0; ci < coins.length; ci++) {
+            var cn = coins[ci];
+            if (cn.taken) continue;
+            var dx = (player.x + player.w / 2) - cn.x;
+            var dy = (player.y + player.h / 2) - cn.y;
+            if (dx * dx + dy * dy < 24 * 24) {
+                cn.taken = true;
+                ballsCollected++;
+                document.getElementById('hud-balls').textContent = ballsCollected;
+                playSfx('coin');
+                spawnParticles(cn.x, cn.y, '#FDE047', 6);
+            }
+        }
+
+        // ۹. مخروط‌های تمرینی (تیغ)
+        for (var sk = 0; sk < spikes.length; sk++) {
+            var spk = spikes[sk];
+            var shrinkSpk = { x: spk.x + 4, y: spk.y + 6, w: spk.w - 8, h: spk.h - 6 };
+            if (rectOverlap(player, shrinkSpk)) {
+                handlePlayerHit('به مخروط تمرینی برخورد کردی!');
+                if (state !== 'playing') return;
+            }
+        }
+
+        // ۱۰. دشمنان (مدافع، تکل‌زن و داور پرنده)
+        for (var ei = 0; ei < enemies.length; ei++) {
+            var en = enemies[ei];
+            if (!en.alive) continue;
+            en.x += en.vx * dt;
+            if (en.x < en.minX) { en.x = en.minX; en.vx = Math.abs(en.vx); }
+            if (en.x > en.maxX) { en.x = en.maxX; en.vx = -Math.abs(en.vx); }
+            if (en.kind === 'ref') {
+                en.phase += dt * 3.5;
+                en.y = en.baseY + Math.sin(en.phase) * 26;
+            }
+
+            if (rectOverlap(player, en)) {
+                // پریدن روی سر دشمن (Stomp)
+                if (player.vy > 0 && prevBottom <= en.y + 18) {
+                    en.alive = false;
+                    player.vy = input.jump ? -540 : -390;
+                    playSfx('stomp');
+                    spawnParticles(en.x + en.w / 2, en.y + 10, '#FDE047', 12);
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+                } else {
+                    var msg = en.kind === 'ref' ? 'داور بهت کارت قرمز داد!' : 'مدافع حریف توپت رو زد!';
+                    handlePlayerHit(msg);
+                    if (state !== 'playing') return;
+                }
+            }
+        }
+
+        // ۱۱. پیشرفت و دوربین
+        if (player.x > maxReachedX) maxReachedX = player.x;
+        var pct = Math.min(100, Math.floor((maxReachedX / GOAL_X) * 100));
+        document.getElementById('hud-prog').textContent = pct + '%';
+        document.getElementById('progress-fill').style.width = pct + '%';
+
+        var targetCam = player.x - VIEW_W * 0.34;
+        if (targetCam < 0) targetCam = 0;
+        if (targetCam > LEVEL_END_X - VIEW_W) targetCam = LEVEL_END_X - VIEW_W;
+        cameraX += (targetCam - cameraX) * Math.min(1, dt * 10);
+
+        // ۱۲. رسیدن به پرچم و جام قهرمانی
+        if (player.x + player.w >= GOAL_X) {
+            triggerWin();
+        }
+    }
+
+    // ==================== رسم صحنه و گرافیک فوتبالی ====================
+    function drawBackground() {
+        // آسمان شب استادیوم لیگ قهرمانان
+        var sky = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+        sky.addColorStop(0, '#071029');
+        sky.addColorStop(0.55, '#13285B');
+        sky.addColorStop(1, '#1E3A6E');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+        // پروژکتورهای استادیوم (پارالاکس آهسته)
+        var towerSpacing = 280;
+        var offset1 = -(cameraX * 0.18) % towerSpacing;
+        for (var x = offset1 - towerSpacing; x < VIEW_W + towerSpacing; x += towerSpacing) {
+            // پایه پروژکتور
+            ctx.fillStyle = '#0B152E';
+            ctx.fillRect(x + 20, 42, 8, 175);
+            // پنل چراغ
+            ctx.fillStyle = '#E2E8F0';
+            ctx.fillRect(x + 8, 30, 32, 16);
+            // هاله نور
+            var glow = ctx.createRadialGradient(x + 24, 38, 4, x + 24, 38, 85);
+            glow.addColorStop(0, 'rgba(255, 250, 220, 0.34)');
+            glow.addColorStop(1, 'rgba(255, 250, 220, 0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(x + 24, 38, 85, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // سکوهای تماشاگران در پس‌زمینه (پارالاکس متوسط)
+        ctx.fillStyle = '#0D1B3E';
+        ctx.fillRect(0, 190, VIEW_W, 130);
+        var crowdOff = -(cameraX * 0.35) % 48;
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        for (var cx = crowdOff - 48; cx < VIEW_W + 48; cx += 48) {
+            ctx.fillRect(cx, 204, 42, 6);
+            ctx.fillRect(cx + 8, 222, 34, 6);
+            ctx.fillRect(cx + 4, 240, 40, 6);
+        }
+        // نوار تبلیغاتی استادیوم در دوردست
+        ctx.fillStyle = '#1E293B';
+        ctx.fillRect(0, 272, VIEW_W, 20);
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = 'bold 10px Vazirmatn, sans-serif';
+        var adOff = -(cameraX * 0.5) % 160;
+        for (var ax = adOff - 160; ax < VIEW_W + 160; ax += 160) {
+            ctx.fillText('★ @CHALBAZI CUP ★', ax, 286);
+        }
+    }
+
+    function drawPlayerSprite() {
+        if (player.invuln > 0 && Math.floor(player.invuln * 16) % 2 === 0) return;
+
+        var ch = getCharObj(selectedCharId);
+        var px = player.x - cameraX;
+        var py = player.y;
+
+        ctx.save();
+        ctx.translate(px + player.w / 2, py + player.h / 2);
+        if (player.facing < 0) ctx.scale(-1, 1);
+
+        // هاله سپر طلایی
+        if (player.shield) {
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(0, 0, 26, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // پاها (انیمیشن دویدن)
+        var legSwing = player.onGround ? Math.sin(player.walkFrame) * 5 : 4;
+        ctx.fillStyle = ch.socks;
+        ctx.fillRect(-7 + legSwing, 10, 5, 9);
+        ctx.fillRect(2 - legSwing, 10, 5, 9);
+        // کفش استوک
+        ctx.fillStyle = '#FDE047';
+        ctx.fillRect(-7 + legSwing, 17, 7, 4);
+        ctx.fillRect(2 - legSwing, 17, 7, 4);
+
+        // شورت ورزشی
+        ctx.fillStyle = ch.shorts;
+        ctx.fillRect(-9, 5, 18, 7);
+
+        // پیراهن بازیکن
+        ctx.fillStyle = ch.jersey1;
+        ctx.fillRect(-10, -8, 20, 14);
+        if (ch.jersey2 !== ch.jersey1) {
+            ctx.fillStyle = ch.jersey2;
+            ctx.fillRect(-5, -8, 4, 14);
+            ctx.fillRect(2, -8, 4, 14);
+        }
+
+        // شماره پیراهن روی سینه/پشت
+        ctx.fillStyle = (ch.id === 'mbappe' || ch.id === 'haaland' || ch.id === 'messi') ? '#0F172A' : '#FDE047';
+        ctx.font = '900 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(ch.num, 0, 2);
+
+        // سر و صورت
+        ctx.fillStyle = ch.skin;
+        ctx.beginPath();
+        ctx.arc(0, -14, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // چشم
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(3, -16, 2.5, 2.5);
+
+        // ریش برای مسی
+        if (ch.beard) {
+            ctx.fillStyle = ch.hair;
+            ctx.fillRect(-2, -10, 8, 3.5);
+        }
+
+        // مدل موی اختصاصی هر ستاره
+        ctx.fillStyle = ch.hair;
+        if (ch.hairStyle === 'ponytail') {
+            ctx.fillRect(-8, -22, 16, 5);
+            ctx.beginPath();
+            ctx.moveTo(-8, -19);
+            ctx.lineTo(-15, -11);
+            ctx.lineTo(-10, -11);
+            ctx.closePath();
+            ctx.fill();
+        } else if (ch.hairStyle === 'curly') {
+            ctx.beginPath();
+            ctx.arc(-4, -20, 4.5, 0, Math.PI * 2);
+            ctx.arc(1, -21, 5, 0, Math.PI * 2);
+            ctx.arc(5, -19, 4, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (ch.hairStyle === 'buzz') {
+            ctx.beginPath();
+            ctx.arc(0, -16, 8, Math.PI, Math.PI * 2);
+            ctx.fill();
+        } else if (ch.hairStyle === 'styled') {
+            ctx.fillRect(-8, -22, 16, 5);
+            ctx.beginPath();
+            ctx.moveTo(3, -22);
+            ctx.lineTo(10, -24);
+            ctx.lineTo(7, -18);
+            ctx.fill();
+        } else {
+            ctx.fillRect(-8, -22, 15, 5);
+        }
+
+        ctx.restore();
+    }
+
+    function drawWorld() {
+        drawBackground();
+
+        // ۱. زمین چمن راه‌راه و سکوها
+        for (var i = 0; i < solids.length; i++) {
+            var s = solids[i];
+            if (s.x + s.w < cameraX - 40 || s.x > cameraX + VIEW_W + 40) continue;
+            var sx = s.x - cameraX;
+
+            if (s.kind === 'ground') {
+                // خاک زیر چمن
+                ctx.fillStyle = '#3B2314';
+                ctx.fillRect(sx, s.y + 14, s.w, s.h - 14);
+                // چمن دو رنگ استادیومی
+                ctx.fillStyle = '#16A34A';
+                ctx.fillRect(sx, s.y, s.w, 16);
+                ctx.fillStyle = '#22C55E';
+                for (var gx = 0; gx < s.w; gx += 40) {
+                    ctx.fillRect(sx + gx, s.y, Math.min(20, s.w - gx), 14);
+                }
+                // خط سفید زمین فوتبال
+                ctx.fillStyle = 'rgba(255,255,255,0.75)';
+                ctx.fillRect(sx, s.y + 2, s.w, 2);
+            } else if (s.kind === 'pillar') {
+                // تیرک / لوله استادیوم
+                var pg = ctx.createLinearGradient(sx, 0, sx + s.w, 0);
+                pg.addColorStop(0, '#047857');
+                pg.addColorStop(0.4, '#34D399');
+                pg.addColorStop(1, '#064E3B');
+                ctx.fillStyle = pg;
+                ctx.fillRect(sx + 3, s.y + 12, s.w - 6, s.h - 12);
+                ctx.fillRect(sx, s.y, s.w, 14);
+                ctx.strokeStyle = '#A7F3D0';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(sx, s.y, s.w, 14);
+            } else if (s.kind === 'stair') {
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(sx, s.y, s.w, s.h);
+                ctx.fillStyle = '#F59E0B';
+                ctx.fillRect(sx, s.y, s.w, 6);
+                ctx.strokeStyle = '#64748B';
+                ctx.strokeRect(sx, s.y, s.w, s.h);
+            } else {
+                // سکوی معلق استادیومی
+                ctx.fillStyle = '#1E293B';
+                ctx.fillRect(sx, s.y, s.w, s.h);
+                ctx.fillStyle = '#22C55E';
+                ctx.fillRect(sx, s.y, s.w, 6);
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(sx, s.y, s.w, s.h);
+            }
+        }
+
+        // ۲. سکوهای متحرک (تابلو LED چالبازی)
+        for (var m = 0; m < movingPlats.length; m++) {
+            var mp = movingPlats[m];
+            var mx = mp.x - cameraX;
+            if (mx + mp.w < -20 || mx > VIEW_W + 20) continue;
+            ctx.fillStyle = '#0284C7';
+            ctx.fillRect(mx, mp.y, mp.w, mp.h);
+            ctx.strokeStyle = '#7DD3FC';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(mx, mp.y, mp.w, mp.h);
+            ctx.fillStyle = '#FEF08A';
+            ctx.font = '900 9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('CHALBAZI', mx + mp.w / 2, mp.y + 13);
+        }
+
+        // ۳. جعبه‌های علامت‌سوال (؟)
+        for (var q = 0; q < qBlocks.length; q++) {
+            var qb = qBlocks[q];
+            var qx = qb.x - cameraX;
+            var qy = qb.y + qb.bumpY;
+            if (qx + qb.w < -20 || qx > VIEW_W + 20) continue;
+            ctx.fillStyle = qb.hit ? '#475569' : '#F59E0B';
+            ctx.fillRect(qx, qy, qb.w, qb.h);
+            ctx.strokeStyle = qb.hit ? '#94A3B8' : '#FEF08A';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(qx, qy, qb.w, qb.h);
+            ctx.fillStyle = qb.hit ? '#CBD5E1' : '#FFFFFF';
+            ctx.font = '900 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(qb.hit ? '✓' : '?', qx + qb.w / 2, qy + 24);
+        }
+
+        // ۴. فنرهای پرش
+        for (var sp = 0; sp < springs.length; sp++) {
+            var spr = springs[sp];
+            var spx = spr.x - cameraX;
+            if (spx + spr.w < -20 || spx > VIEW_W + 20) continue;
+            var lift = spr.bounceAnim * 8;
+            ctx.fillStyle = '#CBD5E1';
+            ctx.fillRect(spx + 6, spr.y + 6 - lift, spr.w - 12, 10 + lift);
+            ctx.fillStyle = '#10B981';
+            ctx.fillRect(spx, spr.y - lift, spr.w, 8);
+            ctx.strokeStyle = '#A7F3D0';
+            ctx.strokeRect(spx, spr.y - lift, spr.w, 8);
+        }
+
+        // ۵. مخروط‌های تمرینی (مانع تیز نارنجی)
+        for (var sk = 0; sk < spikes.length; sk++) {
+            var spk = spikes[sk];
+            var kx = spk.x - cameraX;
+            if (kx + spk.w < -20 || kx > VIEW_W + 20) continue;
+            ctx.fillStyle = '#F97316';
+            ctx.beginPath();
+            ctx.moveTo(kx + spk.w / 2, spk.y);
+            ctx.lineTo(kx + spk.w, spk.y + spk.h);
+            ctx.lineTo(kx, spk.y + spk.h);
+            ctx.closePath();
+            ctx.fill();
+            // خط شبرنگ سفید روی مخروط
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(kx + 6, spk.y + 12, spk.w - 12, 4);
+        }
+
+        // ۶. توپ‌های طلایی (سکه)
+        var tPulse = Math.sin(performance.now() * 0.007) * 2;
+        for (var ci = 0; ci < coins.length; ci++) {
+            var cn = coins[ci];
+            if (cn.taken) continue;
+            var cx = cn.x - cameraX;
+            if (cx < -20 || cx > VIEW_W + 20) continue;
+            ctx.fillStyle = '#FDE047';
+            ctx.beginPath();
+            ctx.arc(cx, cn.y + tPulse, cn.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#B45309';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.fillStyle = '#78350F';
+            ctx.beginPath();
+            ctx.arc(cx, cn.y + tPulse, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ۷. دشمنان (مدافع، تکل‌زن و داور پرنده)
+        for (var ei = 0; ei < enemies.length; ei++) {
+            var en = enemies[ei];
+            if (!en.alive) continue;
+            var ex = en.x - cameraX;
+            if (ex + en.w < -30 || ex > VIEW_W + 30) continue;
+
+            if (en.kind === 'ref') {
+                // داور پرنده با کارت قرمز
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(ex + 3, en.y + 10, en.w - 6, 16);
+                ctx.fillStyle = '#FDE047';
+                ctx.fillRect(ex + 7, en.y + 10, 4, 16);
+                ctx.fillRect(ex + 16, en.y + 10, 4, 16);
+                ctx.fillStyle = '#F2C6A0';
+                ctx.beginPath();
+                ctx.arc(ex + en.w / 2, en.y + 6, 7, 0, Math.PI * 2);
+                ctx.fill();
+                // کارت قرمز بالای دست داور
+                ctx.fillStyle = '#EF4444';
+                ctx.fillRect(ex + en.w - 2, en.y - 2, 8, 12);
+            } else {
+                // مدافع یا تکل‌زن حریف
+                ctx.fillStyle = en.kind === 'tackler' ? '#991B1B' : '#4C1D95';
+                ctx.fillRect(ex + 3, en.y + 11, en.w - 6, 16);
+                ctx.fillStyle = '#0F172A';
+                ctx.fillRect(ex + 4, en.y + 27, 7, 7);
+                ctx.fillRect(ex + 17, en.y + 27, 7, 7);
+                ctx.fillStyle = '#E5B89B';
+                ctx.beginPath();
+                ctx.arc(ex + en.w / 2, en.y + 7, 7, 0, Math.PI * 2);
+                ctx.fill();
+                // ابروهای عصبانی
+                ctx.strokeStyle = '#0F172A';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(ex + 9, en.y + 4);
+                ctx.lineTo(ex + 19, en.y + 7);
+                ctx.stroke();
+            }
+        }
+
+        // ۸. خط پایان: پرچم قهرمانی + دروازه + جام طلایی
+        var gx = GOAL_X - cameraX;
+        if (gx < VIEW_W + 180) {
+            // میله پرچم (مثل پایان مرحله ماریو)
+            ctx.fillStyle = '#E2E8F0';
+            ctx.fillRect(gx, GY - 210, 6, 210);
+            ctx.fillStyle = '#FDE047';
+            ctx.beginPath();
+            ctx.arc(gx + 3, GY - 212, 7, 0, Math.PI * 2);
+            ctx.fill();
+            // پرچم قهرمانی
+            ctx.fillStyle = '#10B981';
+            ctx.beginPath();
+            ctx.moveTo(gx + 6, GY - 205);
+            ctx.lineTo(gx + 54, GY - 188);
+            ctx.lineTo(gx + 6, GY - 170);
+            ctx.closePath();
+            ctx.fill();
+
+            // دروازه بزرگ استادیوم پشت پرچم
+            var netX = gx + 75;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(netX, GY - 120, 95, 120);
+            ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+            ctx.lineWidth = 1;
+            for (var nx = netX + 12; nx < netX + 95; nx += 12) {
+                ctx.beginPath(); ctx.moveTo(nx, GY - 120); ctx.lineTo(nx, GY); ctx.stroke();
+            }
+            for (var ny = GY - 105; ny < GY; ny += 15) {
+                ctx.beginPath(); ctx.moveTo(netX, ny); ctx.lineTo(netX + 95, ny); ctx.stroke();
+            }
+            // جام طلایی وسط دروازه
+            ctx.font = '38px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('🏆', netX + 48, GY - 18);
+        }
+
+        // ۹. بازیکن
+        drawPlayerSprite();
+
+        // ۱۰. ذرات و کاغذرنگی
+        for (var pi = 0; pi < particles.length; pi++) {
+            var pt = particles[pi];
+            ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+            ctx.fillStyle = pt.color;
+            ctx.fillRect(pt.x - cameraX, pt.y, pt.size, pt.size);
+        }
+        ctx.globalAlpha = 1;
+
+        for (var cf = 0; cf < confetti.length; cf++) {
+            var c = confetti[cf];
+            ctx.save();
+            ctx.translate(c.x - cameraX, c.y);
+            ctx.rotate(c.rot);
+            ctx.fillStyle = c.color;
+            ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 0.6);
+            ctx.restore();
+        }
+    }
+
+    var lastFrame = performance.now();
+    function loop(now) {
+        var dt = Math.min(0.033, (now - lastFrame) / 1000);
+        lastFrame = now;
+        update(dt);
+        drawWorld();
+        requestAnimationFrame(loop);
+    }
+
+    // ==================== کنترل‌های لمسی چندانگشتی + کیبورد ====================
+    var btnLeft = document.getElementById('btn-left');
+    var btnRight = document.getElementById('btn-right');
+    var btnJump = document.getElementById('btn-jump');
+    var dpadZone = document.getElementById('dpad-zone');
+    var btnQuickRestart = document.getElementById('btn-quick-restart');
+
+    function setLeft(v) {
+        input.left = v;
+        btnLeft.classList.toggle('pressed', v);
+    }
+    function setRight(v) {
+        input.right = v;
+        btnRight.classList.toggle('pressed', v);
+    }
+    function setJump(v) {
+        if (v && !input.jump) input.jumpPressedAt = performance.now();
+        input.jump = v;
+        btnJump.classList.toggle('pressed', v);
+    }
+
+    // پشتیبانی کامل از سر دادن انگشت بین چپ و راست روی موبایل
+    function updateDpadFromTouches(e) {
+        e.preventDefault();
+        ensureAudio();
+        var rectL = btnLeft.getBoundingClientRect();
+        var rectR = btnRight.getBoundingClientRect();
+        var lActive = false, rActive = false;
+
+        var touches = e.touches;
+        for (var i = 0; i < touches.length; i++) {
+            var tx = touches[i].clientX, ty = touches[i].clientY;
+            if (tx >= rectL.left - 18 && tx <= rectL.right + 6 && ty >= rectL.top - 22 && ty <= rectL.bottom + 22) lActive = true;
+            if (tx >= rectR.left - 6 && tx <= rectR.right + 18 && ty >= rectR.top - 22 && ty <= rectR.bottom + 22) rActive = true;
+        }
+        setLeft(lActive);
+        setRight(rActive);
+    }
+
+    dpadZone.addEventListener('touchstart', updateDpadFromTouches, { passive: false });
+    dpadZone.addEventListener('touchmove', updateDpadFromTouches, { passive: false });
+    dpadZone.addEventListener('touchend', updateDpadFromTouches, { passive: false });
+    dpadZone.addEventListener('touchcancel', function(e) { e.preventDefault(); setLeft(false); setRight(false); }, { passive: false });
+
+    // پشتیبانی موس برای دسکتاپ
+    btnLeft.addEventListener('mousedown', function() { ensureAudio(); setLeft(true); });
+    btnRight.addEventListener('mousedown', function() { ensureAudio(); setRight(true); });
+    window.addEventListener('mouseup', function() { setLeft(false); setRight(false); setJump(false); });
+
+    btnJump.addEventListener('touchstart', function(e) { e.preventDefault(); ensureAudio(); setJump(true); }, { passive: false });
+    btnJump.addEventListener('touchend', function(e) { e.preventDefault(); setJump(false); }, { passive: false });
+    btnJump.addEventListener('touchcancel', function(e) { e.preventDefault(); setJump(false); }, { passive: false });
+    btnJump.addEventListener('mousedown', function() { ensureAudio(); setJump(true); });
+
+    btnQuickRestart.addEventListener('click', function() {
+        if (state === 'playing' || state === 'dead') startRun();
+    });
+
+    window.addEventListener('keydown', function(e) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') setLeft(true);
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') setRight(true);
+        if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') {
+            if (state === 'playing') e.preventDefault();
+            setJump(true);
+        }
+        if (e.code === 'KeyR' && (state === 'playing' || state === 'dead')) startRun();
+    });
+    window.addEventListener('keyup', function(e) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') setLeft(false);
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') setRight(false);
+        if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') setJump(false);
+    });
+
+    // ==================== ذخیره و نمایش رکوردها در Firebase ====================
+    async function saveAttemptRecord(didFinish, timeMs, progressPct, coinsCount) {
+        try {
+            var url = RECORDS_PATH + '/' + user.id + '.json';
+            var res = await fetch(url);
+            var prev = res.ok ? await res.json() : null;
+
+            var newObj = {
+                name: user.name,
+                char: selectedCharId,
+                finished: prev ? !!prev.finished : false,
+                bestTimeMs: (prev && prev.bestTimeMs) ? prev.bestTimeMs : 0,
+                bestProgress: (prev && prev.bestProgress) ? prev.bestProgress : 0,
+                bestCoins: (prev && prev.bestCoins) ? prev.bestCoins : 0,
+                updatedAt: Date.now()
+            };
+
+            var shouldUpdate = !prev;
+            if (didFinish) {
+                if (!newObj.finished || (timeMs > 0 && timeMs < newObj.bestTimeMs)) {
+                    newObj.finished = true;
+                    newObj.bestTimeMs = timeMs;
+                    newObj.bestProgress = 100;
+                    newObj.char = selectedCharId;
+                    newObj.bestCoins = Math.max(newObj.bestCoins, coinsCount);
+                    shouldUpdate = true;
+                }
+            } else if (!newObj.finished && progressPct > newObj.bestProgress) {
+                newObj.bestProgress = progressPct;
+                newObj.char = selectedCharId;
+                newObj.bestCoins = Math.max(newObj.bestCoins, coinsCount);
+                shouldUpdate = true;
+            }
+
+            if (shouldUpdate) {
+                await fetch(url, { method: 'PUT', body: JSON.stringify(newObj) });
+                loadRecords();
+            }
+        } catch (e) {}
+    }
+
+    async function loadRecords() {
+        try {
+            var res = await fetch(RECORDS_PATH + '.json');
+            if (!res.ok) return;
+            var data = await res.json();
+            var list = [];
+            if (data) {
+                var keys = Object.keys(data);
+                for (var i = 0; i < keys.length; i++) {
+                    var item = data[keys[i]];
+                    if (item) {
+                        list.push({
+                            id: keys[i],
+                            name: item.name || 'بازیکن',
+                            char: item.char || 'messi',
+                            finished: !!item.finished,
+                            bestTimeMs: item.bestTimeMs || 0,
+                            bestProgress: item.bestProgress || 0
+                        });
+                    }
+                }
+            }
+
+            // مرتب‌سازی: اول کسانی که تمام کرده‌اند (سریع‌ترین زمان اول)، بعد بیشترین درصد پیشرفت
+            list.sort(function(a, b) {
+                if (a.finished && b.finished) return a.bestTimeMs - b.bestTimeMs;
+                if (a.finished && !b.finished) return -1;
+                if (!a.finished && b.finished) return 1;
+                return b.bestProgress - a.bestProgress;
+            });
+
+            worldRecordsCache = list;
+
+            var wrEl = document.getElementById('world-record-label');
+            if (list.length === 0) {
+                wrEl.textContent = '👑 هنوز رکوردی ثبت نشده';
+            } else if (list[0].finished) {
+                wrEl.textContent = '👑 رکورد: ' + formatTimeMs(list[0].bestTimeMs) + ' (' + list[0].name.split(' ')[0] + ')';
+            } else {
+                wrEl.textContent = '👑 بیشترین پیشروی: ' + list[0].bestProgress + '% (' + list[0].name.split(' ')[0] + ')';
+            }
+            renderLeaderboardList();
+        } catch (e) {}
+    }
+
+    function renderLeaderboardList() {
+        var el = document.getElementById('lb-modal-list');
+        if (!worldRecordsCache.length) {
+            el.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:16px;">هنوز کسی رکورد ثبت نکرده؛ اولین قهرمان باش! 🏆</div>';
+            return;
+        }
+        var html = '';
+        var lim = Math.min(25, worldRecordsCache.length);
+        for (var i = 0; i < lim; i++) {
+            var r = worldRecordsCache[i];
+            var medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
+            var ch = getCharObj(r.char);
+            var cls = (r.id === user.id) ? 'lb-row me' : 'lb-row';
+            var scoreHtml = r.finished
+                ? '<span class="lb-time">⏱ ' + formatTimeMs(r.bestTimeMs) + '</span>'
+                : '<span class="lb-prog">' + r.bestProgress + '% مسیر</span>';
+
+            html += '<div class="' + cls + '">'
+                + '<span><strong>' + medal + ' ' + r.name + '</strong> <small style="color:#94A3B8;">(' + ch.name + ')</small></span>'
+                + scoreHtml
+                + '</div>';
+        }
+        el.innerHTML = html;
+    }
+
+    function openLeaderboardModal() {
+        loadRecords();
+        document.getElementById('lb-modal').classList.remove('hidden');
+    }
+
+    function closeLeaderboardModal() {
+        document.getElementById('lb-modal').classList.add('hidden');
+    }
+
+    function shareRecord() {
+        var ch = getCharObj(selectedCharId);
+        var text = '⚽🏆 من (' + user.name + ') با ' + ch.name + ' مرحله سخت بازی «سوپر فوتبال» کانال @chalbazi رو در زمان ' + formatTimeMs(myLastWinMs) + ' تموم کردم! 🔥\nمی‌تونی زمانم رو بشکنی؟ 👇';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+        else window.open(url, '_blank');
+    }
+
+    // مقداردهی اولیه صحنه پس‌زمینه قبل از شروع
+    buildLevel();
+    resetPlayer();
+    loadRecords();
+    requestAnimationFrame(loop);
+</script>
+</body>
+</html>
