@@ -127,6 +127,21 @@
             flex-shrink: 0;
         }
 
+        .icon-race {
+            background: linear-gradient(135deg, #FCE7F3, #FBCFE8);
+            border: 2px solid #EC4899;
+        }
+
+        .icon-grid {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            border: 2px solid #10B981;
+        }
+
+        .icon-word {
+            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+            border: 2px solid #8B5CF6;
+        }
+
         .icon-giraffe {
             background: linear-gradient(135deg, #FFF8E1, #FFE082);
             border: 2px solid #FFB300;
@@ -135,16 +150,6 @@
         .icon-math {
             background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
             border: 2px solid #E53935;
-        }
-
-        .icon-word {
-            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
-            border: 2px solid #8B5CF6;
-        }
-
-        .icon-grid {
-            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
-            border: 2px solid #10B981;
         }
 
         .icon-soon {
@@ -216,22 +221,22 @@
     </div>
 
     <div class="games-grid">
-        <!-- بازی ۱: زرافه چوب‌بر -->
-        <a href="giraffe.html" class="game-card" onclick="vibrate()">
-            <div class="game-icon icon-giraffe">🦒</div>
+        <!-- بازی ۱: مسابقه شکار کلمات (زمان‌دار) -->
+        <a href="word-race.html?v=1" class="game-card" onclick="vibrate()">
+            <div class="game-icon icon-race">⚡</div>
             <div class="game-details">
-                <h2 class="game-title">زرافه چوب‌بر</h2>
-                <p class="game-desc">با سرعت درخت رو قطع کن و نذار شاخه‌ها به سرت بخورن!</p>
+                <h2 class="game-title">شکار کلمات (مسابقه ساعتی)</h2>
+                <p class="game-desc">سر ساعت شروع میشه! کلمات خواسته‌شده رو پیدا کن و جزو ۵ نفر اول امتیاز بگیر.</p>
             </div>
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۲: نیش ریاضی -->
-        <a href="math-sting.html" class="game-card" onclick="vibrate()">
-            <div class="game-icon icon-math">🦂</div>
+        <!-- بازی ۲: جدول کلمات ۸×۸ (زنده) -->
+        <a href="word-grid.html?v=4" class="game-card" onclick="vibrate()">
+            <div class="game-icon icon-grid">🧩</div>
             <div class="game-details">
-                <h2 class="game-title">نیش ریاضی (Math Sting)</h2>
-                <p class="game-desc">سریع جواب بده قبل از اینکه زنبور، عقرب یا مار نیشت بزنن!</p>
+                <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
+                <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
             </div>
             <div class="play-btn">بازی کن ▶</div>
         </a>
@@ -243,47 +248,4 @@
                 <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
                 <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
             </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
-
-        <!-- بازی ۴: جدول کلمات ۸×۸ (زنده) -->
-        <a href="word-grid.html?v=4" class="game-card" onclick="vibrate()">
-            <div class="game-icon icon-grid">🧩</div>
-            <div class="game-details">
-                <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
-                <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
-            </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
-
-        <!-- جایگاه بازی‌های آینده -->
-        <div class="game-card disabled">
-            <div class="game-icon icon-soon">🎲</div>
-            <div class="game-details">
-                <h2 class="game-title" style="color:#757575;">بازی بعدی در راه است...</h2>
-                <p class="game-desc">به‌زودی چالش جدید به مجموعه اضافه می‌شود.</p>
-            </div>
-            <div class="soon-badge">به‌زودی</div>
-        </div>
-    </div>
-
-    <script>
-        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                const u = tg.initDataUnsafe.user;
-                const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
-                if (fullName) document.getElementById('tg-user-name').textContent = fullName;
-            }
-        }
-
-        function vibrate() {
-            if (tg && tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-        }
-    </script>
-</body>
-</html>
+            <div class="play-btn">بازی کن
