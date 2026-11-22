@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>کلمه‌چین ۵ حرفی | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="score-manager.js?v=3"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            background: #121213;
+            color: #FFFFFF;
+            touch-action: manipulation;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 460px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px 8px 12px;
+            position: relative;
+        }
+
+        /* نوار بالایی مشابه طراحی نمونه */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 2px 4px 6px;
+            flex-shrink: 0;
+        }
+
+        .nav-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1E1E20;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .nav-circle:active { transform: scale(0.92); }
+
+        .streaks-group {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .streak-box {
+            background: #1A1A1C;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 4px 12px;
+            min-width: 96px;
+            text-align: center;
+        }
+
+        .streak-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            color: #A1A1AA;
+            line-height: 1.3;
+        }
+
+        .streak-lbl.best {
+            color: #4ADE80;
+        }
+
+        .streak-num {
+            font-size: 18px;
+            font-weight: 900;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .streak-num.best {
+            color: #53B848;
+        }
+
+        .top-right-btns {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* پیام شناور کوتاه (Toast) */
+        .toast {
+            position: fixed;
+            top: 64px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: #F4F4F5;
+            color: #18181B;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            z-index: 80;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* جدول ۶ در ۵ */
+        .board-wrap {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 0;
+        }
+
+        .board {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 6px;
+            width: min(310px, 84vw, calc((100dvh - 285px) * 5 / 6));
+            aspect-ratio: 5 / 6;
+            max-height: 100%;
+        }
+
+        .board-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            direction: rtl;
+        }
+
+        .tile {
+            background: #2C2C2E;
+            border: 2px solid #3A3A3C;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(20px, 5.5vw, 28px);
+            font-weight: 900;
+            color: #FFFFFF;
+            position: relative;
+            transition: transform 0.12s ease, background 0.25s ease, border-color 0.25s ease;
+        }
+
+        .tile.filled {
+            background: #3A3A3C;
+            border-color: #71717A;
+            animation: popTile 0.12s ease;
+        }
+
+        .tile.hint-ghost::after {
+            content: attr(data-hint);
+            position: absolute;
+            color: rgba(236, 72, 153, 0.55);
+            font-size: clamp(18px, 5vw, 24px);
+            pointer-events: none;
+        }
+
+        .tile.filled.hint-ghost::after {
+            content: '';
+        }
+
+        .tile.correct {
+            background: #53A548;
+            border-color: #53A548;
+            color: #FFFFFF;
+        }
+
+        .tile.present {
+            background: #E5A024;
+            border-color: #E5A024;
+            color: #FFFFFF;
+        }
+
+        .tile.absent {
+            background: #3A3A3C;
+            border-color: #3A3A3C;
+            color: #E4E4E7;
+        }
+
+        .tile.flip {
+            animation: flipTile 0.45s ease;
+        }
+
+        .tile.win-bounce {
+            animation: winBounce 0.55s ease;
+            box-shadow: 0 0 14px rgba(83, 165, 72, 0.55);
+        }
+
+        .board-row.shake {
+            animation: shakeRow 0.36s ease;
+        }
+
+        @keyframes popTile {
+            0% { transform: scale(0.88); }
+            60% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes flipTile {
+            0% { transform: scaleY(1); }
+            45% { transform: scaleY(0.08); }
+            100% { transform: scaleY(1); }
+        }
+
+        @keyframes winBounce {
+            0%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-9px) scale(1.05); }
+            70% { transform: translateY(2px); }
+        }
+
+        @keyframes shakeRow {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-7px); }
+            40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+
+        .sparkle {
+            position: absolute;
+            color: #D9F99D;
+            font-size: 13px;
+            pointer-events: none;
+            animation: sparkleFade 0.9s ease forwards;
+        }
+
+        @keyframes sparkleFade {
+            0% { opacity: 0; transform: scale(0.3); }
+            40% { opacity: 1; transform: scale(1.25); }
+            100% { opacity: 0; transform: scale(0.6) translateY(-10px); }
+        }
+
+        /* کیبورد استاندارد فارسی (چپ به راست مثل گوشی) */
+        .keyboard {
+            direction: ltr;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 6px 0 8px;
+            flex-shrink: 0;
+        }
+
+        .kb-row {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .key-btn {
+            flex: 1;
+            max-width: 38px;
+            height: 44px;
+            border: none;
+            border-radius: 8px;
+            background: #9E9B95;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: transform 0.06s, background 0.2s;
+        }
+
+        .key-btn:active { transform: scale(0.92); }
+        .key-btn.backspace {
+            flex: 1.45;
+            max-width: 54px;
+            background: #787570;
+            font-size: 18px;
+        }
+
+        .key-btn.correct { background: #53A548; color: #fff; }
+        .key-btn.present { background: #E5A024; color: #fff; }
+        .key-btn.absent { background: #3A3A3C; color: #A1A1AA; }
+
+        /* ردیف پایینی: دکمه بزرگ ثبت + دکمه صورتی راهنما */
+        .bottom-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 2px 10px 4px;
+            flex-shrink: 0;
+        }
+
+        .submit-btn {
+            flex: 1;
+            max-width: 270px;
+            height: 50px;
+            border: none;
+            border-radius: 999px;
+            background: #9E9B95;
+            color: #3F3F46;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.08s, background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn.ready {
+            background: linear-gradient(135deg, #53A548, #3D8B34);
+            color: #FFFFFF;
+            box-shadow: 0 6px 18px rgba(83, 165, 72, 0.4);
+        }
+
+        .submit-btn:active { transform: scale(0.96); }
+
+        .hint-btn {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #EC4899, #DB2777);
+            color: #FFFFFF;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(219, 39, 119, 0.45);
+            flex-shrink: 0;
+        }
+
+        .hint-btn:active { transform: scale(0.92); }
+        .hint-btn.used {
+            background: #3F3F46;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        .hint-badge {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: 21px;
+            height: 21px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            color: #18181B;
+            font-size: 11px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        /* مودال‌ها */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(6px);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 370px;
+            background: #1C1C1E;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+        }
+
+        .pill {
+            display: inline-block;
+            background: linear-gradient(135deg, #53A548, #10B981);
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .answer-reveal {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 12px 0;
+            direction: rtl;
+        }
+
+        .ans-box {
+            width: 42px;
+            height: 44px;
+            border-radius: 10px;
+            background: #53A548;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 12px 0 14px;
+        }
+
+        .m-stat {
+            background: #27272A;
+            border-radius: 12px;
+            padding: 8px 4px;
+        }
+
+        .m-stat-val { font-size: 18px; font-weight: 900; color: #FDE047; }
+        .m-stat-lbl { font-size: 10px; color: #A1A1AA; margin-top: 2px; }
+
+        .btn-main {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-main:active { transform: scale(0.97); }
+        .btn-green { background: linear-gradient(135deg, #53A548, #3D8B34); }
+        .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
+        .btn-gray { background: #3A3A3C; }
+
+        .lb-list {
+            background: #141416;
+            border-radius: 14px;
+            padding: 8px 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            margin: 10px 0 12px;
+            text-align: right;
+        }
+
+        .lb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 12px;
+        }
+
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row.me { background: rgba(83, 165, 72, 0.22); border-radius: 8px; }
+
+        .rules-box {
+            text-align: right;
+            font-size: 12px;
+            color: #D4D4D8;
+            line-height: 1.8;
+            background: #141416;
+            border-radius: 14px;
+            padding: 12px;
+            margin: 10px 0 14px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <!-- نوار بالا -->
+    <div class="top-bar">
+        <a href="index.html" class="nav-circle" onclick="return goBackLobby(event)" title="بازگشت به لابی">›</a>
+
+        <div class="streaks-group">
+            <div class="streak-box">
+                <div class="streak-lbl">برد پیاپی</div>
+                <div class="streak-num" id="cur-streak">0</div>
+            </div>
+            <div class="streak-box">
+                <div class="streak-lbl best">بهترین رکورد</div>
+                <div class="streak-num best" id="best-streak">0</div>
+            </div>
+        </div>
+
+        <div class="top-right-btns">
+            <button class="nav-circle" style="font-size:17px;" onclick="openLeaderboard()" title="جدول رکوردها">🏆</button>
+            <button class="nav-circle" style="font-size:16px;" onclick="openHelp()" title="راهنما">؟</button>
+        </div>
+    </div>
+
+    <!-- جدول ۶×۵ -->
+    <div class="board-wrap">
+        <div class="board" id="board"></div>
+    </div>
+
+    <!-- کیبورد فارسی -->
+    <div class="keyboard" id="keyboard"></div>
+
+    <!-- دکمه ثبت + راهنما -->
+    <div class="bottom-actions">
+        <button class="submit-btn" id="submit-btn" onclick="submitGuess()">ثبت کلمه</button>
+        <button class="hint-btn" id="hint-btn" onclick="useHint()" title="راهنمای حرف">
+            💡
+            <span class="hint-badge" id="hint-badge">1</span>
+        </button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- مودال پایان دست (برد یا باخت) -->
+<div id="result-modal" class="overlay hidden">
+    <div class="modal-card">
+        <div class="pill" id="res-pill">🎉 آفرین!</div>
+        <h2 id="res-title" style="margin: 4px 0; font-size: 19px;">کلمه رو پیدا کردی!</h2>
+        <div class="answer-reveal" id="res-answer"></div>
+        <p id="res-desc" style="font-size: 12px; color: #A1A1AA; margin: 4px 0;"></p>
+
+        <div class="modal-stats">
+            <div class="m-stat">
+                <div class="m-stat-val" id="m-cur-streak">0</div>
+                <div class="m-stat-lbl">برد پیاپی</div>
+            </div>
+            <div class="m-stat">
+                <div class="m-stat-val" style="color:#53B848;" id="m-best-streak">0</div>
+                <div class="m-stat-lbl">بهترین رکورد</div>
+            </div>
+            <div class="m-stat">
+                <div class="m-stat-val" style="color:#38BDF8;" id="m-earned">+0</div>
+                <div class="m-stat-lbl">امتیاز این دست</div>
+            </div>
+        </div>
+
+        <button class="btn-main btn-green" onclick="startNewRound()">▶ مرحله بعدی</button>
+        <button class="btn-main btn-blue" onclick="shareWordleResult()">📤 اشتراک‌گذاری نتیجه</button>
+        <button class="btn-main btn-gray" style="margin-bottom:0;" onclick="openLeaderboard()">🏆 جدول برترین‌ها</button>
+    </div>
+</div>
+
+<!-- مودال جدول برترین‌های برد پیاپی -->
+<div id="lb-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('lb-modal')">
+    <div class="modal-card">
+        <div class="pill">🏆 برترین‌های کلمه‌چین ۵ حرفی</div>
+        <p style="font-size: 11px; color: #A1A1AA; margin: 0 0 6px;">رتبه‌بندی بر اساس بیشترین برد پیاپی (Streak)</p>
+        <div class="lb-list" id="lb-list">در حال دریافت...</div>
+        <button class="btn-main btn-gray" style="margin-bottom:0;" onclick="closeModal('lb-modal')">بستن</button>
+    </div>
+</div>
+
+<!-- مودال راهنمای بازی -->
+<div id="help-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('help-modal')">
+    <div class="modal-card">
+        <div class="pill" style="background: linear-gradient(135deg, #E5A024, #D97706);">📖 روش بازی کلمه‌چین</div>
+        <div class="rules-box">
+            در <strong>۶ تلاش</strong> باید کلمه <strong>۵ حرفی فارسی</strong> مخفی را حدس بزنی:<br><br>
+            🟩 <strong>سبز:</strong> حرف در کلمه هست و <strong>دقیقاً در جای درستش</strong> قرار گرفته.<br>
+            🟨 <strong>زرد:</strong> حرف در کلمه هست، اما <strong>در جای اشتباهی</strong> قرار گرفته.<br>
+            ⬛ <strong>خاکستری:</strong> این حرف اصلاً در کلمه وجود ندارد.<br><br>
+            💡 در هر دست <strong>۱ راهنمای رایگان</strong> داری که یک حرف مخفی را در جای دقیقش نشانت می‌دهد.<br>
+            🔥 با بردهای پشت‌سرهم، رکوردت در جدول کانال ثبت می‌شود!
+        </div>
+        <div id="dict-info-help" style="font-size: 11px; color: #38BDF8; margin-bottom: 12px;"></div>
+        <button class="btn-main btn-green" style="margin-bottom:0;" onclick="closeModal('help-modal')">متوجه شدم ✓</button>
+    </div>
+</div>
+
+<script>
+    var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
+    var CHANNEL_URL = 'https://t.me/chalbazi';
+    var WORDLE_BOARD_PATH = FIREBASE_DB_URL.replace(/\/+$/, '') + '/wordleFaLeaderboard';
+
+    function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+    function goBackLobby(ev) {
+        if (ev) ev.preventDefault();
+        window.location.href = 'index.html?from=game' + (window.location.hash || '');
+        return false;
+    }
+
+    var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg) {
+        try {
+            tg.ready();
+            tg.expand();
+            if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+        } catch (e) {}
+    }
+
+    var user = { id: 'u_guest', name: 'بازیکن چالبازی' };
+    if (window.ChalbaziScore) {
+        var csU = ChalbaziScore.getUser();
+        user.id = csU.id;
+        user.name = csU.name;
+    } else if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+        var tu = tg.initDataUnsafe.user;
+        user.id = 'tg_' + tu.id;
+        user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
+    }
+
+    function normalizeFa(str) {
+        return String(str || '').trim().replace(/\s+/g, '').replace(/\u200c/g, '')
+            .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
+            .replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا')
+            .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
+    }
+
+    // ==================== افکت‌های صوتی سبک (Web Audio) ====================
+    var audioCtx = null;
+    function beep(f1, f2, dur, type, vol, delay) {
+        try {
+            if (!audioCtx) {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (AC) audioCtx = new AC();
+            }
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume().catch(function() {});
+            var t0 = audioCtx.currentTime + (delay || 0);
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(f1, t0);
+            if (f2) osc.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+            gain.gain.setValueAtTime(vol || 0.06, t0);
+            gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t0);
+            osc.stop(t0 + dur + 0.01);
+        } catch (e) {}
+    }
+
+    function playSound(kind) {
+        if (kind === 'tap') beep(520, 420, 0.04, 'triangle', 0.04);
+        else if (kind === 'del') beep(320, 220, 0.05, 'triangle', 0.04);
+        else if (kind === 'err') beep(190, 140, 0.14, 'sawtooth', 0.06);
+        else if (kind === 'hint') { beep(740, 980, 0.12, 'sine', 0.07); }
+        else if (kind === 'win') {
+            beep(523, 523, 0.09, 'triangle', 0.09, 0);
+            beep(659, 659, 0.09, 'triangle', 0.09, 0.1);
+            beep(784, 784, 0.09, 'triangle', 0.09, 0.2);
+            beep(1046, 1046, 0.25, 'triangle', 0.11, 0.3);
+        } else if (kind === 'lose') {
+            beep(340, 260, 0.15, 'sawtooth', 0.07, 0);
+            beep(260, 170, 0.25, 'sawtooth', 0.07, 0.16);
+        }
+    }
+
+    // ==================== بانک کلمات ۵ حرفی فارسی ====================
+    var FALLBACK_5 = [
+        "ستاره","باران","پرنده","زندگی","اسمان","مهتاب","لبخند","پیروز","شیرین","پاییز",
+        "خرداد","مرداد","اسفند","تهران","شیراز","تبریز","کرمان","اهواز","بوشهر","قزوین",
+        "گرگان","ابشار","جزیره","موتور","طوفان","دوستی","برادر","خواهر","فرزند","مسافر",
+        "مدرسه","میدان","پنجره","دیوار","صندلی","لیوان","بشقاب","چنگال","صابون","جوراب",
+        "شلوار","بادام","انگور","گیلاس","گلابی","ریحان","جعفری","خاموش","ارامش","امروز",
+        "دیروز","خاطره","ترانه","گیتار","پیانو","سینما","شطرنج","شناگر","زنبور","زرافه",
+        "روباه","گنجشک","کبوتر","دلفین","طاووس","شاهین","قناری","پیتزا","بستنی","شکلات",
+        "کلوچه","نانوا","خیاطی","نقاشی","عکاسی","باغچه","بیدار","استاد","شاگرد","مهندس",
+        "خلبان","ملوان","سرباز","فرمان","انرژی","باروت","فانوس","سیمان","پولاد","الماس",
+        "یاقوت","فیروز","طلایی","نارنج","صورتی","چمدان","زنجیر","ترازو","مقراض","پارچه",
+        "پالتو","دستکش","مسواک","ایوان","بلوار","بازار","مغازه","پاساژ","کارگر","استخر",
+        "شقایق","بامبو","انجیر","زیتون","چغندر","تربچه","لوبیا","پرچم","دریاچه","فروشگاه"
+    ];
+
+    var TARGET_POOL = [];
+    var TARGET_SET = new Set();
+    var VALID_GUESS_SET = new Set();
+
+    function addTargetWord(w) {
+        var nw = normalizeFa(w);
+        if (nw.length === 5 && /^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]{5}$/.test(nw)) {
+            if (!TARGET_SET.has(nw)) {
+                TARGET_SET.add(nw);
+                TARGET_POOL.push(nw);
+            }
+            VALID_GUESS_SET.add(nw);
+        }
+    }
+
+    function addValidWord(w) {
+        var nw = normalizeFa(w);
+        if (nw.length === 5 && /^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]{5}$/.test(nw)) {
+            VALID_GUESS_SET.add(nw);
+        }
+    }
+
+    for (var fi = 0; fi < FALLBACK_5.length; fi++) addTargetWord(FALLBACK_5[fi]);
+
+    function updateDictInfoHelp() {
+        var el = document.getElementById('dict-info-help');
+        if (el) {
+            el.textContent = '📚 کلمات هدف: ' + TARGET_POOL.length.toLocaleString('fa-IR') + ' واژه ۵ حرفی | دیکشنری مجاز: ' + VALID_GUESS_SET.size.toLocaleString('fa-IR') + ' واژه';
+        }
+    }
+    updateDictInfoHelp();
+
+    function loadScript(src, ok, err) {
+        var s = document.createElement('script');
+        s.src = src; s.async = true; s.onload = ok; s.onerror = err;
+        document.head.appendChild(s);
+    }
+
+    var keywordsLoadedPromise = new Promise(function(resolve) {
+        loadScript('keywords.js?v=2', function() {
+            try {
+                if (typeof COMMON_KEY_WORDS !== 'undefined' && Array.isArray(COMMON_KEY_WORDS)) {
+                    for (var i = 0; i < COMMON_KEY_WORDS.length; i++) addTargetWord(COMMON_KEY_WORDS[i]);
+                    updateDictInfoHelp();
+                }
+            } catch (e) {}
+            resolve();
+        }, function() { resolve(); });
+        setTimeout(resolve, 1800);
+    });
+
+    loadScript('words.js', function() {
+        try {
+            if (typeof WORDS_DB !== 'undefined') {
+                Object.keys(WORDS_DB).forEach(function(cat) {
+                    var arr = WORDS_DB[cat];
+                    if (Array.isArray(arr)) {
+                        for (var i = 0; i < arr.length; i++) addTargetWord(arr[i]);
+                    }
+                });
+                updateDictInfoHelp();
+            }
+        } catch (e) {}
+    }, function() {});
+
+    loadScript('dictionary.js?v=2', function() {
+        try {
+            if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
+                for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) addValidWord(BIG_PERSIAN_DICT[i]);
+                updateDictInfoHelp();
+            }
+        } catch (e) {}
+    }, function() {});
+
+    // ==================== ساخت جدول و کیبورد فارسی ====================
+    var ROWS = 6;
+    var COLS = 5;
+    var KB_LAYOUT = [
+        ['ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج'],
+        ['ش','س','ی','ب','ل','ا','ت','ن','م','ک','گ'],
+        ['ظ','ط','ز','ر','ذ','د','پ','و','چ','ژ','⌫']
+    ];
+
+    var boardEl = document.getElementById('board');
+    var rowEls = [];
+    var tileEls = [];
+
+    for (var r = 0; r < ROWS; r++) {
+        var rDiv = document.createElement('div');
+        rDiv.className = 'board-row';
+        var rowTiles = [];
+        for (var c = 0; c < COLS; c++) {
+            var tDiv = document.createElement('div');
+            tDiv.className = 'tile';
+            rDiv.appendChild(tDiv);
+            rowTiles.push(tDiv);
+        }
+        boardEl.appendChild(rDiv);
+        rowEls.push(rDiv);
+        tileEls.push(rowTiles);
+    }
+
+    var kbEl = document.getElementById('keyboard');
+    var keyBtns = {};
+
+    for (var kr = 0; kr < KB_LAYOUT.length; kr++) {
+        var krDiv = document.createElement('div');
+        krDiv.className = 'kb-row';
+        for (var kc = 0; kc < KB_LAYOUT[kr].length; kc++) {
+            var ch = KB_LAYOUT[kr][kc];
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = ch === '⌫' ? 'key-btn backspace' : 'key-btn';
+            btn.textContent = ch;
+            (function(letter) {
+                btn.addEventListener('click', function() {
+                    if (letter === '⌫') onBackspace();
+                    else onLetterInput(letter);
+                });
+            })(ch);
+            krDiv.appendChild(btn);
+            if (ch !== '⌫') keyBtns[ch] = btn;
+        }
+        kbEl.appendChild(krDiv);
+    }
+
+    // ==================== وضعیت بازی و رکوردها ====================
+    function streakKey(suffix) { return 'wf_' + user.id + '_' + suffix; }
+
+    var curStreak = Number(safeGet(streakKey('cur'), '0')) || 0;
+    var bestStreak = Number(safeGet(streakKey('best'), '0')) || 0;
+    var totalWins = Number(safeGet(streakKey('wins'), '0')) || 0;
+
+    var targetWord = '';
+    var currentRow = 0;
+    var currentGuess = [];
+    var guessResults = []; // برای ساخت متن اشتراک‌گذاری ایموجی
+    var lockedGreen = [false, false, false, false, false];
+    var hintedIndices = {}; // { colIndex: letter }
+    var keyStates = {}; // { ch: 1(absent) | 2(present) | 3(correct) }
+    var hintsLeft = 1;
+    var isAnimating = false;
+    var gameOver = false;
+    var lastEarnedPts = 0;
+    var roundCounter = Number(safeGet(streakKey('rc'), '0')) || 0;
+
+    function updateStreakUI() {
+        document.getElementById('cur-streak').textContent = curStreak;
+        document.getElementById('best-streak').textContent = bestStreak;
+    }
+    updateStreakUI();
+
+    var toastTimer = null;
+    function showToast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+    }
+
+    function pickFreshTargetWord() {
+        var recent = [];
+        try { recent = JSON.parse(safeGet(streakKey('recent'), '[]')); } catch (e) {}
+        if (!Array.isArray(recent)) recent = [];
+
+        var pool = TARGET_POOL.length > 0 ? TARGET_POOL : FALLBACK_5;
+        var chosen = pool[Math.floor(Math.random() * pool.length)];
+        for (var i = 0; i < 40; i++) {
+            var cand = pool[Math.floor(Math.random() * pool.length)];
+            if (recent.indexOf(cand) === -1) { chosen = cand; break; }
+        }
+        recent.push(chosen);
+        if (recent.length > 80) recent = recent.slice(-80);
+        safeSet(streakKey('recent'), JSON.stringify(recent));
+        return chosen;
+    }
+
+    function startNewRound() {
+        closeModal('result-modal');
+        targetWord = pickFreshTargetWord();
+        currentRow = 0;
+        currentGuess = [];
+        guessResults = [];
+        lockedGreen = [false, false, false, false, false];
+        hintedIndices = {};
+        keyStates = {};
+        hintsLeft = 1;
+        isAnimating = false;
+        gameOver = false;
+        lastEarnedPts = 0;
+        roundCounter++;
+        safeSet(streakKey('rc'), String(roundCounter));
+
+        for (var r = 0; r < ROWS; r++) {
+            rowEls[r].classList.remove('shake');
+            for (var c = 0; c < COLS; c++) {
+                var t = tileEls[r][c];
+                t.className = 'tile';
+                t.textContent = '';
+                t.removeAttribute('data-hint');
+            }
+        }
+
+        Object.keys(keyBtns).forEach(function(k) {
+            keyBtns[k].className = 'key-btn';
+        });
+
+        updateHintUI();
+        updateSubmitBtn();
+    }
+
+    function updateSubmitBtn() {
+        var btn = document.getElementById('submit-btn');
+        if (currentGuess.length === COLS && !gameOver && !isAnimating) {
+            btn.classList.add('ready');
+        } else {
+            btn.classList.remove('ready');
+        }
+    }
+
+    function updateHintUI() {
+        var btn = document.getElementById('hint-btn');
+        var badge = document.getElementById('hint-badge');
+        badge.textContent = hintsLeft;
+        btn.classList.toggle('used', hintsLeft <= 0);
+    }
+
+    function applyHintGhostsToCurrentRow() {
+        if (currentRow >= ROWS) return;
+        for (var c = 0; c < COLS; c++) {
+            var t = tileEls[currentRow][c];
+            if (hintedIndices[c]) {
+                t.setAttribute('data-hint', hintedIndices[c]);
+                t.classList.add('hint-ghost');
+            }
+        }
+    }
+
+    function onLetterInput(letter) {
+        if (gameOver || isAnimating) return;
+        if (currentGuess.length >= COLS) return;
+        var col = currentGuess.length;
+        currentGuess.push(letter);
+        var tile = tileEls[currentRow][col];
+        tile.textContent = letter;
+        tile.classList.add('filled');
+        playSound('tap');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+        updateSubmitBtn();
+    }
+
+    function onBackspace() {
+        if (gameOver || isAnimating) return;
+        if (currentGuess.length === 0) return;
+        currentGuess.pop();
+        var col = currentGuess.length;
+        var tile = tileEls[currentRow][col];
+        tile.textContent = '';
+        tile.classList.remove('filled');
+        playSound('del');
+        updateSubmitBtn();
+    }
+
+    function useHint() {
+        if (gameOver || isAnimating) return;
+        if (hintsLeft <= 0) {
+            showToast('راهنمای این دست استفاده شده!');
+            return;
+        }
+        var candidates = [];
+        for (var i = 0; i < COLS; i++) {
+            if (!lockedGreen[i] && !hintedIndices[i]) candidates.push(i);
+        }
+        if (candidates.length === 0) {
+            showToast('همه حروف قبلاً مشخص شده‌اند!');
+            return;
+        }
+
+        var idx = candidates[Math.floor(Math.random() * candidates.length)];
+        var ch = targetWord[idx];
+        hintsLeft--;
+        hintedIndices[idx] = ch;
+        updateHintUI();
+        applyHintGhostsToCurrentRow();
+        setKeyColor(ch, 3);
+        playSound('hint');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+        var ordinals = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم'];
+        showToast('💡 حرف ' + ordinals[idx] + ' این کلمه «' + ch + '» است!');
+    }
+
+    function setKeyColor(ch, rank) {
+        var prev = keyStates[ch] || 0;
+        if (rank <= prev) return;
+        keyStates[ch] = rank;
+        var btn = keyBtns[ch];
+        if (!btn) return;
+        btn.classList.remove('absent', 'present', 'correct');
+        if (rank === 3) btn.classList.add('correct');
+        else if (rank === 2) btn.classList.add('present');
+        else if (rank === 1) btn.classList.add('absent');
+    }
+
+    // الگوریتم دقیق ۲مرحله‌ای وردل برای مدیریت صحیح حروف تکراری
+    function evaluateGuess(guessArr, targetStr) {
+        var res = ['absent', 'absent', 'absent', 'absent', 'absent'];
+        var counts = {};
+        for (var i = 0; i < COLS; i++) {
+            var tc = targetStr[i];
+            counts[tc] = (counts[tc] || 0) + 1;
+        }
+        // مرحله ۱: تطابق دقیق (سبز)
+        for (var j = 0; j < COLS; j++) {
+            if (guessArr[j] === targetStr[j]) {
+                res[j] = 'correct';
+                counts[guessArr[j]]--;
+            }
+        }
+        // مرحله ۲: وجود در جای اشتباه (زرد)
+        for (var k = 0; k < COLS; k++) {
+            if (res[k] === 'correct') continue;
+            var g = guessArr[k];
+            if (counts[g] && counts[g] > 0) {
+                res[k] = 'present';
+                counts[g]--;
+            }
+        }
+        return res;
+    }
+
+    function shakeCurrentRow(msg) {
+        var rowEl = rowEls[currentRow];
+        rowEl.classList.remove('shake');
+        void rowEl.offsetWidth;
+        rowEl.classList.add('shake');
+        playSound('err');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        showToast(msg);
+    }
+
+    function spawnWinSparkles(rowIndex) {
+        for (var c = 0; c < COLS; c++) {
+            var tile = tileEls[rowIndex][c];
+            tile.classList.add('win-bounce');
+            if (c === 0 || c === 2 || c === 4) {
+                var sp = document.createElement('span');
+                sp.className = 'sparkle';
+                sp.textContent = '✦';
+                sp.style.top = (c === 2 ? '-8px' : '4px');
+                sp.style.left = (c === 4 ? '-6px' : '4px');
+                tile.appendChild(sp);
+                (function(el) {
+                    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 950);
+                })(sp);
+            }
+        }
+    }
+
+    function submitGuess() {
+        if (gameOver || isAnimating) return;
+        if (currentGuess.length < COLS) {
+            shakeCurrentRow('کلمه باید ۵ حرفی باشد!');
+            return;
+        }
+
+        var guessWord = normalizeFa(currentGuess.join(''));
+        if (!VALID_GUESS_SET.has(guessWord) && guessWord !== targetWord) {
+            shakeCurrentRow('«' + guessWord + '» در دیکشنری فارسی نیست!');
+            return;
+        }
+
+        isAnimating = true;
+        updateSubmitBtn();
+
+        var evalRes = evaluateGuess(currentGuess, targetWord);
+        guessResults.push(evalRes);
+
+        var rowIdx = currentRow;
+        var guessCopy = currentGuess.slice();
+
+        for (var c = 0; c < COLS; c++) {
+            (function(col) {
+                setTimeout(function() {
+                    var tile = tileEls[rowIdx][col];
+                    tile.classList.remove('hint-ghost');
+                    tile.classList.add('flip', evalRes[col]);
+
+                    var rank = evalRes[col] === 'correct' ? 3 : (evalRes[col] === 'present' ? 2 : 1);
+                    setKeyColor(guessCopy[col], rank);
+                    if (evalRes[col] === 'correct') lockedGreen[col] = true;
+                    playSound('tap');
+                }, col * 115);
+            })(c);
+        }
+
+        var didWin = (guessWord === targetWord);
+
+        setTimeout(function() {
+            isAnimating = false;
+
+            if (didWin) {
+                gameOver = true;
+                spawnWinSparkles(rowIdx);
+                playSound('win');
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                curStreak++;
+                totalWins++;
+                if (curStreak > bestStreak) bestStreak = curStreak;
+                saveLocalAndRemoteStats();
+
+                // امتیازدهی بر اساس سرعت حدس + بونوس برد پیاپی
+                var rowPoints = [60, 50, 40, 30, 25, 20];
+                var basePts = rowPoints[rowIdx] || 20;
+                var streakBonus = Math.min(30, (curStreak - 1) * 5);
+                lastEarnedPts = basePts + streakBonus;
+
+                if (window.ChalbaziScore) {
+                    ChalbaziScore.addScore(lastEarnedPts, 'wordle-fa', 'wf_' + roundCounter + '_' + Date.now());
+                }
+
+                setTimeout(function() { showEndModal(true, rowIdx + 1); }, 800);
+                return;
+            }
+
+            currentRow++;
+            currentGuess = [];
+
+            if (currentRow >= ROWS) {
+                gameOver = true;
+                playSound('lose');
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                curStreak = 0;
+                saveLocalAndRemoteStats();
+                setTimeout(function() { showEndModal(false, ROWS); }, 550);
+            } else {
+                applyHintGhostsToCurrentRow();
+                updateSubmitBtn();
+            }
+        }, COLS * 115 + 260);
+    }
+
+    function saveLocalAndRemoteStats() {
+        safeSet(streakKey('cur'), String(curStreak));
+        safeSet(streakKey('best'), String(bestStreak));
+        safeSet(streakKey('wins'), String(totalWins));
+        updateStreakUI();
+
+        fetch(WORDLE_BOARD_PATH + '/' + user.id + '.json', {
+            method: 'PUT',
+            body: JSON.stringify({
+                name: user.name,
+                currentStreak: curStreak,
+                bestStreak: bestStreak,
+                wins: totalWins,
+                updatedAt: Date.now()
+            })
+        }).catch(function() {});
+    }
+
+    function showEndModal(won, tries) {
+        var pill = document.getElementById('res-pill');
+        var title = document.getElementById('res-title');
+        var desc = document.getElementById('res-desc');
+
+        if (won) {
+            pill.textContent = '🎉 آفرین!';
+            pill.style.background = 'linear-gradient(135deg, #53A548, #10B981)';
+            title.textContent = 'در تلاش ' + tries + ' از ۶ پیداش کردی!';
+            desc.textContent = 'امتیاز این دست در لیدربورد کل @chalbazi ثبت شد.';
+        } else {
+            pill.textContent = '😔 فرصت تمام شد';
+            pill.style.background = 'linear-gradient(135deg, #EF4444, #B91C1C)';
+            title.textContent = 'کلمه مخفی این بود:';
+            desc.textContent = 'رکورد برد پیاپی ریست شد؛ دوباره شروع کن و رکوردت رو بزن!';
+        }
+
+        var ansHtml = '';
+        for (var i = 0; i < targetWord.length; i++) {
+            ansHtml += '<div class="ans-box">' + targetWord[i] + '</div>';
+        }
+        document.getElementById('res-answer').innerHTML = ansHtml;
+        document.getElementById('m-cur-streak').textContent = curStreak;
+        document.getElementById('m-best-streak').textContent = bestStreak;
+        document.getElementById('m-earned').textContent = won ? ('+' + lastEarnedPts) : '0';
+
+        document.getElementById('result-modal').classList.remove('hidden');
+    }
+
+    function shareWordleResult() {
+        var lines = [];
+        for (var r = 0; r < guessResults.length; r++) {
+            var line = '';
+            for (var c = 0; c < COLS; c++) {
+                var st = guessResults[r][c];
+                line += (st === 'correct' ? '🟩' : (st === 'present' ? '🟨' : '⬛'));
+            }
+            lines.push(line);
+        }
+        var text = '🟩 کلمه‌چین ۵ حرفی @chalbazi\n'
+            + '🔥 برد پیاپی من: ' + curStreak + ' (رکورد کل: ' + bestStreak + ')\n\n'
+            + lines.join('\n') + '\n\n'
+            + 'می‌تونی رکورد منو بشکنی؟ 👇';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+        else window.open(url, '_blank');
+    }
+
+    function openLeaderboard() {
+        document.getElementById('lb-modal').classList.remove('hidden');
+        var listEl = document.getElementById('lb-list');
+        listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#A1A1AA;">⏳ در حال دریافت...</div>';
+
+        fetch(WORDLE_BOARD_PATH + '.json')
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(data) {
+                if (!data) {
+                    listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#A1A1AA;">هنوز رکوردی ثبت نشده؛ اولین نفر باش! 🏆</div>';
+                    return;
+                }
+                var arr = [];
+                Object.keys(data).forEach(function(id) {
+                    var item = data[id];
+                    if (item && (item.bestStreak > 0 || item.wins > 0)) {
+                        arr.push({
+                            id: id,
+                            name: item.name || 'بازیکن',
+                            best: item.bestStreak || 0,
+                            cur: item.currentStreak || 0,
+                            wins: item.wins || 0
+                        });
+                    }
+                });
+                arr.sort(function(a, b) {
+                    if (b.best !== a.best) return b.best - a.best;
+                    return b.wins - a.wins;
+                });
+                if (arr.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#A1A1AA;">هنوز بردی ثبت نشده!</div>';
+                    return;
+                }
+                var html = '';
+                var lim = Math.min(20, arr.length);
+                for (var i = 0; i < lim; i++) {
+                    var p = arr[i];
+                    var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
+                    var cls = p.id === user.id ? 'lb-row me' : 'lb-row';
+                    html += '<div class="' + cls + '">'
+                        + '<span><strong>' + m + ' ' + p.name + '</strong> <small style="color:#A1A1AA;">(' + p.wins + ' برد)</small></span>'
+                        + '<strong style="color:#53B848;">🔥 ' + p.best + '</strong>'
+                        + '</div>';
+                }
+                listEl.innerHTML = html;
+            })
+            .catch(function() {
+                listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#F87171;">❌ خطا در اتصال به سرور</div>';
+            });
+    }
+
+    function openHelp() { document.getElementById('help-modal').classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // پشتیبانی از کیبورد فیزیکی (دسکتاپ و تبلت)
+    window.addEventListener('keydown', function(e) {
+        if (gameOver || isAnimating) return;
+        if (e.key === 'Backspace') { onBackspace(); return; }
+        if (e.key === 'Enter') { submitGuess(); return; }
+        var ch = normalizeFa(e.key);
+        if (ch.length === 1 && keyBtns[ch]) {
+            onLetterInput(ch);
+        }
+    });
+
+    // همگام‌سازی رکورد کاربر از سرور در شروع (اگر گوشی عوض شده باشد)
+    fetch(WORDLE_BOARD_PATH + '/' + user.id + '.json')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(remote) {
+            if (remote) {
+                if ((remote.bestStreak || 0) > bestStreak) {
+                    bestStreak = remote.bestStreak;
+                    safeSet(streakKey('best'), String(bestStreak));
+                }
+                if ((remote.wins || 0) > totalWins) {
+                    totalWins = remote.wins;
+                    safeSet(streakKey('wins'), String(totalWins));
+                }
+                updateStreakUI();
+            }
+        }).catch(function() {});
+
+    // شروع اولین دور پس از لود شدن keywords.js
+    keywordsLoadedPromise.then(function() {
+        startNewRound();
+    });
+</script>
+</body>
+</html>
