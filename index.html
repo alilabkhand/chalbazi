@@ -3,874 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مسابقه شکار کلمات | @chalbazi</title>
+    <title>گیم‌هاب چالبازی | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Vazirmatn', sans-serif; }
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: linear-gradient(160deg, #0F172A 0%, #1E1B4B 55%, #3B0764 100%); color: #fff; }
-        .app-scroll { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y; display: flex; flex-direction: column; align-items: center; padding-bottom: 60px; }
-        .header { width: 100%; max-width: 480px; flex-shrink: 0; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.12); }
-        .back-btn { background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
-        .header-right { display: flex; align-items: center; gap: 6px; }
-        .admin-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #E2E8F0; width: 32px; height: 32px; border-radius: 10px; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .badge { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 5px 12px; border-radius: 14px; font-weight: 900; font-size: 12px; }
-        .container { width: 100%; max-width: 480px; flex-shrink: 0; padding: 12px 14px 28px; display: flex; flex-direction: column; gap: 12px; }
-        .user-strip { display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 7px 12px; font-size: 12px; color: #E2E8F0; }
-        .switch-btn { background: rgba(56,189,248,0.2); border: 1px solid rgba(56,189,248,0.45); color: #7DD3FC; border-radius: 8px; padding: 3px 9px; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .card { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 22px; padding: 18px; box-shadow: 0 12px 28px rgba(0,0,0,0.4); text-align: center; }
-        .pill { display: inline-block; background: linear-gradient(135deg, #EC4899, #8B5CF6); padding: 4px 14px; border-radius: 14px; font-size: 12px; font-weight: 900; margin-bottom: 8px; }
-        .dict-badge { display: inline-block; background: rgba(56,189,248,0.14); border: 1px solid rgba(56,189,248,0.35); color: #38BDF8; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px; }
-        .countdown-big { font-size: 38px; font-weight: 900; color: #FBBF24; letter-spacing: 2px; direction: ltr; margin: 10px 0; text-shadow: 0 0 20px rgba(251,191,36,0.4); }
-        .rule-box { background: linear-gradient(135deg, rgba(139,92,246,0.22), rgba(236,72,153,0.18)); border: 1.5px solid rgba(192,132,252,0.5); border-radius: 16px; padding: 14px; margin: 8px 0 12px; font-size: 15px; font-weight: 900; line-height: 1.7; color: #F8FAFC; }
-        .rule-highlight { color: #FDE047; font-size: 18px; }
-        .pattern-row { display: flex; justify-content: center; gap: 6px; margin: 10px 0 6px; direction: rtl; flex-wrap: wrap; }
-        .p-box { width: 34px; height: 38px; border-radius: 9px; background: rgba(15,23,42,0.85); border: 2px solid #475569; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 900; color: #94A3B8; }
-        .p-box.fixed { border-color: #F59E0B; background: rgba(245,158,11,0.2); color: #FDE047; }
-        .p-box.same { border-color: #38BDF8; background: rgba(56,189,248,0.2); color: #7DD3FC; }
-        .slots-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 12px 0; }
-        .word-slot { min-width: 78px; padding: 6px 10px; border-radius: 12px; background: rgba(15,23,42,0.7); border: 1.5px dashed #475569; font-size: 13px; font-weight: 700; color: #64748B; }
-        .word-slot.filled { background: rgba(16,185,129,0.22); border: 1.5px solid #10B981; color: #6EE7B7; }
-        .input-group { display: flex; gap: 8px; margin-top: 10px; }
-        input[type="text"], input[type="time"], input[type="password"] { flex: 1; background: #0F172A; border: 2px solid #6366F1; border-radius: 14px; padding: 11px 12px; color: #fff; font-size: 15px; font-weight: 700; text-align: center; outline: none; }
-        input:focus { border-color: #38BDF8; }
-        .btn { border: none; border-radius: 14px; padding: 11px 16px; font-size: 14px; font-weight: 900; cursor: pointer; color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
-        .btn:active { transform: scale(0.96); }
-        .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
-        .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
-        .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
-        .btn-gray { background: rgba(255,255,255,0.14); }
-        .btn-full { width: 100%; margin-bottom: 8px; padding: 12px; }
-        .feedback { min-height: 22px; font-size: 12px; font-weight: 700; margin-top: 8px; }
-        .spots-bar { display: flex; justify-content: space-between; font-size: 12px; color: #CBD5E1; background: rgba(15,23,42,0.65); padding: 8px 12px; border-radius: 12px; margin-bottom: 8px; }
-        .board-box { background: rgba(15,23,42,0.75); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 12px; text-align: right; }
-        .board-title { display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; color: #FBBF24; margin-bottom: 8px; }
-        .player-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 12px; gap: 6px; }
-        .player-row:last-child { border-bottom: none; }
-        .player-row.me { background: rgba(99,102,241,0.22); border-radius: 8px; padding: 6px 8px; }
-        .words-preview { font-size: 10px; color: #94A3B8; margin-top: 2px; }
-        .sample-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
-        .sample-chip { background: rgba(56,189,248,0.16); border: 1px solid rgba(56,189,248,0.4); color: #BAE6FD; padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.84); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
-        .modal-card { background: #1E293B; border: 1px solid rgba(255,255,255,0.18); border-radius: 22px; padding: 20px; width: 100%; max-width: 370px; text-align: center; }
-        .hidden { display: none !important; }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1A237E 0%, #283593 50%, #0277BD 100%);
+            color: #fff;
+        }
+
+        .app-scroll {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 70px;
+        }
+
+        .top-bar {
+            width: 100%;
+            max-width: 480px;
+            flex-shrink: 0;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFB300, #F57C00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+
+        .user-name {
+            font-weight: 900;
+            font-size: 15px;
+        }
+
+        .channel-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            direction: ltr;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 18px 18px 10px;
+            max-width: 480px;
+            flex-shrink: 0;
+        }
+
+        .hero h1 {
+            margin: 0 0 6px;
+            font-size: 22px;
+            font-weight: 900;
+            color: #FFD54F;
+        }
+
+        .hero p {
+            margin: 0;
+            font-size: 13px;
+            color: #E3F2FD;
+        }
+
+        .games-grid {
+            width: 100%;
+            max-width: 480px;
+            flex-shrink: 0;
+            padding: 10px 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .game-card {
+            background: #fff;
+            color: #212121;
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            transition: transform 0.15s ease;
+            flex-shrink: 0;
+            touch-action: pan-y;
+        }
+
+        .game-card:active {
+            transform: scale(0.97);
+        }
+
+        .game-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            flex-shrink: 0;
+        }
+
+        .icon-race { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); border: 2px solid #EC4899; }
+        .icon-grid { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); border: 2px solid #10B981; }
+        .icon-word { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border: 2px solid #8B5CF6; }
+        .icon-giraffe { background: linear-gradient(135deg, #FFF8E1, #FFE082); border: 2px solid #FFB300; }
+        .icon-math { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border: 2px solid #E53935; }
+        .icon-soon { background: #F5F5F5; border: 2px dashed #BDBDBD; }
+
+        .game-details {
+            flex: 1;
+            padding: 0 12px;
+        }
+
+        .game-title {
+            font-size: 15px;
+            font-weight: 900;
+            margin: 0 0 4px;
+            color: #1A237E;
+        }
+
+        .game-desc {
+            font-size: 12px;
+            color: #616161;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #00C853, #009624);
+            color: #fff;
+            padding: 9px 13px;
+            border-radius: 13px;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 4px 10px rgba(0, 200, 83, 0.35);
+            flex-shrink: 0;
+        }
+
+        .game-card.disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .soon-badge {
+            background: #EEEEEE;
+            color: #757575;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
     <div class="app-scroll">
-        <div class="header">
-            <a href="index.html" class="back-btn">🏠 لابی</a>
-            <div style="font-weight: 900; font-size: 13px;">⚡ شکار کلمات</div>
-            <div class="header-right">
-                <div class="badge" id="my-total-badge">امتیاز کل: 0</div>
-                <button class="admin-btn" onclick="openAdminModal()" title="تنظیم زمان شروع">⚙️</button>
+        <div class="top-bar">
+            <div class="user-info">
+                <div class="avatar">🎮</div>
+                <div>
+                    <div class="user-name" id="tg-user-name">بازیکن چالبازی</div>
+                    <div style="font-size: 11px; color: #BBDEFB;">خوش آمدی!</div>
+                </div>
             </div>
+            <div class="channel-badge">@chalbazi</div>
         </div>
 
-        <div class="container">
-            <div class="user-strip">
-                <span id="active-user-label">👤 بازیکن: ...</span>
-                <button id="switch-guest-btn" class="switch-btn hidden" onclick="switchGuestAccount()">تغییر بازیکن</button>
-            </div>
+        <div class="hero">
+            <h1>🎪 شهربازی چالبازی</h1>
+            <p>بازی مورد نظرت رو انتخاب کن و با بچه‌های کانال رقابت کن!</p>
+        </div>
 
-            <div style="text-align: center;">
-                <div class="dict-badge" id="dict-status">در حال بارگذاری دیکشنری...</div>
-            </div>
-
-            <!-- فاز ۱: لابی انتظار تا زمان شروع -->
-            <div id="waiting-screen" class="card">
-                <div class="pill">⏳ در انتظار شروع مسابقه</div>
-                <h2 id="wait-round-title" style="margin: 4px 0; font-size: 18px;">مسابقه شکار کلمات @chalbazi</h2>
-                <div class="countdown-big" id="wait-countdown">--:--</div>
-                <p id="wait-time-label" style="font-size: 12px; color: #CBD5E1; margin: 0 0 12px;">زمان شروع: در حال دریافت...</p>
-
-                <div style="background: rgba(15,23,42,0.6); border-radius: 14px; padding: 10px 12px; font-size: 12px; color: #94A3B8; line-height: 1.7; text-align: right;">
-                    🔒 شرط مسابقه دقیقاً سر ساعت شروع باز می‌شود!<br>
-                    🏆 <strong>۵ نفر اول</strong> که کلمات خواسته‌شده را درست بفرستند امتیاز می‌گیرند:<br>
-                    🥇 ۱۰۰ | 🥈 ۸۰ | 🥉 ۶۰ | ۴️⃣ ۴۰ | ۵️⃣ ۲۰ امتیاز
+        <div class="games-grid">
+            <!-- بازی ۱: مسابقه شکار کلمات -->
+            <a href="word-race.html?v=2" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-race">⚡</div>
+                <div class="game-details">
+                    <h2 class="game-title">شکار کلمات (مسابقه ساعتی)</h2>
+                    <p class="game-desc">سر ساعت شروع میشه! کلمات خواسته‌شده رو پیدا کن و جزو ۵ نفر اول امتیاز بگیر.</p>
                 </div>
-                <div style="margin-top: 10px; font-size: 12px; color: #34D399; font-weight: 700;" id="waiting-players-count">👥 افراد منتظر در لابی: ۱ نفر</div>
-            </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
 
-            <!-- فاز ۲: مسابقه فعال -->
-            <div id="active-screen" class="card hidden">
-                <div class="spots-bar">
-                    <span>🎯 جایگاه باقی‌مانده: <strong id="spots-left" style="color:#FBBF24;">5</strong> از ۵</span>
-                    <span>⏳ زمان راند: <strong id="round-timer" style="color:#38BDF8;">03:00</strong></span>
+            <!-- بازی ۲: جدول کلمات ۸×۸ (زنده) -->
+            <a href="word-grid.html?v=4" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-grid">🧩</div>
+                <div class="game-details">
+                    <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
+                    <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
                 </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
 
-                <div class="rule-box" id="rule-text">در حال دریافت شرط مسابقه...</div>
-                <div class="pattern-row" id="pattern-boxes"></div>
-                <div style="font-size: 11px; color: #94A3B8;" id="possible-count-label"></div>
-
-                <div class="slots-row" id="my-slots"></div>
-
-                <div id="input-area">
-                    <div class="input-group">
-                        <input type="text" id="word-input" placeholder="کلمه را بنویس و ثبت بزن..." autocomplete="off">
-                        <button class="btn btn-green" onclick="submitWord()">ثبت ✓</button>
-                    </div>
-                    <div class="feedback" id="feedback-msg"></div>
+            <!-- بازی ۳: حدس کلمه سرعتی -->
+            <a href="esm-famil.html" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-word">🧠</div>
+                <div class="game-details">
+                    <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
+                    <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
                 </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
 
-                <div id="completed-banner" class="hidden" style="background: rgba(16,185,129,0.2); border: 1.5px solid #10B981; border-radius: 14px; padding: 12px; margin-top: 10px;">
-                    <div style="font-size: 16px; font-weight: 900; color: #6EE7B7;" id="completed-title">🎉 تمام شد!</div>
-                    <div style="font-size: 12px; color: #CBD5E1; margin-top: 4px;" id="completed-desc"></div>
+            <!-- بازی ۴: زرافه چوب‌بر -->
+            <a href="giraffe.html" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-giraffe">🦒</div>
+                <div class="game-details">
+                    <h2 class="game-title">زرافه چوب‌بر</h2>
+                    <p class="game-desc">با سرعت درخت رو قطع کن و نذار شاخه‌ها به سرت بخورن!</p>
                 </div>
-            </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
 
-            <!-- فاز ۳: پایان راند و سکوی برندگان -->
-            <div id="finished-screen" class="card hidden">
-                <div class="pill" style="background: linear-gradient(135deg, #10B981, #059669);">🏁 پایان این دور مسابقه</div>
-                <div class="rule-box" id="finished-rule-text" style="font-size: 13px; padding: 10px;"></div>
-
-                <div style="font-size: 12px; color: #94A3B8; margin-bottom: 4px;">💡 چند نمونه از جواب‌های درست دیکشنری:</div>
-                <div class="sample-chips" id="sample-answers"></div>
-
-                <div style="margin: 14px 0 10px; font-size: 13px; font-weight: 900; color: #FBBF24;" id="next-round-info"></div>
-                <button class="btn btn-blue btn-full" onclick="shareResult()">📤 اشتراک‌گذاری نتیجه در @chalbazi</button>
-            </div>
-
-            <!-- جدول برندگان همین دور -->
-            <div class="board-box">
-                <div class="board-title">
-                    <span>⚡ نفرات اول تا پنجم این دور</span>
-                    <span id="round-num-badge" style="color: #94A3B8;">دور #1</span>
+            <!-- بازی ۵: نیش ریاضی -->
+            <a href="math-sting.html" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-math">🦂</div>
+                <div class="game-details">
+                    <h2 class="game-title">نیش ریاضی (Math Sting)</h2>
+                    <p class="game-desc">سریع جواب بده قبل از اینکه زنبور، عقرب یا مار نیشت بزنن!</p>
                 </div>
-                <div id="round-winners-list" style="font-size: 12px; color: #94A3B8;">هنوز کسی تمام نکرده است...</div>
-            </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
 
-            <!-- جدول رده‌بندی کل کانال -->
-            <div class="board-box">
-                <div class="board-title">
-                    <span>🏆 جدول برترین‌های کل (شکار کلمات)</span>
-                    <span style="color: #94A3B8;">Top 10</span>
+            <!-- جایگاه بازی‌های آینده -->
+            <div class="game-card disabled">
+                <div class="game-icon icon-soon">🎲</div>
+                <div class="game-details">
+                    <h2 class="game-title" style="color:#757575;">بازی بعدی در راه است...</h2>
+                    <p class="game-desc">به‌زودی چالش جدید به مجموعه اضافه می‌شود.</p>
                 </div>
-                <div id="overall-leaderboard" style="font-size: 12px; color: #94A3B8;">در حال دریافت...</div>
+                <div class="soon-badge">به‌زودی</div>
             </div>
         </div>
     </div>
 
-    <!-- پنل زمان‌بندی مدیر -->
-    <div id="admin-modal" class="overlay hidden" onclick="if(event.target===this) closeAdminModal()">
-        <div class="modal-card">
-            <div class="pill">⚙️ تنظیم زمان شروع (مدیر)</div>
-            <div id="admin-lock">
-                <p style="font-size: 12px; color: #CBD5E1; margin: 6px 0 12px;">رمز مدیر را وارد کنید (پیش‌فرض: 1234)</p>
-                <input type="password" id="admin-pin-input" placeholder="رمز مدیر..." style="width: 100%; margin-bottom: 10px;">
-                <button class="btn btn-purple btn-full" onclick="unlockAdmin()">ورود به پنل 🔓</button>
-            </div>
-
-            <div id="admin-controls" class="hidden">
-                <p style="font-size: 12px; color: #CBD5E1; margin: 4px 0 12px;">شروع مسابقه جدید با شرط تصادفی از دیکشنری:</p>
-                <button class="btn btn-green btn-full" onclick="adminScheduleOffset(10)">🚀 شروع فوری (۱۰ ثانیه دیگر - تست)</button>
-                <button class="btn btn-blue btn-full" onclick="adminScheduleOffset(120)">⏱ شروع ۲ دقیقه دیگر</button>
-                <button class="btn btn-purple btn-full" onclick="adminScheduleNextHour()">🕐 شروع سر ساعت رند بعدی</button>
-
-                <div style="background: rgba(15,23,42,0.65); padding: 10px; border-radius: 14px; margin: 8px 0;">
-                    <div style="font-size: 11px; color: #94A3B8; margin-bottom: 6px;">یا تنظیم ساعت دقیق دلخواه (امروز):</div>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="time" id="exact-time-input" value="21:00">
-                        <button class="btn btn-green" onclick="adminScheduleExactTime()">تنظیم</button>
-                    </div>
-                </div>
-
-                <div style="font-size: 11px; color: #FBBF24; margin: 8px 0;" id="admin-status-msg"></div>
-            </div>
-
-            <button class="btn btn-gray btn-full" onclick="closeAdminModal()">بستن</button>
-        </div>
-    </div>
-
     <script>
-        window.onerror = function(msg, src, line) {
-            var el = document.getElementById('dict-status');
-            if (el) {
-                el.style.color = '#F87171';
-                el.textContent = '❌ خطا (خط ' + line + '): ' + msg;
-            }
-        };
-    </script>
-
-    <script>
-        var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
-        var CHANNEL_URL = 'https://t.me/chalbazi';
-        var ADMIN_PIN = '1234';
-        var MAX_WINNERS = 5;
-        var RANK_POINTS = [100, 80, 60, 40, 20];
-        var ROUND_DURATION_MS = 180000;
-
-        var CLEAN_DB = FIREBASE_DB_URL.replace(/\/+$/, '');
-        var RACE_PATH = CLEAN_DB + '/wordRaceLive';
-        var BOARD_PATH = CLEAN_DB + '/wordRaceLeaderboard';
-
-        function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
-        function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-
         var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-        var isTelegramUser = false;
-        var savedUid = safeGet('chalbazi_uid', '');
-        if (!savedUid) {
-            savedUid = String(Math.floor(Math.random() * 999999));
-            safeSet('chalbazi_uid', savedUid);
-        }
-        var savedGuestName = safeGet('chalbazi_guest_name', 'بازیکن مهمان');
-        var user = { id: 'u_' + savedUid, name: savedGuestName };
-
         if (tg) {
             try {
                 tg.ready();
                 tg.expand();
                 if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-                    var tu = tg.initDataUnsafe.user;
-                    user.id = 'tg_' + tu.id;
-                    user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
-                    isTelegramUser = true;
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    var u = tg.initDataUnsafe.user;
+                    var fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
+                    if (fullName) document.getElementById('tg-user-name').textContent = fullName;
                 }
             } catch (e) {}
         }
 
-        function updateUserStrip() {
-            var lbl = document.getElementById('active-user-label');
-            var swBtn = document.getElementById('switch-guest-btn');
-            if (isTelegramUser) {
-                lbl.textContent = '👤 اکانت تلگرام: ' + user.name;
-                swBtn.classList.add('hidden');
-            } else {
-                lbl.textContent = '👤 مهمان: ' + user.name;
-                swBtn.classList.remove('hidden');
+        function vibrate() {
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
             }
         }
-        updateUserStrip();
-
-        function switchGuestAccount() {
-            var newName = prompt('نام بازیکن جدید را وارد کن:', '');
-            if (!newName || !newName.trim()) return;
-            var newId = String(Date.now()).slice(-6) + '_' + Math.floor(Math.random() * 999);
-            safeSet('chalbazi_uid', newId);
-            safeSet('chalbazi_guest_name', newName.trim());
-            user.id = 'u_' + newId;
-            user.name = newName.trim();
-            myFoundWords = [];
-            hasSubmittedWin = false;
-            myLastEarnedRank = 0;
-            currentRaceId = null;
-            updateUserStrip();
-            syncRace();
-            loadOverallLeaderboard();
-        }
-
-        function normalizeFa(str) {
-            return String(str).trim().replace(/\s+/g, '').replace(/\u200c/g, '')
-                .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
-                .replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا')
-                .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
-        }
-
-        var VALID_WORDS_SET = new Set();
-        var DICT_ARRAY = [];
-        var dictLoadedFull = false;
-
-        var FALLBACK_WORDS = [
-            "درخت","درد","دید","دود","داماد","مرهم","معلم","مردم","مریم","مقاوم","رادار","کرک","نان","نون","لال",
-            "ستاره","خورشید","باران","پرنده","پروانه","فروردین","مرداد","زمستان","تابستان","بهار","پاییز",
-            "برنج","فرش","درس","ترس","عروس","دریا","فردا","سرما","گرما","خرما","آزادی","بازی","رادیو",
-            "تهران","شیراز","تبریز","کرمان","یزد","رشت","اراک","ساری","گرگان","اهواز","بوشهر","قزوین",
-            "مادر","پدر","برادر","خواهر","پسر","دختر","دوست","همسایه","مدرسه","کتاب","قلم","دفتر","صندلی"
-        ];
-        for (var fi = 0; fi < FALLBACK_WORDS.length; fi++) {
-            var fn = normalizeFa(FALLBACK_WORDS[fi]);
-            if (fn.length >= 3 && fn.length <= 10) VALID_WORDS_SET.add(fn);
-        }
-        DICT_ARRAY = Array.from(VALID_WORDS_SET);
-
-        function setDictStatus(txt, color) {
-            var el = document.getElementById('dict-status');
-            if (el) { el.textContent = txt; if (color) el.style.color = color; }
-        }
-        setDictStatus('⏳ در حال بارگذاری دیکشنری بزرگ...', '#38BDF8');
-
-        function loadScript(src, ok, err) {
-            var s = document.createElement('script');
-            s.src = src; s.async = true; s.onload = ok; s.onerror = err;
-            document.head.appendChild(s);
-        }
-
-        loadScript('words.js', function() {
-            try {
-                if (typeof WORDS_DB !== 'undefined') {
-                    Object.keys(WORDS_DB).forEach(function(k) {
-                        var arr = WORDS_DB[k];
-                        if (Array.isArray(arr)) {
-                            for (var i = 0; i < arr.length; i++) {
-                                var nw = normalizeFa(arr[i]);
-                                if (nw.length >= 3 && nw.length <= 10) VALID_WORDS_SET.add(nw);
-                            }
-                        }
-                    });
-                    DICT_ARRAY = Array.from(VALID_WORDS_SET);
-                }
-            } catch (e) {}
-        }, function() {});
-
-        loadScript('dictionary.js', function() {
-            try {
-                if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
-                    for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) {
-                        var w = BIG_PERSIAN_DICT[i];
-                        if (w && w.length >= 3 && w.length <= 10) VALID_WORDS_SET.add(w);
-                    }
-                    DICT_ARRAY = Array.from(VALID_WORDS_SET);
-                    dictLoadedFull = true;
-                    setDictStatus('📚 دیکشنری آماده: ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه فارسی', '#34D399');
-                }
-            } catch (e) {
-                setDictStatus('⚠️ خطا در خواندن dictionary.js (' + VALID_WORDS_SET.size + ' واژه فعال)', '#FBBF24');
-            }
-        }, function() {
-            setDictStatus('⚠️ dictionary.js پیدا نشد (' + VALID_WORDS_SET.size + ' واژه پایه)', '#FBBF24');
-        });
-
-        function checkWordRule(word, rule) {
-            if (!word || word.length < 3) return { ok: false, reason: 'کلمه باید حداقل ۳ حرف باشد!' };
-            if (rule.type === 'same_first_last') {
-                if (word[0] !== word[word.length - 1]) return { ok: false, reason: 'حرف اول و آخر باید یکی باشند!' };
-                return { ok: true };
-            }
-            if (rule.type === 'len_same_first_last') {
-                if (word.length !== rule.len) return { ok: false, reason: 'کلمه باید دقیقاً ' + rule.len + ' حرفی باشد!' };
-                if (word[0] !== word[word.length - 1]) return { ok: false, reason: 'حرف اول و آخر باید یکی باشند!' };
-                return { ok: true };
-            }
-            if (rule.type === 'second_and_last') {
-                if (word[1] !== rule.c1) return { ok: false, reason: 'حرف دوم باید «' + rule.c1 + '» باشد!' };
-                if (word[word.length - 1] !== rule.c2) return { ok: false, reason: 'حرف آخر باید «' + rule.c2 + '» باشد!' };
-                return { ok: true };
-            }
-            if (rule.type === 'len_second_last') {
-                if (word.length !== rule.len) return { ok: false, reason: 'کلمه باید دقیقاً ' + rule.len + ' حرفی باشد!' };
-                if (word[1] !== rule.c1) return { ok: false, reason: 'حرف دوم باید «' + rule.c1 + '» باشد!' };
-                if (word[word.length - 1] !== rule.c2) return { ok: false, reason: 'حرف آخر باید «' + rule.c2 + '» باشد!' };
-                return { ok: true };
-            }
-            if (rule.type === 'len_first_last') {
-                if (word.length !== rule.len) return { ok: false, reason: 'کلمه باید دقیقاً ' + rule.len + ' حرفی باشد!' };
-                if (word[0] !== rule.c1) return { ok: false, reason: 'حرف اول باید «' + rule.c1 + '» باشد!' };
-                if (word[word.length - 1] !== rule.c2) return { ok: false, reason: 'حرف آخر باید «' + rule.c2 + '» باشد!' };
-                return { ok: true };
-            }
-            return { ok: false, reason: 'شرط نامعتبر' };
-        }
-
-        function getMatchingWordsFromDict(rule) {
-            var matches = [];
-            for (var i = 0; i < DICT_ARRAY.length; i++) {
-                var w = DICT_ARRAY[i];
-                if (checkWordRule(w, rule).ok) matches.push(w);
-            }
-            return matches;
-        }
-
-        function describeRuleHTML(rule) {
-            var cnt = '<span class="rule-highlight">' + rule.targetCount + ' کلمه</span>';
-            if (rule.type === 'same_first_last') return cnt + ' بگو که <span class="rule-highlight">حرف اول و آخرش یکی</span> باشه!';
-            if (rule.type === 'len_same_first_last') return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که <span class="rule-highlight">حرف اول و آخرش یکی</span> باشه!';
-            if (rule.type === 'second_and_last') return cnt + ' بگو که حرف دومش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
-            if (rule.type === 'len_second_last') return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که حرف دومش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
-            if (rule.type === 'len_first_last') return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که حرف اولش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
-            return '';
-        }
-
-        function renderPatternBoxes(rule) {
-            var el = document.getElementById('pattern-boxes');
-            var html = '';
-            if (rule.type === 'same_first_last') {
-                html = '<div class="p-box same">★</div><div class="p-box">...</div><div class="p-box same">★</div>';
-            } else if (rule.type === 'second_and_last') {
-                html = '<div class="p-box">؟</div><div class="p-box fixed">' + rule.c1 + '</div><div class="p-box">...</div><div class="p-box fixed">' + rule.c2 + '</div>';
-            } else {
-                var len = rule.len || 5;
-                for (var i = 0; i < len; i++) {
-                    if (rule.type === 'len_same_first_last' && (i === 0 || i === len - 1)) html += '<div class="p-box same">★</div>';
-                    else if (rule.type === 'len_second_last' && i === 1) html += '<div class="p-box fixed">' + rule.c1 + '</div>';
-                    else if (rule.type === 'len_second_last' && i === len - 1) html += '<div class="p-box fixed">' + rule.c2 + '</div>';
-                    else if (rule.type === 'len_first_last' && i === 0) html += '<div class="p-box fixed">' + rule.c1 + '</div>';
-                    else if (rule.type === 'len_first_last' && i === len - 1) html += '<div class="p-box fixed">' + rule.c2 + '</div>';
-                    else html += '<div class="p-box">؟</div>';
-                }
-            }
-            el.innerHTML = html;
-        }
-
-        function generateSolvableRule() {
-            var types = ['same_first_last', 'len_same_first_last', 'second_and_last', 'len_second_last', 'len_first_last'];
-            var minNeeded = dictLoadedFull ? 30 : 5;
-
-            for (var tries = 0; tries < 60; tries++) {
-                var t = types[Math.floor(Math.random() * types.length)];
-                var rule = null;
-
-                if (t === 'same_first_last') {
-                    rule = { type: t, targetCount: 5 };
-                } else if (t === 'len_same_first_last') {
-                    var l1 = Math.random() < 0.5 ? 4 : 5;
-                    rule = { type: t, len: l1, targetCount: 3 };
-                } else {
-                    var sample = DICT_ARRAY[Math.floor(Math.random() * DICT_ARRAY.length)];
-                    if (!sample || sample.length < 4 || sample.length > 6) continue;
-                    if (t === 'second_and_last') rule = { type: t, c1: sample[1], c2: sample[sample.length - 1], targetCount: 5 };
-                    else if (t === 'len_second_last') rule = { type: t, len: sample.length, c1: sample[1], c2: sample[sample.length - 1], targetCount: (sample.length === 5 ? 5 : 3) };
-                    else if (t === 'len_first_last') rule = { type: t, len: sample.length, c1: sample[0], c2: sample[sample.length - 1], targetCount: 5 };
-                }
-
-                if (!rule) continue;
-                var matches = getMatchingWordsFromDict(rule);
-                var req = rule.targetCount === 3 ? Math.max(5, Math.floor(minNeeded * 0.7)) : minNeeded;
-                if (matches.length >= req) {
-                    var samples = [];
-                    var shuffled = matches.slice().sort(function() { return Math.random() - 0.5; });
-                    for (var s = 0; s < Math.min(6, shuffled.length); s++) samples.push(shuffled[s]);
-                    rule.possibleCount = matches.length;
-                    rule.samples = samples;
-                    return rule;
-                }
-            }
-
-            var fallbackRule = { type: 'same_first_last', targetCount: 5 };
-            var fbMatches = getMatchingWordsFromDict(fallbackRule);
-            fallbackRule.possibleCount = fbMatches.length;
-            fallbackRule.samples = fbMatches.slice(0, 6);
-            return fallbackRule;
-        }
-
-        function getNextFullHourTimestamp() {
-            var d = new Date();
-            d.setHours(d.getHours() + 1, 0, 0, 0);
-            return d.getTime();
-        }
-
-        function myWordsStorageKey(raceId) {
-            return 'wr_words_' + user.id + '_' + raceId;
-        }
-        function myAwardStorageKey(raceId) {
-            return 'wr_awarded_' + user.id + '_' + raceId;
-        }
-
-        var currentRace = null;
-        var currentRaceId = null;
-        var myFoundWords = [];
-        var hasSubmittedWin = false;
-        var isSubmittingWin = false;
-        var myLastEarnedRank = 0;
-
-        async function createRaceAt(startTimestamp, nextNum) {
-            var rule = generateSolvableRule();
-            var payload = {
-                raceId: 'r_' + Date.now(),
-                roundNumber: nextNum,
-                scheduledStart: startTimestamp,
-                roundEndTime: startTimestamp + ROUND_DURATION_MS,
-                rule: rule,
-                winners: {},
-                waiting: {}
-            };
-            payload.waiting[user.id] = { name: user.name, ts: Date.now() };
-            await fetch(RACE_PATH + '.json', {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-            return payload;
-        }
-
-        async function syncRace() {
-            try {
-                var res = await fetch(RACE_PATH + '.json');
-                if (!res.ok) return;
-                var data = await res.json();
-
-                if (!data || !data.rule || !data.scheduledStart) {
-                    data = await createRaceAt(Date.now() + 15000, 1);
-                }
-
-                var winnersArr = getSortedWinners(data.winners);
-                var isOver = winnersArr.length >= MAX_WINNERS || Date.now() >= data.roundEndTime;
-                if (isOver && !data.finishedAt) {
-                    await fetch(RACE_PATH + '/finishedAt.json', { method: 'PUT', body: JSON.stringify(Date.now()) });
-                    data.finishedAt = Date.now();
-                }
-
-                applyRaceState(data);
-            } catch (e) {}
-        }
-
-        function getSortedWinners(winnersObj) {
-            if (!winnersObj) return [];
-            var arr = [];
-            var keys = Object.keys(winnersObj);
-            for (var i = 0; i < keys.length; i++) {
-                var w = winnersObj[keys[i]];
-                if (w && w.finishedAt) arr.push(w);
-            }
-            arr.sort(function(a, b) { return a.finishedAt - b.finishedAt; });
-            return arr;
-        }
-
-        function applyRaceState(data) {
-            var isNewRace = (data.raceId !== currentRaceId);
-            currentRace = data;
-
-            if (isNewRace) {
-                currentRaceId = data.raceId;
-                myFoundWords = [];
-                try {
-                    var saved = JSON.parse(safeGet(myWordsStorageKey(currentRaceId), '[]'));
-                    if (Array.isArray(saved)) myFoundWords = saved;
-                } catch (e) {}
-
-                document.getElementById('word-input').value = '';
-                document.getElementById('feedback-msg').textContent = '';
-                document.getElementById('round-num-badge').textContent = 'دور #' + (data.roundNumber || 1);
-
-                fetch(RACE_PATH + '/waiting/' + user.id + '.json', {
-                    method: 'PUT',
-                    body: JSON.stringify({ name: user.name, ts: Date.now() })
-                }).catch(function() {});
-            }
-
-            var winnersArr = getSortedWinners(data.winners);
-            var top5 = winnersArr.slice(0, MAX_WINNERS);
-
-            // بازمحاسبه دقیق وضعیت برنده شدن فقط برای همین اکانت
-            if (!isSubmittingWin) {
-                hasSubmittedWin = false;
-                myLastEarnedRank = 0;
-                for (var wi = 0; wi < winnersArr.length; wi++) {
-                    if (winnersArr[wi].id === user.id) {
-                        hasSubmittedWin = true;
-                        myLastEarnedRank = wi < MAX_WINNERS ? (wi + 1) : 0;
-                        break;
-                    }
-                }
-            }
-
-            var winListEl = document.getElementById('round-winners-list');
-            if (top5.length === 0) {
-                winListEl.innerHTML = '<div style="font-size:12px; color:#94A3B8;">هنوز کسی تمام نکرده؛ اولین نفر باش! ⚡</div>';
-            } else {
-                var wHtml = '';
-                for (var i = 0; i < top5.length; i++) {
-                    var p = top5[i];
-                    var pts = RANK_POINTS[i] || 20;
-                    var medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
-                    var cls = p.id === user.id ? 'player-row me' : 'player-row';
-                    var sec = Math.max(0.1, (p.finishedAt - data.scheduledStart) / 1000).toFixed(1);
-                    var wordsTxt = Array.isArray(p.words) ? p.words.join('، ') : '';
-                    wHtml += '<div class="' + cls + '"><div><strong>' + medal + ' ' + p.name + '</strong> <span style="color:#38BDF8; font-size:10px;">(' + sec + ' ثانیه)</span><div class="words-preview">' + wordsTxt + '</div></div><strong style="color:#FBBF24; white-space:nowrap;">+' + pts + ' امتیاز</strong></div>';
-                }
-                winListEl.innerHTML = wHtml;
-            }
-
-            var waitCount = 1;
-            if (data.waiting) {
-                var wk = Object.keys(data.waiting);
-                var activeWait = 0;
-                for (var j = 0; j < wk.length; j++) {
-                    if (Date.now() - (data.waiting[wk[j]].ts || 0) < 120000) activeWait++;
-                }
-                waitCount = Math.max(1, activeWait);
-            }
-            document.getElementById('waiting-players-count').textContent = '👥 افراد حاضر در اتاق: ' + waitCount + ' نفر';
-
-            updateScreenPhase();
-        }
-
-        function updateScreenPhase() {
-            if (!currentRace) return;
-            var now = Date.now();
-            var winnersArr = getSortedWinners(currentRace.winners);
-            var spotsLeft = Math.max(0, MAX_WINNERS - winnersArr.length);
-
-            var waitSc = document.getElementById('waiting-screen');
-            var actSc = document.getElementById('active-screen');
-            var finSc = document.getElementById('finished-screen');
-
-            if (now < currentRace.scheduledStart) {
-                waitSc.classList.remove('hidden');
-                actSc.classList.add('hidden');
-                finSc.classList.add('hidden');
-
-                var diffSec = Math.ceil((currentRace.scheduledStart - now) / 1000);
-                var hrs = Math.floor(diffSec / 3600);
-                var mins = Math.floor((diffSec % 3600) / 60);
-                var secs = diffSec % 60;
-                var pad = function(n) { return n < 10 ? '0' + n : String(n); };
-                document.getElementById('wait-countdown').textContent = (hrs > 0 ? pad(hrs) + ':' : '') + pad(mins) + ':' + pad(secs);
-
-                var d = new Date(currentRace.scheduledStart);
-                document.getElementById('wait-time-label').textContent = '⏰ ساعت شروع این دور: ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-                return;
-            }
-
-            if (spotsLeft === 0 || now >= currentRace.roundEndTime) {
-                waitSc.classList.add('hidden');
-                actSc.classList.add('hidden');
-                finSc.classList.remove('hidden');
-
-                document.getElementById('finished-rule-text').innerHTML = describeRuleHTML(currentRace.rule);
-                var samples = currentRace.rule.samples || [];
-                var sHtml = '';
-                for (var i = 0; i < samples.length; i++) sHtml += '<span class="sample-chip">' + samples[i] + '</span>';
-                document.getElementById('sample-answers').innerHTML = sHtml;
-                document.getElementById('next-round-info').textContent = spotsLeft === 0
-                    ? '🔥 هر ۵ جایگاه برنده تکمیل شد! مدیر می‌تواند زمان دور بعدی را از ⚙️ تنظیم کند.'
-                    : '⏰ زمان این دور به پایان رسید!';
-                return;
-            }
-
-            waitSc.classList.add('hidden');
-            finSc.classList.add('hidden');
-            actSc.classList.remove('hidden');
-
-            document.getElementById('spots-left').textContent = spotsLeft;
-            var remSec = Math.max(0, Math.ceil((currentRace.roundEndTime - now) / 1000));
-            var rm = Math.floor(remSec / 60), rs = remSec % 60;
-            document.getElementById('round-timer').textContent = (rm < 10 ? '0' + rm : rm) + ':' + (rs < 10 ? '0' + rs : rs);
-
-            document.getElementById('rule-text').innerHTML = describeRuleHTML(currentRace.rule);
-            renderPatternBoxes(currentRace.rule);
-            if (currentRace.rule.possibleCount) {
-                document.getElementById('possible-count-label').textContent = '📚 بیش از ' + currentRace.rule.possibleCount.toLocaleString('fa-IR') + ' جواب معتبر در دیکشنری وجود دارد';
-            }
-
-            renderMySlots();
-
-            if (hasSubmittedWin) {
-                document.getElementById('input-area').classList.add('hidden');
-                document.getElementById('completed-banner').classList.remove('hidden');
-                var earned = myLastEarnedRank > 0 ? (RANK_POINTS[myLastEarnedRank - 1] || 0) : 0;
-                document.getElementById('completed-title').textContent = myLastEarnedRank > 0
-                    ? '🏆 عالی! رتبه ' + myLastEarnedRank + ' را گرفتی (+' + earned + ' امتیاز)'
-                    : '✅ کلماتت کامل شد!';
-                document.getElementById('completed-desc').textContent = 'در انتظار تکمیل بقیه نفرات برتر...';
-            } else {
-                document.getElementById('input-area').classList.remove('hidden');
-                document.getElementById('completed-banner').classList.add('hidden');
-            }
-        }
-
-        function renderMySlots() {
-            if (!currentRace) return;
-            var total = currentRace.rule.targetCount || 5;
-            var html = '';
-            for (var i = 0; i < total; i++) {
-                if (myFoundWords[i]) html += '<div class="word-slot filled">✓ ' + myFoundWords[i] + '</div>';
-                else html += '<div class="word-slot">کلمه ' + (i + 1) + '</div>';
-            }
-            document.getElementById('my-slots').innerHTML = html;
-        }
-
-        function showFeedback(msg, color) {
-            var el = document.getElementById('feedback-msg');
-            el.textContent = msg;
-            el.style.color = color;
-        }
-
-        async function submitWord() {
-            if (!currentRace || hasSubmittedWin || isSubmittingWin) return;
-            var inputEl = document.getElementById('word-input');
-            var raw = inputEl.value;
-            var word = normalizeFa(raw);
-            if (!word) return;
-
-            if (myFoundWords.indexOf(word) !== -1) {
-                showFeedback('⚠️ این کلمه را قبلاً در همین دور گفته‌ای!', '#FBBF24');
-                return;
-            }
-
-            var ruleCheck = checkWordRule(word, currentRace.rule);
-            if (!ruleCheck.ok) {
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                showFeedback('❌ ' + ruleCheck.reason, '#F87171');
-                return;
-            }
-
-            if (!VALID_WORDS_SET.has(word)) {
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                showFeedback('❌ «' + raw + '» در دیکشنری فارسی معتبر نیست!', '#F87171');
-                return;
-            }
-
-            myFoundWords.push(word);
-            safeSet(myWordsStorageKey(currentRaceId), JSON.stringify(myFoundWords));
-            inputEl.value = '';
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            showFeedback('✅ «' + raw + '» قبول شد! (' + myFoundWords.length + ' از ' + currentRace.rule.targetCount + ')', '#34D399');
-            renderMySlots();
-
-            if (myFoundWords.length >= currentRace.rule.targetCount) {
-                await claimRaceFinish();
-            } else {
-                inputEl.focus();
-            }
-        }
-
-        document.getElementById('word-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') submitWord();
-        });
-
-        async function claimRaceFinish() {
-            isSubmittingWin = true;
-            try {
-                var now = Date.now();
-                await fetch(RACE_PATH + '/winners/' + user.id + '.json', {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        id: user.id,
-                        name: user.name,
-                        words: myFoundWords,
-                        finishedAt: now
-                    })
-                });
-
-                var res = await fetch(RACE_PATH + '/winners.json');
-                var allWinners = await res.json();
-                var sorted = getSortedWinners(allWinners);
-                var myIdx = -1;
-                for (var i = 0; i < sorted.length; i++) {
-                    if (sorted[i].id === user.id) { myIdx = i; break; }
-                }
-
-                hasSubmittedWin = true;
-                if (myIdx >= 0 && myIdx < MAX_WINNERS) {
-                    myLastEarnedRank = myIdx + 1;
-                    var pts = RANK_POINTS[myIdx];
-                    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    await addPointsToOverallBoard(pts);
-                } else {
-                    myLastEarnedRank = 0;
-                    showFeedback('⚡ ۵ نفر چند لحظه زودتر تکمیل کردند!', '#FBBF24');
-                }
-                await syncRace();
-                await loadOverallLeaderboard();
-            } catch (e) {
-                showFeedback('❌ خطا در ثبت امتیاز روی سرور', '#F87171');
-            }
-            isSubmittingWin = false;
-        }
-
-        async function addPointsToOverallBoard(pts) {
-            var awardKey = myAwardStorageKey(currentRaceId);
-            if (safeGet(awardKey, '') === '1') return;
-            safeSet(awardKey, '1');
-            try {
-                var res = await fetch(BOARD_PATH + '/' + user.id + '.json');
-                var existing = await res.json();
-                var newScore = ((existing && existing.score) ? existing.score : 0) + pts;
-                var wins = ((existing && existing.wins) ? existing.wins : 0) + 1;
-                await fetch(BOARD_PATH + '/' + user.id + '.json', {
-                    method: 'PUT',
-                    body: JSON.stringify({ name: user.name, score: newScore, wins: wins, updatedAt: Date.now() })
-                });
-            } catch (e) {}
-        }
-
-        async function loadOverallLeaderboard() {
-            try {
-                var res = await fetch(BOARD_PATH + '.json');
-                var data = await res.json();
-                var el = document.getElementById('overall-leaderboard');
-                document.getElementById('my-total-badge').textContent = 'امتیاز کل: 0';
-                if (!data) {
-                    el.innerHTML = '<div style="font-size:12px; color:#94A3B8;">هنوز امتیازی ثبت نشده است.</div>';
-                    return;
-                }
-                var arr = [];
-                var keys = Object.keys(data);
-                for (var i = 0; i < keys.length; i++) {
-                    var item = data[keys[i]];
-                    if (item) {
-                        arr.push({ id: keys[i], name: item.name || 'بازیکن', score: item.score || 0 });
-                        if (keys[i] === user.id) {
-                            document.getElementById('my-total-badge').textContent = 'امتیاز کل: ' + (item.score || 0);
-                        }
-                    }
-                }
-                arr.sort(function(a, b) { return b.score - a.score; });
-                var html = '';
-                var lim = Math.min(10, arr.length);
-                for (var j = 0; j < lim; j++) {
-                    var p = arr[j];
-                    var m = j === 0 ? '🥇' : (j === 1 ? '🥈' : (j === 2 ? '🥉' : (j + 1) + '.'));
-                    var cls = p.id === user.id ? 'player-row me' : 'player-row';
-                    html += '<div class="' + cls + '"><span>' + m + ' ' + p.name + '</span><strong style="color:#FBBF24;">' + p.score + ' امتیاز</strong></div>';
-                }
-                el.innerHTML = html;
-            } catch (e) {}
-        }
-
-        function openAdminModal() {
-            document.getElementById('admin-modal').classList.remove('hidden');
-            document.getElementById('admin-status-msg').textContent = '';
-        }
-        function closeAdminModal() {
-            document.getElementById('admin-modal').classList.add('hidden');
-        }
-        function unlockAdmin() {
-            var val = document.getElementById('admin-pin-input').value.trim();
-            if (val === ADMIN_PIN) {
-                document.getElementById('admin-lock').classList.add('hidden');
-                document.getElementById('admin-controls').classList.remove('hidden');
-            } else {
-                alert('رمز اشتباه است!');
-            }
-        }
-        async function adminScheduleOffset(seconds) {
-            var nextNum = (currentRace && currentRace.roundNumber ? currentRace.roundNumber : 0) + 1;
-            document.getElementById('admin-status-msg').textContent = 'در حال ساخت مسابقه جدید...';
-            await createRaceAt(Date.now() + seconds * 1000, nextNum);
-            document.getElementById('admin-status-msg').textContent = '✅ مسابقه جدید تنظیم شد!';
-            await syncRace();
-            setTimeout(closeAdminModal, 700);
-        }
-        async function adminScheduleNextHour() {
-            var nextNum = (currentRace && currentRace.roundNumber ? currentRace.roundNumber : 0) + 1;
-            document.getElementById('admin-status-msg').textContent = 'در حال تنظیم برای سر ساعت بعدی...';
-            await createRaceAt(getNextFullHourTimestamp(), nextNum);
-            document.getElementById('admin-status-msg').textContent = '✅ برای سر ساعت رند بعدی تنظیم شد!';
-            await syncRace();
-            setTimeout(closeAdminModal, 700);
-        }
-        async function adminScheduleExactTime() {
-            var val = document.getElementById('exact-time-input').value;
-            if (!val) return;
-            var parts = val.split(':');
-            var target = new Date();
-            target.setHours(Number(parts[0]), Number(parts[1]), 0, 0);
-            if (target.getTime() <= Date.now()) {
-                target.setDate(target.getDate() + 1);
-            }
-            var nextNum = (currentRace && currentRace.roundNumber ? currentRace.roundNumber : 0) + 1;
-            await createRaceAt(target.getTime(), nextNum);
-            document.getElementById('admin-status-msg').textContent = '✅ مسابقه برای ساعت ' + val + ' تنظیم شد!';
-            await syncRace();
-            setTimeout(closeAdminModal, 700);
-        }
-
-        function shareResult() {
-            var text = myLastEarnedRank > 0
-                ? '⚡ من (' + user.name + ') توی دور #' + (currentRace ? currentRace.roundNumber : 1) + ' مسابقه «شکار کلمات» کانال @chalbazi نفر ' + myLastEarnedRank + ' شدم! 🏆🔥\nتو دور بعدی شرکت کن 👇'
-                : '⚡ بیا تو مسابقه زمان‌دار «شکار کلمات» کانال @chalbazi رقابت کنیم! 🔥👇';
-            var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
-            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-            else window.open(url, '_blank');
-        }
-
-        syncRace();
-        loadOverallLeaderboard();
-        setInterval(syncRace, 2000);
-        setInterval(updateScreenPhase, 500);
-        setInterval(loadOverallLeaderboard, 15000);
     </script>
 </body>
 </html>
