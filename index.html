@@ -84,7 +84,6 @@
             direction: ltr;
         }
 
-        /* کارت مجموع امتیازات شخصی (روزانه، هفتگی، ماهانه، کلی) */
         .stats-wrapper {
             width: 100%;
             max-width: 480px;
@@ -107,9 +106,7 @@
             transition: transform 0.12s, border-color 0.15s;
         }
 
-        .stat-box:active {
-            transform: scale(0.95);
-        }
+        .stat-box:active { transform: scale(0.95); }
 
         .stat-box.highlight {
             border-color: rgba(251, 191, 36, 0.55);
@@ -130,7 +127,6 @@
             line-height: 1.2;
         }
 
-        /* تب‌های اصلی لابی: بازی‌ها / لیدربورد */
         .main-tabs {
             width: 100%;
             max-width: 480px;
@@ -159,7 +155,6 @@
             box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
         }
 
-        /* بخش بازی‌ها */
         .games-grid {
             width: 100%;
             max-width: 480px;
@@ -182,9 +177,7 @@
             transition: transform 0.15s ease;
         }
 
-        .game-card:active {
-            transform: scale(0.97);
-        }
+        .game-card:active { transform: scale(0.97); }
 
         .game-icon {
             width: 52px;
@@ -197,6 +190,7 @@
             flex-shrink: 0;
         }
 
+        .icon-football { background: linear-gradient(135deg, #DCFCE7, #BBF7D0); border: 2px solid #16A34A; }
         .icon-race { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); border: 2px solid #EC4899; }
         .icon-grid { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); border: 2px solid #10B981; }
         .icon-word { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border: 2px solid #8B5CF6; }
@@ -248,7 +242,6 @@
             font-weight: 700;
         }
 
-        /* بخش لیدربورد جامع */
         .lb-section {
             width: 100%;
             max-width: 480px;
@@ -415,7 +408,6 @@
         </div>
     </div>
 
-    <!-- سوئیچر اصلی: لیست بازی‌ها / لیدربورد -->
     <div class="main-tabs">
         <button id="tab-games" class="main-tab-btn active" onclick="switchMainTab('games')">🎮 بازی‌ها</button>
         <button id="tab-leaderboard" class="main-tab-btn" onclick="switchMainTab('leaderboard')">🏆 لیدربورد</button>
@@ -423,7 +415,27 @@
 
     <!-- بخش ۱: لیست بازی‌ها -->
     <div id="section-games" class="games-grid">
-        <!-- بازی ۱: مسابقه شکار کلمات -->
+        <!-- بازی ۱: جدول کلمات ۸×۸ (همگانی، دوستان و انفرادی) -->
+        <a href="word-grid.html?v=8" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-grid">🧩</div>
+            <div class="game-details">
+                <h2 class="game-title">جدول کلمات ۸×۸ (همگانی و دوستان)</h2>
+                <p class="game-desc">رقابت زنده کانال، اتاق اختصاصی با دوستان در گروه یا حالت انفرادی!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۲: سوپر فوتبال (ماریو فوتبالی) -->
+        <a href="football-mario.html?v=1" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-football">⚽</div>
+            <div class="game-details">
+                <h2 class="game-title">سوپر فوتبال (رکوردی)</h2>
+                <p class="game-desc">با مسی، یامال، هالند، امباپه یا رونالدو تا جام قهرمانی بدو و رکورد زمان رو بشکن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۳: مسابقه شکار کلمات -->
         <a href="word-race.html?v=4" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-race">⚡</div>
             <div class="game-details">
@@ -433,17 +445,7 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۲: جدول کلمات ۸×۸ (زنده) -->
-        <a href="word-grid.html?v=5" class="game-card" onclick="return openGame(this, event)">
-            <div class="game-icon icon-grid">🧩</div>
-            <div class="game-details">
-                <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
-                <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
-            </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
-
-        <!-- بازی ۳: حدس کلمه سرعتی -->
+        <!-- بازی ۴: حدس کلمه سرعتی -->
         <a href="esm-famil.html?v=2" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-word">🧠</div>
             <div class="game-details">
@@ -452,18 +454,8 @@
             </div>
             <div class="play-btn">بازی کن ▶</div>
         </a>
-        
-<!-- بازی جدید: سوپر فوتبال (ماریو فوتبالی) -->
-        <a href="football-mario.html?v=1" class="game-card" onclick="return openGame(this, event)">
-            <div class="game-icon" style="background: linear-gradient(135deg, #DCFCE7, #BBF7D0); border: 2px solid #16A34A;">⚽</div>
-            <div class="game-details">
-                <h2 class="game-title">سوپر فوتبال (رکوردی)</h2>
-                <p class="game-desc">با مسی، یامال، هالند، امباپه یا رونالدو تا جام قهرمانی بدو و رکورد زمان رو بشکن!</p>
-            </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
-        
-        <!-- بازی ۴: زرافه چوب‌بر -->
+
+        <!-- بازی ۵: زرافه چوب‌بر -->
         <a href="giraffe.html?v=2" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-giraffe">🦒</div>
             <div class="game-details">
@@ -473,7 +465,7 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۵: نیش ریاضی -->
+        <!-- بازی ۶: نیش ریاضی -->
         <a href="math-sting.html?v=2" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-math">🦂</div>
             <div class="game-details">
@@ -483,7 +475,6 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- جایگاه بازی‌های آینده -->
         <div class="game-card disabled">
             <div class="game-icon icon-soon">🎲</div>
             <div class="game-details">
@@ -536,7 +527,42 @@
             } catch (e) {}
         }
 
+        function getQueryParam(name) {
+            try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; }
+        }
+
         var currentUser = window.ChalbaziScore ? ChalbaziScore.getUser() : { id: '', rawId: '', name: 'بازیکن چالبازی', isTelegram: false };
+
+        // هدایت مستقیم و بدون معطلی لینک‌های دعوت گروه (startapp=grid_XXXX) به داخل اتاق دوستان
+        (function routeDeepLink() {
+            if (getQueryParam('from') === 'game') return;
+            var startParam = '';
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+                startParam = String(tg.initDataUnsafe.start_param);
+            }
+            if (!startParam) {
+                startParam = getQueryParam('tgWebAppStartParam') || getQueryParam('startapp');
+            }
+            if (!startParam) return;
+
+            var handled = '';
+            try { handled = sessionStorage.getItem('cb_handled_sp') || ''; } catch (e) {}
+            if (handled === startParam) return;
+
+            if (startParam.indexOf('grid_') === 0) {
+                var code = startParam.substring(5).replace(/[^0-9a-zA-Z]/g, '');
+                if (code) {
+                    try { sessionStorage.setItem('cb_handled_sp', startParam); } catch (e) {}
+                    var dest = 'word-grid.html?v=8&room=' + encodeURIComponent(code);
+                    if (currentUser.isTelegram && currentUser.rawId) {
+                        dest += '&tg_uid=' + encodeURIComponent(currentUser.rawId) + '&tg_name=' + encodeURIComponent(currentUser.name);
+                    }
+                    if (window.location.hash) dest += window.location.hash;
+                    window.location.replace(dest);
+                }
+            }
+        })();
+
         document.getElementById('tg-user-name').textContent = currentUser.name;
         if (currentUser.isTelegram) {
             document.getElementById('tg-user-sub').textContent = 'متصل به اکانت تلگرام ✓';
