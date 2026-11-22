@@ -110,7 +110,7 @@
 
         <div class="stats-bar">
             <span style="cursor:pointer;" onclick="openJarModal()">🏺 برای دیدن کلمات عادی روی کوزه بزن</span>
-            <button class="btn-small" onclick="useHint()">💡 راهنما (-۱۵ امتیاز)</button>
+            <button class="btn-small" onclick="useHint()">💡 راهنما (-۱۰ امتیاز)</button>
         </div>
 
         <div class="live-board">
@@ -138,8 +138,8 @@
             <div class="dict-badge" id="dict-status">در حال آماده‌سازی...</div>
             <div class="rules-list">
                 🌐 در هر لحظه فقط <strong>یک پازل مشترک</strong> برای همه باز است.<br>
-                🔹 هر کلمه کلیدی که کسی پیدا کند برای همه پاک می‌شود (امتیاز: <strong>تعداد حروف × کلمات باقیمانده</strong>).<br>
-                🔸 کلمات عادی که پیدا می‌کنی به صورت رنگی در <strong>کوزه 🏺</strong> جمع می‌شوند و امتیاز می‌دهند!<br>
+                🔹 کلمات کلیدی از میان <strong>۱۰٬۰۰۰ واژه پالایش‌شده ۴ تا ۸ حرفی</strong> انتخاب شده‌اند (امتیاز: <strong>طول کلمه × باقیمانده‌ها</strong>).<br>
+                🔸 هر کلمه معتبر دیگری (۳ حرف به بالا) در <strong>کوزه 🏺</strong> جمع می‌شود و امتیاز می‌گیرد!<br>
                 🏁 با پیدا شدن آخرین کلمه کلیدی، برنده مشخص شده و پازل بعدی خودکار شروع می‌شود!
             </div>
             <button class="btn-main btn-green" onclick="enterLiveGame()">ورود به پازل زنده 🚀</button>
@@ -230,39 +230,42 @@
                 .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
         }
 
+        // کلمات پایه پشتیبان (شامل ۴ تا ۸ حرفی)
         var EXTRA_WORDS = [
             "درخت","زندگی","حشره","ستاره","آسمان","خورشید","باران","دریاچه","کوهستان","پرنده",
-            "پروانه","زنبور","عقرب","زرافه","پلنگ","گرگ","روباه","خرگوش","گنجشک","کبوتر",
-            "مدرسه","دانشگاه","کتابخانه","بیمارستان","فرودگاه","ایستگاه","خیابان","میدان","ساختمان",
-            "پنجره","دیوار","صندلی","کامپیوتر","موبایل","تلویزیون","یخچال","ساعت","عینک","کفش",
-            "پیراهن","شلوار","کلاه","انگشتر","گردنبند","زمستان","تابستان","بهار","پاییز","فروردین",
-            "اردیبهشت","خرداد","مرداد","شهریور","آبان","بهمن","اسفند","شنبه","دوشنبه","چهارشنبه",
-            "پنجشنبه","جمعه","صبحانه","ناهار","نوشابه","بستنی","شکلات","شیرینی","هندوانه","پرتقال",
-            "نارنگی","انگور","انار","گیلاس","آلبالو","زردآلو","گلابی","خیار","گوجه","بادمجان",
-            "لیمو","گردو","بادام","پسته","فندق","زعفران","دارچین","زنجبیل","نعنا","ریحان","جعفری",
-            "پیاز","قارچ","ذرت","برنج","گندم","مهتاب","کهکشان","سیاره","زمین","مریخ","مشتری",
-            "اقیانوس","جنگل","کویر","بیابان","آبشار","چشمه","رودخانه","ساحل","جزیره","کشتی","قایق",
-            "هواپیما","قطار","اتوبوس","دوچرخه","موتور","تراکتور","آمبولانس","طوفان","رعدوبرق",
+            "پروانه","زنبور","عقرب","زرافه","پلنگ","روباه","خرگوش","گنجشک","کبوتر","مدرسه",
+            "دانشگاه","کتابخانه","بیمارستان","فرودگاه","ایستگاه","خیابان","میدان","ساختمان","پنجره","دیوار",
+            "صندلی","کامپیوتر","موبایل","تلویزیون","یخچال","ساعت","عینک","کفش","پیراهن","شلوار",
+            "کلاه","انگشتر","گردنبند","زمستان","تابستان","بهار","پاییز","فروردین","اردیبهشت","خرداد",
+            "مرداد","شهریور","آبان","بهمن","اسفند","شنبه","دوشنبه","چهارشنبه","پنجشنبه","جمعه",
+            "صبحانه","ناهار","نوشابه","بستنی","شکلات","شیرینی","هندوانه","پرتقال","نارنگی","انگور",
+            "انار","گیلاس","آلبالو","زردآلو","گلابی","خیار","گوجه","بادمجان","لیمو","گردو",
+            "بادام","پسته","فندق","زعفران","دارچین","زنجبیل","نعنا","ریحان","جعفری","پیاز",
+            "قارچ","ذرت","برنج","گندم","مهتاب","کهکشان","سیاره","زمین","مریخ","مشتری",
+            "اقیانوس","جنگل","کویر","بیابان","آبشار","چشمه","رودخانه","ساحل","جزیره","کشتی",
+            "قایق","هواپیما","قطار","اتوبوس","دوچرخه","موتور","تراکتور","آمبولانس","طوفان","رعدوبرق",
             "لبخند","مهربان","شجاع","باهوش","قهرمان","پیروزی","موفقیت","دوستی","خانواده","برادر",
             "خواهر","فرزند","همسایه","مسافر","ورزشکار","فوتبال","والیبال","بسکتبال","شطرنج","تنیس"
         ];
 
+        // تفکیک کامل: KEY_WORDS_SET برای کلمات کلیدی ۴ تا ۸ حرفی | VALID_WORDS_SET برای کل کلمات عادی کوزه
+        var KEY_WORDS_SET = new Set();
+        var KEY_WORDS_BY_LEN = {};
         var VALID_WORDS_SET = new Set();
-        var WORDS_BY_LEN = {};
 
         for (var ew = 0; ew < EXTRA_WORDS.length; ew++) {
             var nw = normalizeFa(EXTRA_WORDS[ew]);
+            if (nw.length >= 4 && nw.length <= 8) KEY_WORDS_SET.add(nw);
             if (nw.length >= 3 && nw.length <= 10) VALID_WORDS_SET.add(nw);
         }
 
-        function setDictBadge(msg, color) {
+        function refreshDictBadge() {
             var el = document.getElementById('dict-status');
-            if (el) {
-                el.textContent = msg;
-                if (color) el.style.color = color;
-            }
+            if (!el) return;
+            el.style.color = '#34D399';
+            el.textContent = '📚 کلیدی: ' + KEY_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه | کوزه: ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه';
         }
-        setDictBadge('✅ آماده بازی (' + VALID_WORDS_SET.size + ' واژه پایه) - در حال دانلود دیکشنری بزرگ...', '#38BDF8');
+        refreshDictBadge();
 
         function loadExternalScript(src, onOk, onErr) {
             var s = document.createElement('script');
@@ -273,7 +276,7 @@
             document.head.appendChild(s);
         }
 
-        var dictDone = false;
+        // ۱. بارگذاری words.js (کلمات آشنا -> ۴ تا ۸ حرفی برای کلیدی، ۳ تا ۱۰ برای کوزه)
         loadExternalScript('words.js', function() {
             try {
                 if (typeof WORDS_DB !== 'undefined') {
@@ -282,50 +285,67 @@
                         if (Array.isArray(arr)) {
                             for (var i = 0; i < arr.length; i++) {
                                 var n = normalizeFa(arr[i]);
+                                if (n.length >= 4 && n.length <= 8) KEY_WORDS_SET.add(n);
                                 if (n.length >= 3 && n.length <= 10) VALID_WORDS_SET.add(n);
                             }
                         }
                     });
-                    WORDS_BY_LEN = {};
-                    if (!dictDone) setDictBadge('⏳ در حال دانلود dictionary.js (' + VALID_WORDS_SET.size + ' واژه آماده)', '#38BDF8');
+                    KEY_WORDS_BY_LEN = {};
+                    refreshDictBadge();
                 }
             } catch (e) {}
         }, function() {});
 
-        loadExternalScript('dictionary.js', function() {
+        // ۲. بارگذاری keywords.js (بانک ۱۰٬۰۰۰ واژه پالایش‌شده ۴ تا ۸ حرفی)
+        var keywordsReadyPromise = new Promise(function(resolve) {
+            loadExternalScript('keywords.js?v=2', function() {
+                try {
+                    if (typeof COMMON_KEY_WORDS !== 'undefined' && Array.isArray(COMMON_KEY_WORDS)) {
+                        for (var i = 0; i < COMMON_KEY_WORDS.length; i++) {
+                            var w = COMMON_KEY_WORDS[i];
+                            if (w && w.length >= 4 && w.length <= 8) {
+                                KEY_WORDS_SET.add(w);
+                                VALID_WORDS_SET.add(w);
+                            }
+                        }
+                        KEY_WORDS_BY_LEN = {};
+                        refreshDictBadge();
+                    }
+                } catch (e) {}
+                resolve();
+            }, function() { resolve(); });
+            setTimeout(resolve, 2500);
+        });
+
+        // ۳. بارگذاری dictionary.js (دیکشنری بزرگ پالایش‌شده -> فقط برای کلمات عادی کوزه)
+        loadExternalScript('dictionary.js?v=2', function() {
             try {
                 if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
                     for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) {
                         var w = BIG_PERSIAN_DICT[i];
                         if (w && w.length >= 3 && w.length <= 10) VALID_WORDS_SET.add(w);
                     }
-                    WORDS_BY_LEN = {};
-                    dictDone = true;
-                    setDictBadge('📚 دیکشنری کامل فعال: ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه', '#34D399');
-                } else {
-                    setDictBadge('⚠️ فرمت dictionary.js نامعتبر است (' + VALID_WORDS_SET.size + ' واژه فعال)', '#FBBF24');
+                    refreshDictBadge();
                 }
-            } catch (e) {
-                setDictBadge('⚠️ خطا در خواندن دیکشنری (' + VALID_WORDS_SET.size + ' واژه فعال)', '#FBBF24');
-            }
-        }, function() {
-            setDictBadge('⚠️ فایل dictionary.js پیدا نشد (' + VALID_WORDS_SET.size + ' واژه فعال)', '#FBBF24');
-        });
+            } catch (e) {}
+        }, function() {});
 
-        function getWordsPoolByLength(len) {
-            if (!WORDS_BY_LEN[len]) {
+        function getKeyWordsPoolByLength(len) {
+            if (!KEY_WORDS_BY_LEN[len]) {
                 var arr = [];
-                VALID_WORDS_SET.forEach(function(w) { if (w.length === len) arr.push(w); });
-                WORDS_BY_LEN[len] = arr;
+                KEY_WORDS_SET.forEach(function(w) { if (w.length === len) arr.push(w); });
+                KEY_WORDS_BY_LEN[len] = arr;
             }
-            return WORDS_BY_LEN[len].length > 0 ? WORDS_BY_LEN[len] : ["ستاره"];
+            return KEY_WORDS_BY_LEN[len].length > 0 ? KEY_WORDS_BY_LEN[len] : ["ستاره"];
         }
 
+        // ترکیب‌های متنوع ۴ تا ۸ حرفی (مجموع هر الگو دقیقاً ۶۴ خانه)
         var PARTITION_PRESETS = [
-            [7,7,6,6,6,6,6,5,5,5,5],
-            [8,7,7,6,6,6,6,6,6,6],
-            [7,6,6,6,6,6,5,5,5,4,4,4],
-            [8,8,7,7,6,6,6,6,5,5]
+            [8, 7, 7, 6, 6, 6, 5, 5, 5, 5, 4],
+            [8, 8, 7, 6, 6, 5, 5, 5, 5, 5, 4],
+            [8, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4],
+            [7, 7, 7, 6, 6, 5, 5, 5, 4, 4, 4, 4],
+            [8, 7, 7, 7, 6, 6, 5, 5, 5, 4, 4]
         ];
 
         function getFreeNeighbors(idx, visited) {
@@ -407,7 +427,7 @@
 
             for (var pIdx = 0; pIdx < paths.length; pIdx++) {
                 var path = paths[pIdx];
-                var pool = getWordsPoolByLength(path.length);
+                var pool = getKeyWordsPoolByLength(path.length);
                 var word = pool[Math.floor(Math.random() * pool.length)];
                 var tries = 0;
                 while (used.has(word) && tries < 40) {
@@ -599,6 +619,7 @@
             if (isCreatingNext) return;
             isCreatingNext = true;
             try {
+                await keywordsReadyPromise;
                 var checkRes = await fetch(LIVE_PATH + '.json');
                 var current = await checkRes.json();
                 if (current && current.puzzleId !== currentPuzzleId && !current.finishedAt) {
@@ -889,7 +910,6 @@
                     var earned = formedWord.length * multiplier;
                     myScore += earned;
 
-                    // ثبت امتیاز کلمه کلیدی در لیدربوردهای روزانه، هفتگی، ماهانه و کلی
                     if (window.ChalbaziScore) {
                         ChalbaziScore.addScore(earned, 'word-grid', currentPuzzleId + '_kw_' + matchedKey.idx);
                     }
@@ -929,7 +949,6 @@
                     var bonusEarned = formedWord.length;
                     myScore += bonusEarned;
 
-                    // ثبت امتیاز کلمه عادی در لیدربوردهای روزانه، هفتگی، ماهانه و کلی
                     if (window.ChalbaziScore) {
                         ChalbaziScore.addScore(bonusEarned, 'word-grid', currentPuzzleId + '_bw_' + formedWord);
                     }
@@ -954,19 +973,19 @@
         function useHint() {
             var rem = keyWordsArr.filter(function(k) { return !k.found; });
             if (rem.length === 0) return;
-            if (myScore < 15) {
-                showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۵ امتیاز نیاز دارید!', '#FBBF24');
+            if (myScore < 10) {
+                showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۰ امتیاز نیاز دارید!', '#FBBF24');
                 return;
             }
-            myScore -= 15;
+            myScore -= 10;
             updateTargetsAndScoreUI();
             registerPlayerInCurrentRoom();
 
             var target = rem[Math.floor(Math.random() * rem.length)];
             var firstIdx = target.path[0];
             cellElements[firstIdx].classList.add('hint-flash');
-            setTimeout(function() { cellElements[firstIdx].classList.remove('hint-flash'); }, 1800);
-            showFeedback('💡 خانه چشمک‌زن، شروع یک کلمه «' + target.word.length + ' حرفی» است!', '#F472B6');
+            setTimeout(function() { cellElements[firstIdx].classList.remove('hint-flash'); }, 2200);
+            showFeedback('💡 خانه چشمک‌زن، شروع کلمه «' + target.word.length + ' حرفی» با حرف «' + target.word[0] + '» است!', '#F472B6');
         }
 
         function getCellFromPoint(x, y) {
