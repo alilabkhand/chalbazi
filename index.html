@@ -15,21 +15,35 @@
             font-family: 'Vazirmatn', sans-serif;
         }
 
-        body {
+        html, body {
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background: linear-gradient(135deg, #1A237E 0%, #283593 50%, #0277BD 100%);
             color: #fff;
+        }
+
+        .app-scroll {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 70px;
         }
 
         .top-bar {
             width: 100%;
             max-width: 480px;
-            padding: 16px 20px;
+            flex-shrink: 0;
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -45,14 +59,14 @@
         }
 
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: linear-gradient(135deg, #FFB300, #F57C00);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 900;
             box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
@@ -73,13 +87,14 @@
 
         .hero {
             text-align: center;
-            padding: 24px 20px 14px;
+            padding: 18px 18px 10px;
             max-width: 480px;
+            flex-shrink: 0;
         }
 
         .hero h1 {
             margin: 0 0 6px;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             color: #FFD54F;
         }
@@ -93,23 +108,26 @@
         .games-grid {
             width: 100%;
             max-width: 480px;
-            padding: 12px 18px 30px;
+            flex-shrink: 0;
+            padding: 10px 16px 24px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .game-card {
             background: #fff;
             color: #212121;
-            border-radius: 22px;
-            padding: 18px;
+            border-radius: 20px;
+            padding: 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             text-decoration: none;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
             transition: transform 0.15s ease;
+            flex-shrink: 0;
+            touch-action: pan-y;
         }
 
         .game-card:active {
@@ -117,53 +135,30 @@
         }
 
         .game-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 18px;
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 34px;
+            font-size: 30px;
             flex-shrink: 0;
         }
 
-        .icon-race {
-            background: linear-gradient(135deg, #FCE7F3, #FBCFE8);
-            border: 2px solid #EC4899;
-        }
-
-        .icon-grid {
-            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
-            border: 2px solid #10B981;
-        }
-
-        .icon-word {
-            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
-            border: 2px solid #8B5CF6;
-        }
-
-        .icon-giraffe {
-            background: linear-gradient(135deg, #FFF8E1, #FFE082);
-            border: 2px solid #FFB300;
-        }
-
-        .icon-math {
-            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
-            border: 2px solid #E53935;
-        }
-
-        .icon-soon {
-            background: #F5F5F5;
-            border: 2px dashed #BDBDBD;
-        }
+        .icon-race { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); border: 2px solid #EC4899; }
+        .icon-grid { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); border: 2px solid #10B981; }
+        .icon-word { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border: 2px solid #8B5CF6; }
+        .icon-giraffe { background: linear-gradient(135deg, #FFF8E1, #FFE082); border: 2px solid #FFB300; }
+        .icon-math { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border: 2px solid #E53935; }
+        .icon-soon { background: #F5F5F5; border: 2px dashed #BDBDBD; }
 
         .game-details {
             flex: 1;
-            padding: 0 14px;
+            padding: 0 12px;
         }
 
         .game-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 900;
             margin: 0 0 4px;
             color: #1A237E;
@@ -179,10 +174,10 @@
         .play-btn {
             background: linear-gradient(135deg, #00C853, #009624);
             color: #fff;
-            padding: 10px 14px;
-            border-radius: 14px;
+            padding: 9px 13px;
+            border-radius: 13px;
             font-weight: 900;
-            font-size: 13px;
+            font-size: 12px;
             box-shadow: 0 4px 10px rgba(0, 200, 83, 0.35);
             flex-shrink: 0;
         }
@@ -203,49 +198,106 @@
     </style>
 </head>
 <body>
+    <div class="app-scroll">
+        <div class="top-bar">
+            <div class="user-info">
+                <div class="avatar">🎮</div>
+                <div>
+                    <div class="user-name" id="tg-user-name">بازیکن چالبازی</div>
+                    <div style="font-size: 11px; color: #BBDEFB;">خوش آمدی!</div>
+                </div>
+            </div>
+            <div class="channel-badge">@chalbazi</div>
+        </div>
 
-    <div class="top-bar">
-        <div class="user-info">
-            <div class="avatar">🎮</div>
-            <div>
-                <div class="user-name" id="tg-user-name">بازیکن چالبازی</div>
-                <div style="font-size: 11px; color: #BBDEFB;">خوش آمدی!</div>
+        <div class="hero">
+            <h1>🎪 شهربازی چالبازی</h1>
+            <p>بازی مورد نظرت رو انتخاب کن و با بچه‌های کانال رقابت کن!</p>
+        </div>
+
+        <div class="games-grid">
+            <!-- بازی ۱: مسابقه شکار کلمات -->
+            <a href="word-race.html?v=2" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-race">⚡</div>
+                <div class="game-details">
+                    <h2 class="game-title">شکار کلمات (مسابقه ساعتی)</h2>
+                    <p class="game-desc">سر ساعت شروع میشه! کلمات خواسته‌شده رو پیدا کن و جزو ۵ نفر اول امتیاز بگیر.</p>
+                </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
+
+            <!-- بازی ۲: جدول کلمات ۸×۸ (زنده) -->
+            <a href="word-grid.html?v=4" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-grid">🧩</div>
+                <div class="game-details">
+                    <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
+                    <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
+                </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
+
+            <!-- بازی ۳: حدس کلمه سرعتی -->
+            <a href="esm-famil.html" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-word">🧠</div>
+                <div class="game-details">
+                    <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
+                    <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
+                </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
+
+            <!-- بازی ۴: زرافه چوب‌بر -->
+            <a href="giraffe.html" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-giraffe">🦒</div>
+                <div class="game-details">
+                    <h2 class="game-title">زرافه چوب‌بر</h2>
+                    <p class="game-desc">با سرعت درخت رو قطع کن و نذار شاخه‌ها به سرت بخورن!</p>
+                </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
+
+            <!-- بازی ۵: نیش ریاضی -->
+            <a href="math-sting.html" class="game-card" onclick="vibrate()">
+                <div class="game-icon icon-math">🦂</div>
+                <div class="game-details">
+                    <h2 class="game-title">نیش ریاضی (Math Sting)</h2>
+                    <p class="game-desc">سریع جواب بده قبل از اینکه زنبور، عقرب یا مار نیشت بزنن!</p>
+                </div>
+                <div class="play-btn">بازی کن ▶</div>
+            </a>
+
+            <!-- جایگاه بازی‌های آینده -->
+            <div class="game-card disabled">
+                <div class="game-icon icon-soon">🎲</div>
+                <div class="game-details">
+                    <h2 class="game-title" style="color:#757575;">بازی بعدی در راه است...</h2>
+                    <p class="game-desc">به‌زودی چالش جدید به مجموعه اضافه می‌شود.</p>
+                </div>
+                <div class="soon-badge">به‌زودی</div>
             </div>
         </div>
-        <div class="channel-badge">@chalbazi</div>
     </div>
 
-    <div class="hero">
-        <h1>🎪 شهربازی چالبازی</h1>
-        <p>بازی مورد نظرت رو انتخاب کن و با بچه‌های کانال رقابت کن!</p>
-    </div>
+    <script>
+        var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+        if (tg) {
+            try {
+                tg.ready();
+                tg.expand();
+                if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    var u = tg.initDataUnsafe.user;
+                    var fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
+                    if (fullName) document.getElementById('tg-user-name').textContent = fullName;
+                }
+            } catch (e) {}
+        }
 
-    <div class="games-grid">
-        <!-- بازی ۱: مسابقه شکار کلمات (زمان‌دار) -->
-        <a href="word-race.html?v=1" class="game-card" onclick="vibrate()">
-            <div class="game-icon icon-race">⚡</div>
-            <div class="game-details">
-                <h2 class="game-title">شکار کلمات (مسابقه ساعتی)</h2>
-                <p class="game-desc">سر ساعت شروع میشه! کلمات خواسته‌شده رو پیدا کن و جزو ۵ نفر اول امتیاز بگیر.</p>
-            </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
-
-        <!-- بازی ۲: جدول کلمات ۸×۸ (زنده) -->
-        <a href="word-grid.html?v=4" class="game-card" onclick="vibrate()">
-            <div class="game-icon icon-grid">🧩</div>
-            <div class="game-details">
-                <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
-                <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
-            </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
-
-        <!-- بازی ۳: حدس کلمه سرعتی -->
-        <a href="esm-famil.html" class="game-card" onclick="vibrate()">
-            <div class="game-icon icon-word">🧠</div>
-            <div class="game-details">
-                <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
-                <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
-            </div>
-            <div class="play-btn">بازی کن
+        function vibrate() {
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
+    </script>
+</body>
+</html>
