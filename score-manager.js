@@ -1,13 +1,16 @@
 (function(global) {
     var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
-    var SCORES_ROOT = FIREBASE_DB_URL.replace(/\/+$/, '') + '/chalbaziScores';
+    var CLEAN_BASE = FIREBASE_DB_URL.replace(/\/+$/, '');
+    var SCORES_ROOT = CLEAN_BASE + '/chalbaziScores';
+    var REFERRALS_ROOT = CLEAN_BASE + '/chalbaziReferrals';
+    var INVITER_BONUS = 50;
+    var INVITEE_BONUS = 25;
     var PERSIAN_MONTHS = ['', 'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
 
     function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
     function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
     function pad2(n) { return n < 10 ? '0' + n : String(n); }
 
-    // تبدیل دقیق میلادی به شمسی (بدون وابستگی به مرورگر)
     function toJalali(gy, gm, gd) {
         var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
         var gy2 = (gm > 2) ? (gy + 1) : gy;
@@ -25,14 +28,12 @@
         return { jy: jy, jm: jm, jd: jd };
     }
 
-    // محاسبه کلیدهای روزانه، هفتگی (از شنبه) و ماهانه به وقت رسمی تهران (UTC+3:30)
     function getPeriodKeys() {
         var tehranMs = Date.now() + (210 * 60 * 1000);
         var d = new Date(tehranMs);
         var jToday = toJalali(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
 
-        // محاسبه ابتدای هفته ایران (شنبه)
-        var dow = d.getUTCDay(); // 0=یکشنبه ... 6=شنبه
+        var dow = d.getUTCDay();
         var daysSinceSat = (dow + 1) % 7;
         var satDate = new Date(tehranMs - (daysSinceSat * 86400000));
         var jSat = toJalali(satDate.getUTCFullYear(), satDate.getUTCMonth() + 1, satDate.getUTCDate());
@@ -62,7 +63,6 @@
         } catch (e) { return ''; }
     }
 
-    // شناسایی یکپارچه اکانت بازیکن در تمام صفحات
     function getUser() {
         var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
@@ -102,25 +102,17 @@
         return SCORES_ROOT + '/' + period + '/' + keys[period];
     }
 
-    // صف ثبت متوالی تا در امتیازهای پیاپی تداخل ایجاد نشود
     var writeQueue = Promise.resolve();
 
-    function addScore(points, gameId, eventId) {
+    function addScoreForUser(targetId, targetName, points, gameId) {
         var pts = Math.floor(Number(points) || 0);
-        if (pts <= 0) return Promise.resolve(false);
-
-        var user = getUser();
-        if (eventId) {
-            var dedupeKey = 'cs_evt_' + user.id + '_' + eventId;
-            if (safeGet(dedupeKey, '') === '1') return Promise.resolve(false);
-            safeSet(dedupeKey, '1');
-        }
+        if (!targetId || pts <= 0) return Promise.resolve(false);
 
         writeQueue = writeQueue.then(function() {
             var keys = getPeriodKeys();
             var periods = ['daily', 'weekly', 'monthly', 'all'];
             var tasks = periods.map(function(period) {
-                var url = getPeriodUrl(period, keys) + '/' + user.id + '.json';
+                var url = getPeriodUrl(period, keys) + '/' + targetId + '.json';
                 return fetch(url)
                     .then(function(r) { return r.ok ? r.json() : null; })
                     .then(function(existing) {
@@ -129,10 +121,11 @@
                         if (gameId) {
                             gamesObj[gameId] = (gamesObj[gameId] || 0) + pts;
                         }
+                        var finalName = targetName || (existing && existing.name) || 'بازیکن چالبازی';
                         return fetch(url, {
                             method: 'PUT',
                             body: JSON.stringify({
-                                name: user.name,
+                                name: finalName,
                                 score: currentScore + pts,
                                 games: gamesObj,
                                 updatedAt: Date.now()
@@ -147,7 +140,20 @@
         return writeQueue;
     }
 
-    // دریافت مجموع امتیازات روزانه، هفتگی، ماهانه و کلی خود بازیکن
+    function addScore(points, gameId, eventId) {
+        var pts = Math.floor(Number(points) || 0);
+        if (pts <= 0) return Promise.resolve(false);
+
+        var user = getUser();
+        if (eventId) {
+            var dedupeKey = 'cs_evt_' + user.id + '_' + eventId;
+            if (safeGet(dedupeKey, '') === '1') return Promise.resolve(false);
+            safeSet(dedupeKey, '1');
+        }
+
+        return addScoreForUser(user.id, user.name, pts, gameId);
+    }
+
     function getMyStats() {
         var user = getUser();
         var keys = getPeriodKeys();
@@ -169,7 +175,6 @@
         return Promise.all(tasks).then(function() { return result; });
     }
 
-    // دریافت لیدربورد بر اساس بازه (daily | weekly | monthly | all)
     function getLeaderboard(period, limit) {
         var lim = limit || 20;
         var user = getUser();
@@ -221,11 +226,121 @@
             });
     }
 
+    // ==================== سیستم دعوت دوستان (Referral) ====================
+    function syncMyReferralProfile() {
+        var user = getUser();
+        if (!user.isTelegram) return Promise.resolve();
+        return fetch(REFERRALS_ROOT + '/users/' + user.id + '.json', {
+            method: 'PATCH',
+            body: JSON.stringify({ name: user.name, updatedAt: Date.now() })
+        }).catch(function() {});
+    }
+
+    function getReferralInfo() {
+        var user = getUser();
+        return fetch(REFERRALS_ROOT + '/users/' + user.id + '.json')
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(data) {
+                var invitedList = [];
+                if (data && data.invited) {
+                    var keys = Object.keys(data.invited);
+                    for (var i = 0; i < keys.length; i++) {
+                        var item = data.invited[keys[i]];
+                        if (item) {
+                            invitedList.push({
+                                id: keys[i],
+                                name: item.name || 'بازیکن',
+                                ts: item.ts || 0
+                            });
+                        }
+                    }
+                    invitedList.sort(function(a, b) { return b.ts - a.ts; });
+                }
+                return {
+                    count: (data && typeof data.count === 'number') ? data.count : invitedList.length,
+                    totalEarned: (data && typeof data.totalEarned === 'number') ? data.totalEarned : (invitedList.length * INVITER_BONUS),
+                    invitedList: invitedList
+                };
+            })
+            .catch(function() {
+                return { count: 0, totalEarned: 0, invitedList: [] };
+            });
+    }
+
+    function processReferral(refRawId) {
+        var user = getUser();
+        var cleanRef = String(refRawId || '').replace(/[^0-9]/g, '');
+        if (!cleanRef) return Promise.resolve({ status: 'invalid' });
+        if (!user.isTelegram) return Promise.resolve({ status: 'guest_blocked' });
+
+        var inviterId = 'tg_' + cleanRef;
+        if (inviterId === user.id) return Promise.resolve({ status: 'self' });
+
+        var claimUrl = REFERRALS_ROOT + '/claimed/' + user.id + '.json';
+        return fetch(claimUrl)
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(claimedData) {
+                if (claimedData && claimedData.by) {
+                    return { status: 'already_claimed' };
+                }
+
+                // ثبت قطعی دعوت برای جلوگیری از استفاده مجدد
+                return fetch(claimUrl, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        by: inviterId,
+                        name: user.name,
+                        ts: Date.now()
+                    })
+                }).then(function() {
+                    // دریافت اطلاعات دعوت‌کننده برای حفظ نام واقعی و شمارنده
+                    return Promise.all([
+                        fetch(REFERRALS_ROOT + '/users/' + inviterId + '.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+                        fetch(SCORES_ROOT + '/all/' + inviterId + '.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+                    ]);
+                }).then(function(results) {
+                    var refUser = results[0] || {};
+                    var scoreUser = results[1] || {};
+                    var inviterName = refUser.name || scoreUser.name || ('بازیکن ' + cleanRef);
+                    var prevInvited = refUser.invited || {};
+                    prevInvited[user.id] = { name: user.name, ts: Date.now() };
+                    var newCount = Object.keys(prevInvited).length;
+                    var newEarned = newCount * INVITER_BONUS;
+
+                    var updateInviterNode = fetch(REFERRALS_ROOT + '/users/' + inviterId + '.json', {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            name: inviterName,
+                            count: newCount,
+                            totalEarned: newEarned,
+                            invited: prevInvited,
+                            updatedAt: Date.now()
+                        })
+                    }).catch(function() {});
+
+                    var rewardInviter = addScoreForUser(inviterId, inviterName, INVITER_BONUS, 'referral');
+                    var rewardInvitee = addScore(INVITEE_BONUS, 'referral_welcome', 'welcome_' + user.id);
+
+                    return Promise.all([updateInviterNode, rewardInviter, rewardInvitee]).then(function() {
+                        return { status: 'success', inviterName: inviterName, bonus: INVITEE_BONUS };
+                    });
+                });
+            })
+            .catch(function() {
+                return { status: 'error' };
+            });
+    }
+
     global.ChalbaziScore = {
+        INVITER_BONUS: INVITER_BONUS,
+        INVITEE_BONUS: INVITEE_BONUS,
         getUser: getUser,
         getPeriodKeys: getPeriodKeys,
         addScore: addScore,
         getMyStats: getMyStats,
-        getLeaderboard: getLeaderboard
+        getLeaderboard: getLeaderboard,
+        syncMyReferralProfile: syncMyReferralProfile,
+        getReferralInfo: getReferralInfo,
+        processReferral: processReferral
     };
 })(window);
