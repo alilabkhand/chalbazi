@@ -5,51 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>گیم‌هاب چالبازی | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="score-manager.js?v=1"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
 
         * {
             box-sizing: border-box;
-            user-select: none;
             -webkit-tap-highlight-color: transparent;
             font-family: 'Vazirmatn', sans-serif;
         }
 
-        html, body {
+        html {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1A237E 0%, #283593 50%, #0277BD 100%);
-            color: #fff;
+            height: auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #1A237E;
         }
 
-        .app-scroll {
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
+        body {
+            margin: 0;
+            padding: 0 0 90px 0;
+            min-height: 100vh;
+            height: auto;
             overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior-y: contain;
-            touch-action: pan-y;
+            overflow-y: visible;
+            background: linear-gradient(155deg, #0F172A 0%, #1A237E 48%, #0277BD 100%);
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 70px;
+            touch-action: pan-y;
         }
 
         .top-bar {
             width: 100%;
             max-width: 480px;
-            flex-shrink: 0;
-            padding: 14px 18px;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.09);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
         }
 
         .user-info {
@@ -66,68 +65,121 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 900;
             box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
 
         .user-name {
             font-weight: 900;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .channel-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.18);
+            padding: 4px 11px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 700;
             direction: ltr;
         }
 
-        .hero {
-            text-align: center;
-            padding: 18px 18px 10px;
+        /* کارت مجموع امتیازات شخصی (روزانه، هفتگی، ماهانه، کلی) */
+        .stats-wrapper {
+            width: 100%;
             max-width: 480px;
-            flex-shrink: 0;
+            padding: 12px 14px 4px;
         }
 
-        .hero h1 {
-            margin: 0 0 6px;
-            font-size: 22px;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.12s, border-color 0.15s;
+        }
+
+        .stat-box:active {
+            transform: scale(0.95);
+        }
+
+        .stat-box.highlight {
+            border-color: rgba(251, 191, 36, 0.55);
+            background: rgba(245, 158, 11, 0.14);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #BAE6FD;
+            margin-bottom: 3px;
+            font-weight: 700;
+        }
+
+        .stat-val {
+            font-size: 16px;
             font-weight: 900;
-            color: #FFD54F;
+            color: #FDE047;
+            line-height: 1.2;
         }
 
-        .hero p {
-            margin: 0;
-            font-size: 13px;
-            color: #E3F2FD;
+        /* تب‌های اصلی لابی: بازی‌ها / لیدربورد */
+        .main-tabs {
+            width: 100%;
+            max-width: 480px;
+            padding: 10px 14px 6px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
 
+        .main-tab-btn {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(15, 23, 42, 0.45);
+            color: #CBD5E1;
+            border-radius: 14px;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .main-tab-btn.active {
+            background: linear-gradient(135deg, #F59E0B, #EA580C);
+            border-color: #FDE68A;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+        }
+
+        /* بخش بازی‌ها */
         .games-grid {
             width: 100%;
             max-width: 480px;
-            flex-shrink: 0;
-            padding: 10px 16px 24px;
+            padding: 8px 14px 20px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 11px;
         }
 
         .game-card {
             background: #fff;
             color: #212121;
-            border-radius: 20px;
-            padding: 15px;
+            border-radius: 18px;
+            padding: 12px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             text-decoration: none;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
             transition: transform 0.15s ease;
-            flex-shrink: 0;
-            touch-action: pan-y;
         }
 
         .game-card:active {
@@ -135,13 +187,13 @@
         }
 
         .game-icon {
-            width: 58px;
-            height: 58px;
-            border-radius: 16px;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 28px;
             flex-shrink: 0;
         }
 
@@ -154,28 +206,28 @@
 
         .game-details {
             flex: 1;
-            padding: 0 12px;
+            padding: 0 10px;
         }
 
         .game-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 900;
-            margin: 0 0 4px;
+            margin: 0 0 3px;
             color: #1A237E;
         }
 
         .game-desc {
-            font-size: 12px;
+            font-size: 11px;
             color: #616161;
             margin: 0;
-            line-height: 1.5;
+            line-height: 1.45;
         }
 
         .play-btn {
             background: linear-gradient(135deg, #00C853, #009624);
             color: #fff;
-            padding: 9px 13px;
-            border-radius: 13px;
+            padding: 8px 12px;
+            border-radius: 12px;
             font-weight: 900;
             font-size: 12px;
             box-shadow: 0 4px 10px rgba(0, 200, 83, 0.35);
@@ -190,114 +242,405 @@
         .soon-badge {
             background: #EEEEEE;
             color: #757575;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 12px;
+            padding: 7px 10px;
+            border-radius: 11px;
+            font-size: 11px;
             font-weight: 700;
         }
+
+        /* بخش لیدربورد جامع */
+        .lb-section {
+            width: 100%;
+            max-width: 480px;
+            padding: 8px 14px 24px;
+        }
+
+        .lb-card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 14px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .period-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .period-btn {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.07);
+            color: #CBD5E1;
+            border-radius: 11px;
+            padding: 7px 4px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .period-btn.active {
+            background: linear-gradient(135deg, #0284C7, #38BDF8);
+            border-color: #BAE6FD;
+            color: #fff;
+        }
+
+        .lb-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #94A3B8;
+            margin-bottom: 10px;
+            padding: 0 2px;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: none;
+            color: #E2E8F0;
+            border-radius: 8px;
+            padding: 4px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .my-rank-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(14, 165, 233, 0.22));
+            border: 1px solid rgba(52, 211, 153, 0.45);
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .lb-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .lb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 9px 12px;
+            font-size: 13px;
+        }
+
+        .lb-row.top1 { background: linear-gradient(135deg, rgba(245, 158, 11, 0.24), rgba(217, 119, 6, 0.12)); border-color: rgba(251, 191, 36, 0.45); }
+        .lb-row.top2 { background: rgba(148, 163, 184, 0.16); border-color: rgba(203, 213, 225, 0.35); }
+        .lb-row.top3 { background: rgba(180, 83, 9, 0.2); border-color: rgba(251, 146, 60, 0.35); }
+        .lb-row.me { box-shadow: inset 0 0 0 1.5px #38BDF8; }
+
+        .lb-rank {
+            font-weight: 900;
+            min-width: 28px;
+            text-align: center;
+            margin-left: 8px;
+        }
+
+        .lb-name {
+            flex: 1;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .lb-score {
+            font-weight: 900;
+            color: #FDE047;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+
+        .share-stats-btn {
+            width: 100%;
+            margin-top: 12px;
+            border: none;
+            border-radius: 13px;
+            padding: 11px;
+            background: linear-gradient(135deg, #0288D1, #38BDF8);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <div class="app-scroll">
-        <div class="top-bar">
-            <div class="user-info">
-                <div class="avatar">🎮</div>
-                <div>
-                    <div class="user-name" id="tg-user-name">بازیکن چالبازی</div>
-                    <div style="font-size: 11px; color: #BBDEFB;">خوش آمدی!</div>
-                </div>
+
+    <div class="top-bar">
+        <div class="user-info">
+            <div class="avatar">🎮</div>
+            <div>
+                <div class="user-name" id="tg-user-name">بازیکن چالبازی</div>
+                <div style="font-size: 11px; color: #BBDEFB;" id="tg-user-sub">خوش آمدی!</div>
             </div>
-            <div class="channel-badge">@chalbazi</div>
         </div>
+        <div class="channel-badge">@chalbazi</div>
+    </div>
 
-        <div class="hero">
-            <h1>🎪 شهربازی چالبازی</h1>
-            <p>بازی مورد نظرت رو انتخاب کن و با بچه‌های کانال رقابت کن!</p>
-        </div>
-
-        <div class="games-grid">
-            <!-- بازی ۱: مسابقه شکار کلمات -->
-            <a href="word-race.html?v=2" class="game-card" onclick="vibrate()">
-                <div class="game-icon icon-race">⚡</div>
-                <div class="game-details">
-                    <h2 class="game-title">شکار کلمات (مسابقه ساعتی)</h2>
-                    <p class="game-desc">سر ساعت شروع میشه! کلمات خواسته‌شده رو پیدا کن و جزو ۵ نفر اول امتیاز بگیر.</p>
-                </div>
-                <div class="play-btn">بازی کن ▶</div>
-            </a>
-
-            <!-- بازی ۲: جدول کلمات ۸×۸ (زنده) -->
-            <a href="word-grid.html?v=4" class="game-card" onclick="vibrate()">
-                <div class="game-icon icon-grid">🧩</div>
-                <div class="game-details">
-                    <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
-                    <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
-                </div>
-                <div class="play-btn">بازی کن ▶</div>
-            </a>
-
-            <!-- بازی ۳: حدس کلمه سرعتی -->
-            <a href="esm-famil.html" class="game-card" onclick="vibrate()">
-                <div class="game-icon icon-word">🧠</div>
-                <div class="game-details">
-                    <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
-                    <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
-                </div>
-                <div class="play-btn">بازی کن ▶</div>
-            </a>
-
-            <!-- بازی ۴: زرافه چوب‌بر -->
-            <a href="giraffe.html" class="game-card" onclick="vibrate()">
-                <div class="game-icon icon-giraffe">🦒</div>
-                <div class="game-details">
-                    <h2 class="game-title">زرافه چوب‌بر</h2>
-                    <p class="game-desc">با سرعت درخت رو قطع کن و نذار شاخه‌ها به سرت بخورن!</p>
-                </div>
-                <div class="play-btn">بازی کن ▶</div>
-            </a>
-
-            <!-- بازی ۵: نیش ریاضی -->
-            <a href="math-sting.html" class="game-card" onclick="vibrate()">
-                <div class="game-icon icon-math">🦂</div>
-                <div class="game-details">
-                    <h2 class="game-title">نیش ریاضی (Math Sting)</h2>
-                    <p class="game-desc">سریع جواب بده قبل از اینکه زنبور، عقرب یا مار نیشت بزنن!</p>
-                </div>
-                <div class="play-btn">بازی کن ▶</div>
-            </a>
-
-            <!-- جایگاه بازی‌های آینده -->
-            <div class="game-card disabled">
-                <div class="game-icon icon-soon">🎲</div>
-                <div class="game-details">
-                    <h2 class="game-title" style="color:#757575;">بازی بعدی در راه است...</h2>
-                    <p class="game-desc">به‌زودی چالش جدید به مجموعه اضافه می‌شود.</p>
-                </div>
-                <div class="soon-badge">به‌زودی</div>
+    <!-- نوار مجموع امتیازات شخصی -->
+    <div class="stats-wrapper">
+        <div class="stats-grid">
+            <div class="stat-box" onclick="jumpToLeaderboard('daily')">
+                <div class="stat-label">امروز</div>
+                <div class="stat-val" id="my-stat-daily">-</div>
+            </div>
+            <div class="stat-box" onclick="jumpToLeaderboard('weekly')">
+                <div class="stat-label">این هفته</div>
+                <div class="stat-val" id="my-stat-weekly">-</div>
+            </div>
+            <div class="stat-box" onclick="jumpToLeaderboard('monthly')">
+                <div class="stat-label">این ماه</div>
+                <div class="stat-val" id="my-stat-monthly">-</div>
+            </div>
+            <div class="stat-box highlight" onclick="jumpToLeaderboard('all')">
+                <div class="stat-label">امتیاز کل</div>
+                <div class="stat-val" id="my-stat-all">-</div>
             </div>
         </div>
     </div>
 
+    <!-- سوئیچر اصلی: لیست بازی‌ها / لیدربورد -->
+    <div class="main-tabs">
+        <button id="tab-games" class="main-tab-btn active" onclick="switchMainTab('games')">🎮 بازی‌ها</button>
+        <button id="tab-leaderboard" class="main-tab-btn" onclick="switchMainTab('leaderboard')">🏆 لیدربورد</button>
+    </div>
+
+    <!-- بخش ۱: لیست بازی‌ها -->
+    <div id="section-games" class="games-grid">
+        <!-- بازی ۱: مسابقه شکار کلمات -->
+        <a href="word-race.html?v=4" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-race">⚡</div>
+            <div class="game-details">
+                <h2 class="game-title">شکار کلمات (مسابقه ساعتی)</h2>
+                <p class="game-desc">سر ساعت شروع میشه! کلمات خواسته‌شده رو پیدا کن و جزو ۵ نفر اول امتیاز بگیر.</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۲: جدول کلمات ۸×۸ (زنده) -->
+        <a href="word-grid.html?v=5" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-grid">🧩</div>
+            <div class="game-details">
+                <h2 class="game-title">جدول کلمات ۸×۸ (زنده)</h2>
+                <p class="game-desc">رقابت هم‌زمان روی یک جدول مشترک! کلمات کلیدی رو پاک کن و کوزه‌ات رو پر کن.</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۳: حدس کلمه سرعتی -->
+        <a href="esm-famil.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-word">🧠</div>
+            <div class="game-details">
+                <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
+                <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۴: زرافه چوب‌بر -->
+        <a href="giraffe.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-giraffe">🦒</div>
+            <div class="game-details">
+                <h2 class="game-title">زرافه چوب‌بر</h2>
+                <p class="game-desc">با سرعت درخت رو قطع کن و نذار شاخه‌ها به سرت بخورن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- بازی ۵: نیش ریاضی -->
+        <a href="math-sting.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-math">🦂</div>
+            <div class="game-details">
+                <h2 class="game-title">نیش ریاضی (Math Sting)</h2>
+                <p class="game-desc">سریع جواب بده قبل از اینکه زنبور، عقرب یا مار نیشت بزنن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <!-- جایگاه بازی‌های آینده -->
+        <div class="game-card disabled">
+            <div class="game-icon icon-soon">🎲</div>
+            <div class="game-details">
+                <h2 class="game-title" style="color:#757575;">بازی بعدی در راه است...</h2>
+                <p class="game-desc">به‌زودی چالش جدید به مجموعه اضافه می‌شود.</p>
+            </div>
+            <div class="soon-badge">به‌زودی</div>
+        </div>
+    </div>
+
+    <!-- بخش ۲: لیدربورد روزانه / هفتگی / ماهانه / کلی -->
+    <div id="section-leaderboard" class="lb-section hidden">
+        <div class="lb-card">
+            <div class="period-tabs">
+                <button class="period-btn active" id="pbtn-daily" onclick="loadPeriodBoard('daily')">روزانه</button>
+                <button class="period-btn" id="pbtn-weekly" onclick="loadPeriodBoard('weekly')">هفتگی</button>
+                <button class="period-btn" id="pbtn-monthly" onclick="loadPeriodBoard('monthly')">ماهانه</button>
+                <button class="period-btn" id="pbtn-all" onclick="loadPeriodBoard('all')">کلی</button>
+            </div>
+
+            <div class="lb-meta">
+                <span id="lb-period-label">در حال بارگذاری...</span>
+                <button class="refresh-btn" onclick="refreshAllStats()">🔄 بروزرسانی</button>
+            </div>
+
+            <div class="my-rank-banner">
+                <span>جایگاه شما: <strong id="my-rank-val" style="color:#6EE7B7;">-</strong></span>
+                <span>امتیاز این بازه: <strong id="my-period-score" style="color:#FDE047;">0</strong></span>
+            </div>
+
+            <div class="lb-list" id="lb-list-container">
+                <div style="text-align:center; font-size:12px; color:#94A3B8; padding:18px;">در حال دریافت جدول رده‌بندی...</div>
+            </div>
+
+            <button class="share-stats-btn" onclick="shareMyStats()">📤 اشتراک‌گذاری کارنامه من در @chalbazi</button>
+        </div>
+    </div>
+
     <script>
+        var CHANNEL_URL = 'https://t.me/chalbazi';
         var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+        var currentPeriod = 'daily';
+        var cachedStats = { daily: 0, weekly: 0, monthly: 0, all: 0 };
+
         if (tg) {
             try {
                 tg.ready();
                 tg.expand();
                 if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    var u = tg.initDataUnsafe.user;
-                    var fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
-                    if (fullName) document.getElementById('tg-user-name').textContent = fullName;
-                }
             } catch (e) {}
+        }
+
+        var currentUser = window.ChalbaziScore ? ChalbaziScore.getUser() : { id: '', rawId: '', name: 'بازیکن چالبازی', isTelegram: false };
+        document.getElementById('tg-user-name').textContent = currentUser.name;
+        if (currentUser.isTelegram) {
+            document.getElementById('tg-user-sub').textContent = 'متصل به اکانت تلگرام ✓';
         }
 
         function vibrate() {
             if (tg && tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
+                try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
             }
         }
+
+        function openGame(linkEl, ev) {
+            if (ev) ev.preventDefault();
+            vibrate();
+            var targetUrl = linkEl.getAttribute('href');
+            if (currentUser.isTelegram && currentUser.rawId) {
+                var sep = targetUrl.indexOf('?') === -1 ? '?' : '&';
+                targetUrl += sep + 'tg_uid=' + encodeURIComponent(currentUser.rawId) + '&tg_name=' + encodeURIComponent(currentUser.name);
+            }
+            if (window.location.hash) targetUrl += window.location.hash;
+            window.location.href = targetUrl;
+            return false;
+        }
+
+        function switchMainTab(tabName) {
+            vibrate();
+            var isGames = (tabName === 'games');
+            document.getElementById('tab-games').className = isGames ? 'main-tab-btn active' : 'main-tab-btn';
+            document.getElementById('tab-leaderboard').className = isGames ? 'main-tab-btn' : 'main-tab-btn active';
+            document.getElementById('section-games').classList.toggle('hidden', !isGames);
+            document.getElementById('section-leaderboard').classList.toggle('hidden', isGames);
+            if (!isGames) {
+                loadPeriodBoard(currentPeriod);
+            }
+        }
+
+        function jumpToLeaderboard(period) {
+            currentPeriod = period;
+            switchMainTab('leaderboard');
+        }
+
+        function loadMySummary() {
+            if (!window.ChalbaziScore) return;
+            ChalbaziScore.getMyStats().then(function(stats) {
+                cachedStats = stats;
+                document.getElementById('my-stat-daily').textContent = stats.daily.toLocaleString('fa-IR');
+                document.getElementById('my-stat-weekly').textContent = stats.weekly.toLocaleString('fa-IR');
+                document.getElementById('my-stat-monthly').textContent = stats.monthly.toLocaleString('fa-IR');
+                document.getElementById('my-stat-all').textContent = stats.all.toLocaleString('fa-IR');
+            });
+        }
+
+        function loadPeriodBoard(period) {
+            currentPeriod = period;
+            var allPeriods = ['daily', 'weekly', 'monthly', 'all'];
+            for (var i = 0; i < allPeriods.length; i++) {
+                var p = allPeriods[i];
+                var btn = document.getElementById('pbtn-' + p);
+                if (btn) btn.className = (p === period) ? 'period-btn active' : 'period-btn';
+            }
+
+            var listEl = document.getElementById('lb-list-container');
+            listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:18px;">⏳ در حال دریافت رده‌بندی...</div>';
+
+            if (!window.ChalbaziScore) return;
+            ChalbaziScore.getLeaderboard(period, 20).then(function(res) {
+                document.getElementById('lb-period-label').textContent = '📅 ' + res.label + ' (' + res.totalPlayers + ' بازیکن)';
+                document.getElementById('my-rank-val').textContent = res.myRank > 0 ? ('رتبه ' + res.myRank + ' از ' + res.totalPlayers) : 'ثبت نشده';
+                document.getElementById('my-period-score').textContent = res.myScore.toLocaleString('fa-IR') + ' امتیاز';
+
+                if (res.top.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:20px;">هنوز امتیازی در این بازه ثبت نشده؛ اولین نفر باش! 🚀</div>';
+                    return;
+                }
+
+                var html = '';
+                for (var j = 0; j < res.top.length; j++) {
+                    var item = res.top[j];
+                    var medal = j === 0 ? '🥇' : (j === 1 ? '🥈' : (j === 2 ? '🥉' : (j + 1)));
+                    var rowCls = 'lb-row';
+                    if (j === 0) rowCls += ' top1';
+                    else if (j === 1) rowCls += ' top2';
+                    else if (j === 2) rowCls += ' top3';
+                    if (item.isMe) rowCls += ' me';
+
+                    html += '<div class="' + rowCls + '">'
+                        + '<span class="lb-rank">' + medal + '</span>'
+                        + '<span class="lb-name">' + item.name + (item.isMe ? ' (شما)' : '') + '</span>'
+                        + '<span class="lb-score">' + item.score.toLocaleString('fa-IR') + '</span>'
+                        + '</div>';
+                }
+                listEl.innerHTML = html;
+            });
+        }
+
+        function refreshAllStats() {
+            vibrate();
+            loadMySummary();
+            loadPeriodBoard(currentPeriod);
+        }
+
+        function shareMyStats() {
+            var text = '🏆 کارنامه من (' + currentUser.name + ') در گیم‌هاب @chalbazi:\n'
+                + '☀️ امروز: ' + cachedStats.daily + ' امتیاز\n'
+                + '📅 این هفته: ' + cachedStats.weekly + ' امتیاز\n'
+                + '🌙 این ماه: ' + cachedStats.monthly + ' امتیاز\n'
+                + '👑 مجموع کل: ' + cachedStats.all + ' امتیاز\n\n'
+                + 'بیا رکوردت رو ثبت کن 👇';
+            var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+
+        loadMySummary();
     </script>
 </body>
 </html>
