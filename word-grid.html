@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>جدول کلمات ۸×۸ (زنده) | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="score-manager.js?v=1"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Vazirmatn', sans-serif; }
-        body { margin: 0; padding: 0; min-height: 100vh; background: linear-gradient(160deg, #0B132B 0%, #1C2541 60%, #1B4332 100%); color: #fff; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        html { margin: 0; padding: 0; height: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #0B132B; }
+        body { margin: 0; padding: 0 0 60px 0; min-height: 100vh; background: linear-gradient(160deg, #0B132B 0%, #1C2541 60%, #1B4332 100%); color: #fff; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         .header { width: 100%; max-width: 480px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.12); }
         .back-btn { background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
         .live-pill { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
@@ -64,7 +66,7 @@
 <body>
 
     <div class="header">
-        <a href="index.html" class="back-btn">🏠 لابی</a>
+        <a href="index.html" class="back-btn" onclick="return goBackLobby(event)">🏠 لابی</a>
         <div class="live-pill"><span class="live-dot"></span><span id="online-count">در حال اتصال...</span></div>
         <div class="badge">امتیاز: <span id="score-val">0</span></div>
     </div>
@@ -141,7 +143,7 @@
                 🏁 با پیدا شدن آخرین کلمه کلیدی، برنده مشخص شده و پازل بعدی خودکار شروع می‌شود!
             </div>
             <button class="btn-main btn-green" onclick="enterLiveGame()">ورود به پازل زنده 🚀</button>
-            <a href="index.html" class="btn-main btn-gray">بازگشت به لابی</a>
+            <a href="index.html" class="btn-main btn-gray" onclick="return goBackLobby(event)">بازگشت به لابی</a>
         </div>
     </div>
 
@@ -160,7 +162,6 @@
         </div>
     </div>
 
-    <!-- خطایاب مستقل برای نمایش هرگونه خطای احتمالی -->
     <script>
         window.onerror = function(msg, src, line) {
             var el = document.getElementById('dict-status');
@@ -188,23 +189,38 @@
         function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
         function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-        var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-        var savedUid = safeGet('chalbazi_uid', '');
-        if (!savedUid) {
-            savedUid = String(Math.floor(Math.random() * 999999));
-            safeSet('chalbazi_uid', savedUid);
+        function goBackLobby(ev) {
+            if (ev) ev.preventDefault();
+            window.location.href = 'index.html' + (window.location.hash || '');
+            return false;
         }
-        var user = { id: 'u_' + savedUid, name: 'بازیکن چالبازی' };
+
+        var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
         if (tg) {
             try {
                 tg.ready();
                 tg.expand();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    var tu = tg.initDataUnsafe.user;
-                    user.id = 'tg_' + tu.id;
-                    user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || 'بازیکن';
-                }
+                if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
             } catch (e) {}
+        }
+
+        var user = { id: '', name: 'بازیکن چالبازی' };
+        if (window.ChalbaziScore) {
+            var csUser = ChalbaziScore.getUser();
+            user.id = csUser.id;
+            user.name = csUser.name;
+        } else {
+            var savedUid = safeGet('chalbazi_uid', '');
+            if (!savedUid) {
+                savedUid = String(Math.floor(Math.random() * 999999));
+                safeSet('chalbazi_uid', savedUid);
+            }
+            user.id = 'u_' + savedUid;
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+                var tu = tg.initDataUnsafe.user;
+                user.id = 'tg_' + tu.id;
+                user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || 'بازیکن';
+            }
         }
 
         function normalizeFa(str) {
@@ -418,6 +434,10 @@
             };
         }
 
+        function bonusStorageKey(puzzleId) {
+            return 'g8_bonus_' + user.id + '_' + puzzleId;
+        }
+
         var currentPuzzleId = null;
         var currentPuzzleNumber = 1;
         var gridLetters = [];
@@ -629,7 +649,7 @@
                 document.getElementById('force-next-btn').classList.add('hidden');
 
                 var savedBonus = [];
-                try { savedBonus = JSON.parse(safeGet('g8_bonus_' + currentPuzzleId, '[]')); } catch (e) {}
+                try { savedBonus = JSON.parse(safeGet(bonusStorageKey(currentPuzzleId), '[]')); } catch (e) {}
                 foundBonusWords = new Set(savedBonus);
 
                 if (data.players && data.players[user.id]) {
@@ -869,6 +889,11 @@
                     var earned = formedWord.length * multiplier;
                     myScore += earned;
 
+                    // ثبت امتیاز کلمه کلیدی در لیدربوردهای روزانه، هفتگی، ماهانه و کلی
+                    if (window.ChalbaziScore) {
+                        ChalbaziScore.addScore(earned, 'word-grid', currentPuzzleId + '_kw_' + matchedKey.idx);
+                    }
+
                     await fetch(LIVE_PATH + '/keyWords/' + matchedKey.idx + '.json', {
                         method: 'PATCH',
                         body: JSON.stringify({ found: true, foundBy: user.name })
@@ -900,9 +925,14 @@
                     showFeedback('⚠️ کلمه عادی «' + formedWord + '» قبلاً در کوزه افتاده است!', '#FBBF24');
                 } else {
                     foundBonusWords.add(formedWord);
-                    safeSet('g8_bonus_' + currentPuzzleId, JSON.stringify(Array.from(foundBonusWords)));
+                    safeSet(bonusStorageKey(currentPuzzleId), JSON.stringify(Array.from(foundBonusWords)));
                     var bonusEarned = formedWord.length;
                     myScore += bonusEarned;
+
+                    // ثبت امتیاز کلمه عادی در لیدربوردهای روزانه، هفتگی، ماهانه و کلی
+                    if (window.ChalbaziScore) {
+                        ChalbaziScore.addScore(bonusEarned, 'word-grid', currentPuzzleId + '_bw_' + formedWord);
+                    }
 
                     if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
                     showFeedback('🏺 کلمه عادی «' + formedWord + '» رفت توی کوزه! (+' + bonusEarned + ' امتیاز)', '#38BDF8');
