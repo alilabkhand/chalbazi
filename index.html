@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>گیم‌هاب چالبازی | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="score-manager.js?v=2"></script>
+    <script src="score-manager.js?v=3"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
 
@@ -82,6 +82,8 @@
             font-size: 12px;
             font-weight: 700;
             direction: ltr;
+            cursor: pointer;
+            user-select: none;
         }
 
         .welcome-toast {
@@ -152,6 +154,7 @@
         }
 
         .main-tab-btn {
+            position: relative;
             border: 1px solid rgba(255, 255, 255, 0.18);
             background: rgba(15, 23, 42, 0.45);
             color: #CBD5E1;
@@ -170,6 +173,24 @@
             box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
         }
 
+        .tab-badge {
+            position: absolute;
+            top: -6px;
+            left: -4px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 10px;
+            background: #EF4444;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #0F172A;
+        }
+
         .games-grid {
             width: 100%;
             max-width: 480px;
@@ -177,6 +198,43 @@
             display: flex;
             flex-direction: column;
             gap: 11px;
+        }
+
+        /* بنر اسپانسر بالای بازی‌ها */
+        .sponsor-banner {
+            background: linear-gradient(135deg, #451A03 0%, #92400E 55%, #B45309 100%);
+            border: 1.5px solid #FBBF24;
+            border-radius: 18px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+            cursor: pointer;
+        }
+
+        .sponsor-banner:active { transform: scale(0.98); }
+
+        .sponsor-tag {
+            display: inline-block;
+            background: rgba(254, 240, 138, 0.22);
+            color: #FEF08A;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 8px;
+            margin-bottom: 3px;
+        }
+
+        .sponsor-cta {
+            background: linear-gradient(135deg, #FDE047, #F59E0B);
+            color: #1E1B4B;
+            padding: 7px 11px;
+            border-radius: 11px;
+            font-size: 11px;
+            font-weight: 900;
+            flex-shrink: 0;
         }
 
         .game-card {
@@ -261,6 +319,9 @@
             width: 100%;
             max-width: 480px;
             padding: 8px 14px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .panel-card {
@@ -270,6 +331,99 @@
             padding: 16px;
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
         }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-heading h3 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 900;
+            color: #FDE047;
+        }
+
+        /* کارت ماموریت‌های اسپانسری */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .task-item {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 15px;
+            padding: 11px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-item.done {
+            opacity: 0.72;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .task-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.16);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .task-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: #F8FAFC;
+            margin-bottom: 2px;
+        }
+
+        .task-desc {
+            font-size: 11px;
+            color: #94A3B8;
+            line-height: 1.4;
+        }
+
+        .task-reward {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 11px;
+            font-weight: 900;
+            color: #FDE047;
+        }
+
+        .task-btn {
+            border: none;
+            border-radius: 11px;
+            padding: 8px 11px;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+            color: #fff;
+            flex-shrink: 0;
+            min-width: 82px;
+            text-align: center;
+        }
+
+        .task-btn.go { background: linear-gradient(135deg, #0284C7, #38BDF8); }
+        .task-btn.wait { background: #475569; cursor: wait; }
+        .task-btn.claim { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
+        .task-btn.done { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.4); cursor: default; }
 
         .period-tabs {
             display: grid;
@@ -350,27 +504,9 @@
         .lb-row.top3 { background: rgba(180, 83, 9, 0.2); border-color: rgba(251, 146, 60, 0.35); }
         .lb-row.me { box-shadow: inset 0 0 0 1.5px #38BDF8; }
 
-        .lb-rank {
-            font-weight: 900;
-            min-width: 28px;
-            text-align: center;
-            margin-left: 8px;
-        }
-
-        .lb-name {
-            flex: 1;
-            font-weight: 700;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .lb-score {
-            font-weight: 900;
-            color: #FDE047;
-            margin-right: 8px;
-            white-space: nowrap;
-        }
+        .lb-rank { font-weight: 900; min-width: 28px; text-align: center; margin-left: 8px; }
+        .lb-name { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-score { font-weight: 900; color: #FDE047; margin-right: 8px; white-space: nowrap; }
 
         .action-btn {
             width: 100%;
@@ -391,9 +527,10 @@
         .action-btn:active { transform: scale(0.97); }
         .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
         .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
+        .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
+        .btn-red { background: rgba(239, 68, 68, 0.22); border: 1px solid rgba(239, 68, 68, 0.5); color: #FCA5A5; }
         .btn-ghost { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); }
 
-        /* استایل‌های بخش دعوت دوستان */
         .ref-hero {
             text-align: center;
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.24), rgba(236, 72, 153, 0.2));
@@ -403,45 +540,13 @@
             margin-bottom: 12px;
         }
 
-        .ref-hero h2 {
-            margin: 0 0 6px;
-            font-size: 16px;
-            color: #FDE047;
-        }
+        .ref-hero h2 { margin: 0 0 6px; font-size: 15px; color: #FDE047; }
+        .ref-hero p { margin: 0; font-size: 12px; color: #E2E8F0; line-height: 1.7; }
 
-        .ref-hero p {
-            margin: 0;
-            font-size: 12px;
-            color: #E2E8F0;
-            line-height: 1.7;
-        }
-
-        .ref-stats-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .ref-stat-card {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .ref-stat-num {
-            font-size: 20px;
-            font-weight: 900;
-            color: #34D399;
-        }
-
-        .ref-stat-lbl {
-            font-size: 11px;
-            color: #94A3B8;
-            margin-top: 2px;
-        }
+        .ref-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .ref-stat-card { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; text-align: center; }
+        .ref-stat-num { font-size: 20px; font-weight: 900; color: #34D399; }
+        .ref-stat-lbl { font-size: 11px; color: #94A3B8; margin-top: 2px; }
 
         .ref-link-box {
             background: #0B1224;
@@ -457,23 +562,86 @@
             -webkit-user-select: text;
         }
 
-        .ref-feedback {
-            min-height: 18px;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-            margin-top: 6px;
-            color: #34D399;
+        .ref-feedback { min-height: 18px; font-size: 11px; font-weight: 700; text-align: center; margin-top: 6px; color: #34D399; }
+        .ref-list-title { font-size: 12px; font-weight: 900; color: #FBBF24; margin: 14px 0 8px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* مودال مدیریت اسپانسرها */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.88);
+            backdrop-filter: blur(6px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            overflow-y: auto;
         }
 
-        .ref-list-title {
-            font-size: 12px;
-            font-weight: 900;
-            color: #FBBF24;
-            margin: 14px 0 8px;
+        .admin-card {
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #1E293B;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 22px;
+            padding: 18px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .admin-box {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .admin-box h4 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #FDE047;
+        }
+
+        .f-input {
+            width: 100%;
+            background: #0F172A;
+            border: 1.5px solid #475569;
+            border-radius: 10px;
+            padding: 9px 10px;
+            color: #fff;
+            font-size: 13px;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .f-input:focus { border-color: #38BDF8; }
+        .f-row { display: flex; gap: 6px; }
+
+        .admin-task-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .del-mini-btn {
+            background: rgba(239, 68, 68, 0.25);
+            border: 1px solid #EF4444;
+            color: #FCA5A5;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .hidden { display: none !important; }
@@ -489,10 +657,9 @@
                 <div style="font-size: 11px; color: #BBDEFB;" id="tg-user-sub">خوش آمدی!</div>
             </div>
         </div>
-        <div class="channel-badge">@chalbazi</div>
+        <div class="channel-badge" onclick="handleAdminTap()" title="@chalbazi">@chalbazi</div>
     </div>
 
-    <!-- پیام هدیه ورود با لینک دعوت -->
     <div id="welcome-toast" class="welcome-toast hidden"></div>
 
     <!-- نوار مجموع امتیازات شخصی -->
@@ -521,11 +688,23 @@
     <div class="main-tabs">
         <button id="tab-games" class="main-tab-btn active" onclick="switchMainTab('games')">🎮 بازی‌ها</button>
         <button id="tab-leaderboard" class="main-tab-btn" onclick="switchMainTab('leaderboard')">🏆 لیدربورد</button>
-        <button id="tab-invite" class="main-tab-btn" onclick="switchMainTab('invite')">🎁 دعوت دوستان</button>
+        <button id="tab-invite" class="main-tab-btn" onclick="switchMainTab('invite')">
+            🎁 جوایز و دعوت
+            <span id="tasks-badge" class="tab-badge hidden">0</span>
+        </button>
     </div>
 
-    <!-- بخش ۱: لیست بازی‌ها -->
+    <!-- بخش ۱: لیست بازی‌ها + بنر اسپانسر -->
     <div id="section-games" class="games-grid">
+        <div id="sponsor-banner-slot" class="sponsor-banner hidden" onclick="handleSponsorBannerClick()">
+            <div style="flex:1; min-width:0;">
+                <span class="sponsor-tag">⭐ پیشنهاد ویژه اسپانسر</span>
+                <div id="sb-title" style="font-size:13px; font-weight:900; color:#FFFBEB;"></div>
+                <div id="sb-desc" style="font-size:11px; color:#FDE68A; margin-top:2px;"></div>
+            </div>
+            <div id="sb-btn" class="sponsor-cta">مشاهده ↗</div>
+        </div>
+
         <a href="word-grid.html?v=8" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-grid">🧩</div>
             <div class="game-details">
@@ -618,11 +797,24 @@
         </div>
     </div>
 
-    <!-- بخش ۳: دعوت دوستان (Referral) -->
+    <!-- بخش ۳: ماموریت‌های اسپانسری + دعوت دوستان -->
     <div id="section-invite" class="panel-section hidden">
+        <!-- کارت الف: ماموریت‌های اسپانسری -->
+        <div class="panel-card">
+            <div class="section-heading">
+                <h3>🎯 ماموریت‌های ویژه (امتیاز رایگان)</h3>
+                <button class="refresh-btn" onclick="loadSponsorData()">🔄 بروزرسانی</button>
+            </div>
+            <div id="sponsor-tasks-feedback" class="ref-feedback" style="margin:0 0 8px;"></div>
+            <div id="sponsor-tasks-list" class="task-list">
+                <div style="text-align:center; font-size:12px; color:#94A3B8; padding:12px;">در حال دریافت ماموریت‌ها...</div>
+            </div>
+        </div>
+
+        <!-- کارت ب: دعوت دوستان (Referral) -->
         <div class="panel-card">
             <div class="ref-hero">
-                <h2>🎁 دوستات رو بیار، امتیاز رایگان بگیر!</h2>
+                <h2>👥 دوستات رو بیار، امتیاز رایگان بگیر!</h2>
                 <p>
                     با هر دوستی که با لینک اختصاصی تو وارد ربات بشه:<br>
                     <strong style="color:#34D399;">+۵۰ امتیاز</strong> برای تو + <strong style="color:#38BDF8;">+۲۵ امتیاز هدیه</strong> برای دوستت!<br>
@@ -642,7 +834,7 @@
             </div>
 
             <div id="ref-guest-warning" class="hidden" style="background: rgba(245,158,11,0.16); border: 1px solid rgba(251,191,36,0.45); color:#FDE68A; border-radius:12px; padding:10px; font-size:11px; text-align:center; margin-bottom:10px;">
-                ⚠️ برای داشتن لینک دعوت اختصاصی و دریافت امتیاز، حتماً از داخل ربات تلگرام (<strong>@Chalbazibot</strong>) وارد شو.
+                ⚠️ برای دریافت جوایز و داشتن لینک دعوت اختصاصی، حتماً از داخل ربات تلگرام (<strong>@Chalbazibot</strong>) وارد شو.
             </div>
 
             <div id="ref-link-area">
@@ -662,12 +854,68 @@
         </div>
     </div>
 
+    <!-- پنل مخفی مدیریت اسپانسرها (۵ بار لمس روی @chalbazi) -->
+    <div id="sponsor-admin-modal" class="overlay hidden" onclick="if(event.target===this) closeSponsorAdmin()">
+        <div class="admin-card">
+            <div class="section-heading">
+                <h3>⚙️ پنل مدیریت اسپانسرها</h3>
+                <button class="refresh-btn" onclick="closeSponsorAdmin()">✕ بستن</button>
+            </div>
+
+            <div id="sp-admin-lock">
+                <p style="font-size:12px; color:#CBD5E1; margin:0 0 10px;">رمز مدیر را وارد کنید (پیش‌فرض: 1234)</p>
+                <input type="password" id="sp-admin-pin" class="f-input" placeholder="رمز مدیر..." style="text-align:center;">
+                <button class="action-btn btn-purple" onclick="unlockSponsorAdmin()">ورود به پنل 🔓</button>
+            </div>
+
+            <div id="sp-admin-body" class="hidden">
+                <!-- بخش ۱: افزودن ماموریت اسپانسری -->
+                <div class="admin-box">
+                    <h4>➕ افزودن ماموریت اسپانسری جدید</h4>
+                    <input type="text" id="new-task-title" class="f-input" placeholder="عنوان (مثلاً: عضویت در کانال X)">
+                    <input type="text" id="new-task-desc" class="f-input" placeholder="توضیح کوتاه (اختیاری)">
+                    <input type="text" id="new-task-url" class="f-input" placeholder="لینک (مثلاً: https://t.me/channel)" dir="ltr">
+                    <div class="f-row">
+                        <input type="number" id="new-task-reward" class="f-input" value="40" placeholder="امتیاز جایزه" style="flex:1;">
+                        <input type="text" id="new-task-icon" class="f-input" value="📢" placeholder="آیکون" style="width:70px; text-align:center;">
+                    </div>
+                    <button class="action-btn btn-green" style="margin-top:2px;" onclick="adminAddTask()">ثبت و انتشار ماموریت ✓</button>
+                </div>
+
+                <!-- بخش ۲: لیست ماموریت‌ها و آمار انجام -->
+                <div class="admin-box">
+                    <h4>📊 ماموریت‌های فعلی و گزارش اسپانسر</h4>
+                    <div id="admin-tasks-list" style="font-size:11px; color:#94A3B8;">در حال دریافت...</div>
+                </div>
+
+                <!-- بخش ۳: تنظیم بنر بالای بازی‌ها -->
+                <div class="admin-box">
+                    <h4>📢 بنر تبلیغاتی بالای صفحه بازی‌ها</h4>
+                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:8px; cursor:pointer;">
+                        <input type="checkbox" id="ban-active">
+                        <span>بنر اسپانسر فعال باشد (<span id="ban-clicks-stat" style="color:#34D399;">0 کلیک</span>)</span>
+                    </label>
+                    <input type="text" id="ban-title" class="f-input" placeholder="تیتر بنر (مثلاً: حراج بزرگ فروشگاه X)">
+                    <input type="text" id="ban-desc" class="f-input" placeholder="زیرتیتر کوتاه">
+                    <input type="text" id="ban-url" class="f-input" placeholder="لینک مقصد (https://t.me/... یا سایت)" dir="ltr">
+                    <input type="text" id="ban-btn" class="f-input" value="مشاهده ↗" placeholder="متن دکمه">
+                    <button class="action-btn btn-blue" style="margin-top:2px;" onclick="adminSaveBanner()">💾 ذخیره تنظیمات بنر</button>
+                </div>
+
+                <div id="sp-admin-msg" class="ref-feedback"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         var CHANNEL_URL = 'https://t.me/chalbazi';
         var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
+        var SPONSOR_ADMIN_PIN = '1234';
         var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
         var currentPeriod = 'daily';
         var cachedStats = { daily: 0, weekly: 0, monthly: 0, all: 0 };
+        var sponsorCache = { banner: null, tasks: [], claimedMap: {} };
+        var taskStepState = {}; // { taskId: { phase: 'waiting'|'ready', secs: 5 } }
 
         if (tg) {
             try {
@@ -677,14 +925,33 @@
             } catch (e) {}
         }
 
+        function esc(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         function getQueryParam(name) {
             try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; }
+        }
+
+        function openExternalUrl(url) {
+            if (!url) return;
+            var fullUrl = /^https?:\/\//i.test(url) ? url : ('https://' + url);
+            if (tg) {
+                if (fullUrl.indexOf('https://t.me/') === 0 && tg.openTelegramLink) {
+                    tg.openTelegramLink(fullUrl);
+                    return;
+                }
+                if (tg.openLink) {
+                    tg.openLink(fullUrl);
+                    return;
+                }
+            }
+            window.open(fullUrl, '_blank');
         }
 
         var currentUser = window.ChalbaziScore ? ChalbaziScore.getUser() : { id: '', rawId: '', name: 'بازیکن چالبازی', isTelegram: false };
         var myInviteLink = currentUser.isTelegram ? (BOT_MINIAPP_URL + '?startapp=ref_' + currentUser.rawId) : BOT_MINIAPP_URL;
 
-        // ثبت نام بازیکن در پروفایل دعوت‌ها تا هنگام دعوت کردن دیگران، اسمش دقیق ذخیره باشد
         if (window.ChalbaziScore && currentUser.isTelegram) {
             ChalbaziScore.syncMyReferralProfile();
         }
@@ -696,7 +963,7 @@
             el.classList.remove('hidden');
         }
 
-        // مسیریاب هوشمند startapp: هم برای اتاق دوستان جدول ۸×۸ (grid_) و هم برای دعوت دوستان (ref_)
+        // مسیریاب هوشمند startapp: اتاق دوستان جدول ۸×۸ (grid_) و دعوت دوستان (ref_)
         (function routeDeepLink() {
             if (getQueryParam('from') === 'game') return;
             var startParam = '';
@@ -733,7 +1000,7 @@
                     ChalbaziScore.processReferral(refRawId).then(function(res) {
                         if (res && res.status === 'success') {
                             if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                            showWelcomeToast('🎉 با دعوت <strong>' + res.inviterName + '</strong> خوش اومدی! <strong>+' + res.bonus + ' امتیاز هدیه</strong> به حسابت اضافه شد.');
+                            showWelcomeToast('🎉 با دعوت <strong>' + esc(res.inviterName) + '</strong> خوش اومدی! <strong>+' + res.bonus + ' امتیاز هدیه</strong> به حسابت اضافه شد.');
                             loadMySummary();
                         }
                     });
@@ -779,7 +1046,10 @@
                 document.getElementById('section-' + t).classList.toggle('hidden', !active);
             }
             if (tabName === 'leaderboard') loadPeriodBoard(currentPeriod);
-            if (tabName === 'invite') loadReferralTab();
+            if (tabName === 'invite') {
+                loadSponsorData();
+                loadReferralTab();
+            }
         }
 
         function jumpToLeaderboard(period) {
@@ -833,7 +1103,7 @@
 
                     html += '<div class="' + rowCls + '">'
                         + '<span class="lb-rank">' + medal + '</span>'
-                        + '<span class="lb-name">' + item.name + (item.isMe ? ' (شما)' : '') + '</span>'
+                        + '<span class="lb-name">' + esc(item.name) + (item.isMe ? ' (شما)' : '') + '</span>'
                         + '<span class="lb-score">' + item.score.toLocaleString('fa-IR') + '</span>'
                         + '</div>';
                 }
@@ -841,6 +1111,281 @@
             });
         }
 
+        // ==================== ماموریت‌های اسپانسری و بنر ====================
+        function loadSponsorData() {
+            if (!window.ChalbaziScore) return;
+            ChalbaziScore.getSponsorData().then(function(data) {
+                sponsorCache = data;
+                renderSponsorBanner();
+                renderSponsorTasks();
+                renderAdminSponsorPanel();
+            });
+        }
+
+        function renderSponsorBanner() {
+            var b = sponsorCache.banner;
+            var slot = document.getElementById('sponsor-banner-slot');
+            if (b && b.active && b.title && b.url) {
+                document.getElementById('sb-title').textContent = b.title;
+                document.getElementById('sb-desc').textContent = b.desc || '';
+                document.getElementById('sb-btn').textContent = b.btnText || 'مشاهده ↗';
+                slot.classList.remove('hidden');
+            } else {
+                slot.classList.add('hidden');
+            }
+        }
+
+        function handleSponsorBannerClick() {
+            var b = sponsorCache.banner;
+            if (!b || !b.url) return;
+            vibrate();
+            if (window.ChalbaziScore) ChalbaziScore.trackBannerClick();
+            openExternalUrl(b.url);
+        }
+
+        function renderSponsorTasks() {
+            var tasks = sponsorCache.tasks || [];
+            var claimedMap = sponsorCache.claimedMap || {};
+            var activeTasks = tasks.filter(function(t) { return t.active; });
+
+            var unclaimedCount = 0;
+            for (var c = 0; c < activeTasks.length; c++) {
+                if (!claimedMap[activeTasks[c].id]) unclaimedCount++;
+            }
+            var badgeEl = document.getElementById('tasks-badge');
+            if (unclaimedCount > 0) {
+                badgeEl.textContent = unclaimedCount;
+                badgeEl.classList.remove('hidden');
+            } else {
+                badgeEl.classList.add('hidden');
+            }
+
+            var listEl = document.getElementById('sponsor-tasks-list');
+            if (activeTasks.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:12px;">فعلاً ماموریت اسپانسری فعالی نیست؛ به‌زودی ماموریت‌های جدید اضافه می‌شه! ✨</div>';
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < activeTasks.length; i++) {
+                var t = activeTasks[i];
+                var isClaimed = !!claimedMap[t.id];
+                var st = taskStepState[t.id];
+                var btnHtml = '';
+
+                if (isClaimed) {
+                    btnHtml = '<button class="task-btn done" disabled>✓ انجام شد</button>';
+                } else if (st && st.phase === 'waiting') {
+                    btnHtml = '<button class="task-btn wait" disabled>⏳ ' + st.secs + ' ثانیه</button>';
+                } else if (st && st.phase === 'ready') {
+                    btnHtml = '<button class="task-btn claim" onclick="claimTaskReward(\'' + t.id + '\')">🎁 دریافت</button>';
+                } else {
+                    btnHtml = '<button class="task-btn go" onclick="startSponsorTask(\'' + t.id + '\')">انجام ↗</button>';
+                }
+
+                html += '<div class="task-item' + (isClaimed ? ' done' : '') + '">'
+                    + '<div class="task-icon">' + esc(t.icon) + '</div>'
+                    + '<div class="task-body">'
+                    + '<div class="task-title">' + esc(t.title) + '</div>'
+                    + (t.desc ? '<div class="task-desc">' + esc(t.desc) + '</div>' : '')
+                    + '<div class="task-reward">⭐ +' + t.reward.toLocaleString('fa-IR') + ' امتیاز</div>'
+                    + '</div>'
+                    + btnHtml
+                    + '</div>';
+            }
+            listEl.innerHTML = html;
+        }
+
+        function startSponsorTask(taskId) {
+            vibrate();
+            var task = null;
+            for (var i = 0; i < sponsorCache.tasks.length; i++) {
+                if (sponsorCache.tasks[i].id === taskId) { task = sponsorCache.tasks[i]; break; }
+            }
+            if (!task) return;
+
+            openExternalUrl(task.url);
+
+            taskStepState[taskId] = { phase: 'waiting', secs: 5 };
+            renderSponsorTasks();
+
+            var timer = setInterval(function() {
+                if (!taskStepState[taskId]) { clearInterval(timer); return; }
+                taskStepState[taskId].secs--;
+                if (taskStepState[taskId].secs <= 0) {
+                    clearInterval(timer);
+                    taskStepState[taskId] = { phase: 'ready', secs: 0 };
+                }
+                renderSponsorTasks();
+            }, 1000);
+        }
+
+        function claimTaskReward(taskId) {
+            if (!window.ChalbaziScore) return;
+            var fb = document.getElementById('sponsor-tasks-feedback');
+            if (!currentUser.isTelegram) {
+                fb.style.color = '#FBBF24';
+                fb.textContent = '⚠️ برای دریافت امتیاز ماموریت‌ها از داخل ربات @Chalbazibot وارد شو.';
+                return;
+            }
+            fb.style.color = '#38BDF8';
+            fb.textContent = '⏳ در حال ثبت امتیاز...';
+
+            ChalbaziScore.claimSponsorTask(taskId).then(function(res) {
+                if (res && res.status === 'success') {
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    fb.style.color = '#34D399';
+                    fb.textContent = '🎉 +' + res.reward + ' امتیاز به حسابت اضافه شد!';
+                    delete taskStepState[taskId];
+                    loadSponsorData();
+                    loadMySummary();
+                } else if (res && res.status === 'already_claimed') {
+                    fb.style.color = '#FBBF24';
+                    fb.textContent = '⚠️ جایزه این ماموریت را قبلاً دریافت کرده‌ای.';
+                    loadSponsorData();
+                } else {
+                    fb.style.color = '#F87171';
+                    fb.textContent = '❌ خطا در ثبت امتیاز؛ دوباره تلاش کن.';
+                }
+                setTimeout(function() { fb.textContent = ''; }, 3500);
+            });
+        }
+
+        // ==================== پنل مخفی مدیریت اسپانسرها ====================
+        var adminTapCount = 0;
+        var adminTapTimer = null;
+
+        function handleAdminTap() {
+            adminTapCount++;
+            clearTimeout(adminTapTimer);
+            if (adminTapCount >= 5) {
+                adminTapCount = 0;
+                openSponsorAdmin();
+            } else {
+                adminTapTimer = setTimeout(function() { adminTapCount = 0; }, 2200);
+            }
+        }
+
+        function openSponsorAdmin() {
+            document.getElementById('sponsor-admin-modal').classList.remove('hidden');
+            document.getElementById('sp-admin-msg').textContent = '';
+            loadSponsorData();
+        }
+
+        function closeSponsorAdmin() {
+            document.getElementById('sponsor-admin-modal').classList.add('hidden');
+        }
+
+        function unlockSponsorAdmin() {
+            var pin = document.getElementById('sp-admin-pin').value.trim();
+            if (pin === SPONSOR_ADMIN_PIN) {
+                document.getElementById('sp-admin-lock').classList.add('hidden');
+                document.getElementById('sp-admin-body').classList.remove('hidden');
+                renderAdminSponsorPanel();
+            } else {
+                alert('رمز مدیر اشتباه است!');
+            }
+        }
+
+        function renderAdminSponsorPanel() {
+            var listEl = document.getElementById('admin-tasks-list');
+            var tasks = sponsorCache.tasks || [];
+            if (tasks.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding:8px;">هنوز ماموریتی ثبت نکرده‌ای.</div>';
+            } else {
+                var html = '';
+                for (var i = 0; i < tasks.length; i++) {
+                    var t = tasks[i];
+                    html += '<div class="admin-task-row">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<strong>' + esc(t.icon) + ' ' + esc(t.title) + '</strong> (+' + t.reward + ')<br>'
+                        + '<span style="color:#34D399;">📊 انجام‌شده: ' + t.claimsCount + ' نفر</span>'
+                        + '</div>'
+                        + '<button class="del-mini-btn" onclick="adminDeleteTask(\'' + t.id + '\')">حذف 🗑</button>'
+                        + '</div>';
+                }
+                listEl.innerHTML = html;
+            }
+
+            var b = sponsorCache.banner;
+            if (b) {
+                document.getElementById('ban-active').checked = !!b.active;
+                document.getElementById('ban-title').value = b.title || '';
+                document.getElementById('ban-desc').value = b.desc || '';
+                document.getElementById('ban-url').value = b.url || '';
+                document.getElementById('ban-btn').value = b.btnText || 'مشاهده ↗';
+                document.getElementById('ban-clicks-stat').textContent = (b.clicks || 0) + ' کلیک';
+            }
+        }
+
+        function setAdminMsg(txt, color) {
+            var el = document.getElementById('sp-admin-msg');
+            el.style.color = color || '#34D399';
+            el.textContent = txt;
+        }
+
+        function adminAddTask() {
+            var title = document.getElementById('new-task-title').value.trim();
+            var desc = document.getElementById('new-task-desc').value.trim();
+            var url = document.getElementById('new-task-url').value.trim();
+            var reward = document.getElementById('new-task-reward').value;
+            var icon = document.getElementById('new-task-icon').value.trim() || '📢';
+
+            if (!title || !url) {
+                setAdminMsg('⚠️ عنوان و لینک ماموریت الزامی است!', '#FBBF24');
+                return;
+            }
+            setAdminMsg('⏳ در حال ثبت...', '#38BDF8');
+            ChalbaziScore.saveSponsorTask({ title: title, desc: desc, url: url, reward: reward, icon: icon, active: true })
+                .then(function(ok) {
+                    if (ok) {
+                        document.getElementById('new-task-title').value = '';
+                        document.getElementById('new-task-desc').value = '';
+                        document.getElementById('new-task-url').value = '';
+                        setAdminMsg('✅ ماموریت جدید منتشر شد!', '#34D399');
+                        loadSponsorData();
+                    } else {
+                        setAdminMsg('❌ خطا در ذخیره ماموریت', '#F87171');
+                    }
+                });
+        }
+
+        function adminDeleteTask(taskId) {
+            if (!confirm('این ماموریت حذف شود؟')) return;
+            setAdminMsg('⏳ در حال حذف...', '#38BDF8');
+            ChalbaziScore.deleteSponsorTask(taskId).then(function(ok) {
+                if (ok) {
+                    setAdminMsg('✅ ماموریت حذف شد.', '#34D399');
+                    loadSponsorData();
+                }
+            });
+        }
+
+        function adminSaveBanner() {
+            var active = document.getElementById('ban-active').checked;
+            var title = document.getElementById('ban-title').value.trim();
+            var desc = document.getElementById('ban-desc').value.trim();
+            var url = document.getElementById('ban-url').value.trim();
+            var btnText = document.getElementById('ban-btn').value.trim() || 'مشاهده ↗';
+            var oldClicks = (sponsorCache.banner && sponsorCache.banner.clicks) ? sponsorCache.banner.clicks : 0;
+
+            if (active && (!title || !url)) {
+                setAdminMsg('⚠️ برای فعال کردن بنر، تیتر و لینک الزامی است!', '#FBBF24');
+                return;
+            }
+            setAdminMsg('⏳ در حال ذخیره بنر...', '#38BDF8');
+            ChalbaziScore.saveSponsorBanner({ active: active, title: title, desc: desc, url: url, btnText: btnText, clicks: oldClicks })
+                .then(function(ok) {
+                    if (ok) {
+                        setAdminMsg('✅ تنظیمات بنر ذخیره شد!', '#34D399');
+                        loadSponsorData();
+                    } else {
+                        setAdminMsg('❌ خطا در ذخیره بنر', '#F87171');
+                    }
+                });
+        }
+
+        // ==================== دعوت دوستان (Referral) ====================
         function loadReferralTab() {
             if (!window.ChalbaziScore) return;
             var listEl = document.getElementById('ref-invited-list');
@@ -860,7 +1405,7 @@
                     var f = info.invitedList[i];
                     html += '<div class="lb-row">'
                         + '<span class="lb-rank">' + (i + 1) + '.</span>'
-                        + '<span class="lb-name">' + f.name + '</span>'
+                        + '<span class="lb-name">' + esc(f.name) + '</span>'
                         + '<span class="lb-score" style="color:#34D399;">+۵۰</span>'
                         + '</div>';
                 }
@@ -910,7 +1455,9 @@
             else window.open(url, '_blank');
         }
 
+        // شروع اولیه
         loadMySummary();
+        loadSponsorData();
     </script>
 </body>
 </html>
