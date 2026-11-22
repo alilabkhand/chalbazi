@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>گیم‌هاب چالبازی | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="score-manager.js?v=1"></script>
+    <script src="score-manager.js?v=2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
 
@@ -84,6 +84,21 @@
             direction: ltr;
         }
 
+        .welcome-toast {
+            width: calc(100% - 28px);
+            max-width: 452px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(56, 189, 248, 0.25));
+            border: 1.5px solid #34D399;
+            color: #ECFDF5;
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.6;
+        }
+
         .stats-wrapper {
             width: 100%;
             max-width: 480px;
@@ -132,8 +147,8 @@
             max-width: 480px;
             padding: 10px 14px 6px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
         }
 
         .main-tab-btn {
@@ -141,8 +156,8 @@
             background: rgba(15, 23, 42, 0.45);
             color: #CBD5E1;
             border-radius: 14px;
-            padding: 10px;
-            font-size: 14px;
+            padding: 10px 4px;
+            font-size: 12px;
             font-weight: 900;
             cursor: pointer;
             transition: all 0.15s;
@@ -242,17 +257,17 @@
             font-weight: 700;
         }
 
-        .lb-section {
+        .panel-section {
             width: 100%;
             max-width: 480px;
             padding: 8px 14px 24px;
         }
 
-        .lb-card {
-            background: rgba(15, 23, 42, 0.75);
+        .panel-card {
+            background: rgba(15, 23, 42, 0.78);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
-            padding: 14px;
+            padding: 16px;
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
         }
 
@@ -357,17 +372,108 @@
             white-space: nowrap;
         }
 
-        .share-stats-btn {
+        .action-btn {
             width: 100%;
-            margin-top: 12px;
+            margin-top: 10px;
             border: none;
             border-radius: 13px;
-            padding: 11px;
-            background: linear-gradient(135deg, #0288D1, #38BDF8);
+            padding: 12px;
             color: #fff;
             font-size: 13px;
             font-weight: 900;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-btn:active { transform: scale(0.97); }
+        .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
+        .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
+        .btn-ghost { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+        /* استایل‌های بخش دعوت دوستان */
+        .ref-hero {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.24), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(192, 132, 252, 0.45);
+            border-radius: 16px;
+            padding: 14px 12px;
+            margin-bottom: 12px;
+        }
+
+        .ref-hero h2 {
+            margin: 0 0 6px;
+            font-size: 16px;
+            color: #FDE047;
+        }
+
+        .ref-hero p {
+            margin: 0;
+            font-size: 12px;
+            color: #E2E8F0;
+            line-height: 1.7;
+        }
+
+        .ref-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .ref-stat-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .ref-stat-num {
+            font-size: 20px;
+            font-weight: 900;
+            color: #34D399;
+        }
+
+        .ref-stat-lbl {
+            font-size: 11px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        .ref-link-box {
+            background: #0B1224;
+            border: 1px dashed rgba(56, 189, 248, 0.5);
+            border-radius: 12px;
+            padding: 9px 10px;
+            font-size: 11px;
+            color: #7DD3FC;
+            direction: ltr;
+            text-align: center;
+            word-break: break-all;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .ref-feedback {
+            min-height: 18px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 6px;
+            color: #34D399;
+        }
+
+        .ref-list-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: #FBBF24;
+            margin: 14px 0 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .hidden { display: none !important; }
@@ -385,6 +491,9 @@
         </div>
         <div class="channel-badge">@chalbazi</div>
     </div>
+
+    <!-- پیام هدیه ورود با لینک دعوت -->
+    <div id="welcome-toast" class="welcome-toast hidden"></div>
 
     <!-- نوار مجموع امتیازات شخصی -->
     <div class="stats-wrapper">
@@ -408,14 +517,15 @@
         </div>
     </div>
 
+    <!-- ۳ تب اصلی لابی -->
     <div class="main-tabs">
         <button id="tab-games" class="main-tab-btn active" onclick="switchMainTab('games')">🎮 بازی‌ها</button>
         <button id="tab-leaderboard" class="main-tab-btn" onclick="switchMainTab('leaderboard')">🏆 لیدربورد</button>
+        <button id="tab-invite" class="main-tab-btn" onclick="switchMainTab('invite')">🎁 دعوت دوستان</button>
     </div>
 
     <!-- بخش ۱: لیست بازی‌ها -->
     <div id="section-games" class="games-grid">
-        <!-- بازی ۱: جدول کلمات ۸×۸ (همگانی، دوستان و انفرادی) -->
         <a href="word-grid.html?v=8" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-grid">🧩</div>
             <div class="game-details">
@@ -425,7 +535,6 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۲: سوپر فوتبال (ماریو فوتبالی) -->
         <a href="football-mario.html?v=1" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-football">⚽</div>
             <div class="game-details">
@@ -435,7 +544,6 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۳: مسابقه شکار کلمات -->
         <a href="word-race.html?v=4" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-race">⚡</div>
             <div class="game-details">
@@ -445,7 +553,6 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۴: حدس کلمه سرعتی -->
         <a href="esm-famil.html?v=2" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-word">🧠</div>
             <div class="game-details">
@@ -455,7 +562,6 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۵: زرافه چوب‌بر -->
         <a href="giraffe.html?v=2" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-giraffe">🦒</div>
             <div class="game-details">
@@ -465,7 +571,6 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <!-- بازی ۶: نیش ریاضی -->
         <a href="math-sting.html?v=2" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-math">🦂</div>
             <div class="game-details">
@@ -486,8 +591,8 @@
     </div>
 
     <!-- بخش ۲: لیدربورد روزانه / هفتگی / ماهانه / کلی -->
-    <div id="section-leaderboard" class="lb-section hidden">
-        <div class="lb-card">
+    <div id="section-leaderboard" class="panel-section hidden">
+        <div class="panel-card">
             <div class="period-tabs">
                 <button class="period-btn active" id="pbtn-daily" onclick="loadPeriodBoard('daily')">روزانه</button>
                 <button class="period-btn" id="pbtn-weekly" onclick="loadPeriodBoard('weekly')">هفتگی</button>
@@ -509,12 +614,57 @@
                 <div style="text-align:center; font-size:12px; color:#94A3B8; padding:18px;">در حال دریافت جدول رده‌بندی...</div>
             </div>
 
-            <button class="share-stats-btn" onclick="shareMyStats()">📤 اشتراک‌گذاری کارنامه من در @chalbazi</button>
+            <button class="action-btn btn-blue" onclick="shareMyStats()">📤 اشتراک‌گذاری کارنامه من در @chalbazi</button>
+        </div>
+    </div>
+
+    <!-- بخش ۳: دعوت دوستان (Referral) -->
+    <div id="section-invite" class="panel-section hidden">
+        <div class="panel-card">
+            <div class="ref-hero">
+                <h2>🎁 دوستات رو بیار، امتیاز رایگان بگیر!</h2>
+                <p>
+                    با هر دوستی که با لینک اختصاصی تو وارد ربات بشه:<br>
+                    <strong style="color:#34D399;">+۵۰ امتیاز</strong> برای تو + <strong style="color:#38BDF8;">+۲۵ امتیاز هدیه</strong> برای دوستت!<br>
+                    <span style="font-size:11px; color:#CBD5E1;">(امتیازها مستقیم در لیدربورد روزانه، هفتگی، ماهانه و کلی حساب میشن)</span>
+                </p>
+            </div>
+
+            <div class="ref-stats-row">
+                <div class="ref-stat-card">
+                    <div class="ref-stat-num" id="ref-count-val">0</div>
+                    <div class="ref-stat-lbl">👥 دوستان دعوت‌شده</div>
+                </div>
+                <div class="ref-stat-card">
+                    <div class="ref-stat-num" id="ref-earned-val" style="color:#FDE047;">0</div>
+                    <div class="ref-stat-lbl">⭐ امتیاز از دعوت‌ها</div>
+                </div>
+            </div>
+
+            <div id="ref-guest-warning" class="hidden" style="background: rgba(245,158,11,0.16); border: 1px solid rgba(251,191,36,0.45); color:#FDE68A; border-radius:12px; padding:10px; font-size:11px; text-align:center; margin-bottom:10px;">
+                ⚠️ برای داشتن لینک دعوت اختصاصی و دریافت امتیاز، حتماً از داخل ربات تلگرام (<strong>@Chalbazibot</strong>) وارد شو.
+            </div>
+
+            <div id="ref-link-area">
+                <div class="ref-link-box" id="my-ref-link">در حال ساخت لینک...</div>
+                <button class="action-btn btn-purple" onclick="shareInviteLink()">📤 ارسال لینک دعوت به دوستان و گروه‌ها</button>
+                <button class="action-btn btn-ghost" onclick="copyInviteLink()">📋 کپی کردن لینک اختصاصی</button>
+                <div class="ref-feedback" id="ref-feedback"></div>
+            </div>
+
+            <div class="ref-list-title">
+                <span>📋 لیست دوستانی که دعوت کردی</span>
+                <button class="refresh-btn" onclick="loadReferralTab()">🔄 بروزرسانی</button>
+            </div>
+            <div class="lb-list" id="ref-invited-list">
+                <div style="text-align:center; font-size:12px; color:#94A3B8; padding:14px;">در حال دریافت...</div>
+            </div>
         </div>
     </div>
 
     <script>
         var CHANNEL_URL = 'https://t.me/chalbazi';
+        var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
         var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
         var currentPeriod = 'daily';
         var cachedStats = { daily: 0, weekly: 0, monthly: 0, all: 0 };
@@ -532,8 +682,21 @@
         }
 
         var currentUser = window.ChalbaziScore ? ChalbaziScore.getUser() : { id: '', rawId: '', name: 'بازیکن چالبازی', isTelegram: false };
+        var myInviteLink = currentUser.isTelegram ? (BOT_MINIAPP_URL + '?startapp=ref_' + currentUser.rawId) : BOT_MINIAPP_URL;
 
-        // هدایت مستقیم و بدون معطلی لینک‌های دعوت گروه (startapp=grid_XXXX) به داخل اتاق دوستان
+        // ثبت نام بازیکن در پروفایل دعوت‌ها تا هنگام دعوت کردن دیگران، اسمش دقیق ذخیره باشد
+        if (window.ChalbaziScore && currentUser.isTelegram) {
+            ChalbaziScore.syncMyReferralProfile();
+        }
+
+        function showWelcomeToast(html) {
+            var el = document.getElementById('welcome-toast');
+            if (!el) return;
+            el.innerHTML = html;
+            el.classList.remove('hidden');
+        }
+
+        // مسیریاب هوشمند startapp: هم برای اتاق دوستان جدول ۸×۸ (grid_) و هم برای دعوت دوستان (ref_)
         (function routeDeepLink() {
             if (getQueryParam('from') === 'game') return;
             var startParam = '';
@@ -560,12 +723,31 @@
                     if (window.location.hash) dest += window.location.hash;
                     window.location.replace(dest);
                 }
+                return;
+            }
+
+            if (startParam.indexOf('ref_') === 0 && window.ChalbaziScore) {
+                var refRawId = startParam.substring(4).replace(/[^0-9]/g, '');
+                try { sessionStorage.setItem('cb_handled_sp', startParam); } catch (e) {}
+                if (refRawId) {
+                    ChalbaziScore.processReferral(refRawId).then(function(res) {
+                        if (res && res.status === 'success') {
+                            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                            showWelcomeToast('🎉 با دعوت <strong>' + res.inviterName + '</strong> خوش اومدی! <strong>+' + res.bonus + ' امتیاز هدیه</strong> به حسابت اضافه شد.');
+                            loadMySummary();
+                        }
+                    });
+                }
             }
         })();
 
         document.getElementById('tg-user-name').textContent = currentUser.name;
         if (currentUser.isTelegram) {
             document.getElementById('tg-user-sub').textContent = 'متصل به اکانت تلگرام ✓';
+            document.getElementById('my-ref-link').textContent = myInviteLink;
+        } else {
+            document.getElementById('ref-guest-warning').classList.remove('hidden');
+            document.getElementById('ref-link-area').classList.add('hidden');
         }
 
         function vibrate() {
@@ -589,14 +771,15 @@
 
         function switchMainTab(tabName) {
             vibrate();
-            var isGames = (tabName === 'games');
-            document.getElementById('tab-games').className = isGames ? 'main-tab-btn active' : 'main-tab-btn';
-            document.getElementById('tab-leaderboard').className = isGames ? 'main-tab-btn' : 'main-tab-btn active';
-            document.getElementById('section-games').classList.toggle('hidden', !isGames);
-            document.getElementById('section-leaderboard').classList.toggle('hidden', isGames);
-            if (!isGames) {
-                loadPeriodBoard(currentPeriod);
+            var tabs = ['games', 'leaderboard', 'invite'];
+            for (var i = 0; i < tabs.length; i++) {
+                var t = tabs[i];
+                var active = (t === tabName);
+                document.getElementById('tab-' + t).className = active ? 'main-tab-btn active' : 'main-tab-btn';
+                document.getElementById('section-' + t).classList.toggle('hidden', !active);
             }
+            if (tabName === 'leaderboard') loadPeriodBoard(currentPeriod);
+            if (tabName === 'invite') loadReferralTab();
         }
 
         function jumpToLeaderboard(period) {
@@ -658,6 +841,56 @@
             });
         }
 
+        function loadReferralTab() {
+            if (!window.ChalbaziScore) return;
+            var listEl = document.getElementById('ref-invited-list');
+            listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:14px;">⏳ در حال دریافت لیست...</div>';
+
+            ChalbaziScore.getReferralInfo().then(function(info) {
+                document.getElementById('ref-count-val').textContent = info.count.toLocaleString('fa-IR');
+                document.getElementById('ref-earned-val').textContent = '+' + info.totalEarned.toLocaleString('fa-IR');
+
+                if (!info.invitedList || info.invitedList.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:14px;">هنوز کسی با لینک تو وارد نشده؛ همین الان لینکت رو بفرست! 🚀</div>';
+                    return;
+                }
+
+                var html = '';
+                for (var i = 0; i < info.invitedList.length; i++) {
+                    var f = info.invitedList[i];
+                    html += '<div class="lb-row">'
+                        + '<span class="lb-rank">' + (i + 1) + '.</span>'
+                        + '<span class="lb-name">' + f.name + '</span>'
+                        + '<span class="lb-score" style="color:#34D399;">+۵۰</span>'
+                        + '</div>';
+                }
+                listEl.innerHTML = html;
+            });
+        }
+
+        function shareInviteLink() {
+            vibrate();
+            var text = '🎮 بیا تو شهربازی @chalbazi با هم رقابت کنیم! (جدول کلمات ۸×۸، سوپر فوتبال، شکار کلمات و...)\n🎁 با لینک من وارد شو تا همین الان ۲۵ امتیاز هدیه بگیری 👇';
+            var url = 'https://t.me/share/url?url=' + encodeURIComponent(myInviteLink) + '&text=' + encodeURIComponent(text);
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+
+        function copyInviteLink() {
+            vibrate();
+            var fb = document.getElementById('ref-feedback');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(myInviteLink).then(function() {
+                    fb.textContent = '✅ لینک دعوت اختصاصی تو کپی شد!';
+                    setTimeout(function() { fb.textContent = ''; }, 2500);
+                }).catch(function() {
+                    fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.';
+                });
+            } else {
+                fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.';
+            }
+        }
+
         function refreshAllStats() {
             vibrate();
             loadMySummary();
@@ -665,13 +898,14 @@
         }
 
         function shareMyStats() {
+            var shareUrl = currentUser.isTelegram ? myInviteLink : CHANNEL_URL;
             var text = '🏆 کارنامه من (' + currentUser.name + ') در گیم‌هاب @chalbazi:\n'
                 + '☀️ امروز: ' + cachedStats.daily + ' امتیاز\n'
                 + '📅 این هفته: ' + cachedStats.weekly + ' امتیاز\n'
                 + '🌙 این ماه: ' + cachedStats.monthly + ' امتیاز\n'
                 + '👑 مجموع کل: ' + cachedStats.all + ' امتیاز\n\n'
-                + 'بیا رکوردت رو ثبت کن 👇';
-            var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+                + 'با لینک من بیا و ۲۵ امتیاز هدیه بگیر 👇';
+            var url = 'https://t.me/share/url?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(text);
             if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
             else window.open(url, '_blank');
         }
