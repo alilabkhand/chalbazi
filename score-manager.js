@@ -3,6 +3,7 @@
     var CLEAN_BASE = FIREBASE_DB_URL.replace(/\/+$/, '');
     var SCORES_ROOT = CLEAN_BASE + '/chalbaziScores';
     var REFERRALS_ROOT = CLEAN_BASE + '/chalbaziReferrals';
+    var SPONSORS_ROOT = CLEAN_BASE + '/chalbaziSponsors';
     var INVITER_BONUS = 50;
     var INVITEE_BONUS = 25;
     var PERSIAN_MONTHS = ['', 'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
@@ -284,7 +285,6 @@
                     return { status: 'already_claimed' };
                 }
 
-                // ثبت قطعی دعوت برای جلوگیری از استفاده مجدد
                 return fetch(claimUrl, {
                     method: 'PUT',
                     body: JSON.stringify({
@@ -293,7 +293,6 @@
                         ts: Date.now()
                     })
                 }).then(function() {
-                    // دریافت اطلاعات دعوت‌کننده برای حفظ نام واقعی و شمارنده
                     return Promise.all([
                         fetch(REFERRALS_ROOT + '/users/' + inviterId + '.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
                         fetch(SCORES_ROOT + '/all/' + inviterId + '.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
@@ -331,6 +330,143 @@
             });
     }
 
+    // ==================== سیستم ماموریت‌های اسپانسری و بنر ====================
+    function getSponsorData() {
+        var user = getUser();
+        return Promise.all([
+            fetch(SPONSORS_ROOT + '/tasks.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+            fetch(SPONSORS_ROOT + '/banner.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+            fetch(SPONSORS_ROOT + '/claims/' + user.id + '.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+        ]).then(function(res) {
+            var tasksObj = res[0] || {};
+            var banner = res[1] || null;
+            var claimedMap = res[2] || {};
+            var tasksList = [];
+
+            var keys = Object.keys(tasksObj);
+            for (var i = 0; i < keys.length; i++) {
+                var t = tasksObj[keys[i]];
+                if (t && t.title && t.url) {
+                    tasksList.push({
+                        id: keys[i],
+                        title: t.title,
+                        desc: t.desc || '',
+                        url: t.url,
+                        reward: Number(t.reward) || 30,
+                        icon: t.icon || '📢',
+                        active: t.active !== false,
+                        claimsCount: Number(t.claimsCount) || 0,
+                        createdAt: t.createdAt || 0
+                    });
+                }
+            }
+            tasksList.sort(function(a, b) { return b.createdAt - a.createdAt; });
+
+            return {
+                banner: banner,
+                tasks: tasksList,
+                claimedMap: claimedMap
+            };
+        }).catch(function() {
+            return { banner: null, tasks: [], claimedMap: {} };
+        });
+    }
+
+    function claimSponsorTask(taskId) {
+        var user = getUser();
+        if (!user.isTelegram) return Promise.resolve({ status: 'guest_blocked' });
+        if (!taskId) return Promise.resolve({ status: 'invalid' });
+
+        var claimUrl = SPONSORS_ROOT + '/claims/' + user.id + '/' + taskId + '.json';
+        var taskUrl = SPONSORS_ROOT + '/tasks/' + taskId + '.json';
+
+        return Promise.all([
+            fetch(claimUrl).then(function(r) { return r.ok ? r.json() : null; }),
+            fetch(taskUrl).then(function(r) { return r.ok ? r.json() : null; })
+        ]).then(function(res) {
+            var existingClaim = res[0];
+            var task = res[1];
+
+            if (existingClaim && existingClaim.ts) return { status: 'already_claimed' };
+            if (!task || task.active === false) return { status: 'not_found' };
+
+            var reward = Math.max(1, Math.floor(Number(task.reward) || 30));
+            var newClaimsCount = (Number(task.claimsCount) || 0) + 1;
+
+            return Promise.all([
+                fetch(claimUrl, {
+                    method: 'PUT',
+                    body: JSON.stringify({ ts: Date.now(), reward: reward, name: user.name })
+                }),
+                fetch(taskUrl, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ claimsCount: newClaimsCount })
+                }),
+                addScore(reward, 'sponsor_task', 'sptask_' + taskId)
+            ]).then(function() {
+                return { status: 'success', reward: reward };
+            });
+        }).catch(function() {
+            return { status: 'error' };
+        });
+    }
+
+    function trackBannerClick() {
+        var url = SPONSORS_ROOT + '/banner.json';
+        return fetch(url)
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(b) {
+                if (!b) return;
+                var clicks = (Number(b.clicks) || 0) + 1;
+                return fetch(url, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ clicks: clicks })
+                });
+            })
+            .catch(function() {});
+    }
+
+    function saveSponsorTask(task) {
+        var id = task.id || ('t_' + Date.now());
+        var payload = {
+            id: id,
+            title: String(task.title || '').trim(),
+            desc: String(task.desc || '').trim(),
+            url: String(task.url || '').trim(),
+            reward: Math.max(5, Math.floor(Number(task.reward) || 30)),
+            icon: String(task.icon || '📢').trim() || '📢',
+            active: task.active !== false,
+            claimsCount: Number(task.claimsCount) || 0,
+            createdAt: task.createdAt || Date.now()
+        };
+        return fetch(SPONSORS_ROOT + '/tasks/' + id + '.json', {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+        }).then(function(r) { return r.ok; }).catch(function() { return false; });
+    }
+
+    function deleteSponsorTask(taskId) {
+        return fetch(SPONSORS_ROOT + '/tasks/' + taskId + '.json', {
+            method: 'DELETE'
+        }).then(function(r) { return r.ok; }).catch(function() { return false; });
+    }
+
+    function saveSponsorBanner(bannerObj) {
+        var payload = {
+            active: !!bannerObj.active,
+            title: String(bannerObj.title || '').trim(),
+            desc: String(bannerObj.desc || '').trim(),
+            url: String(bannerObj.url || '').trim(),
+            btnText: String(bannerObj.btnText || 'مشاهده ↗').trim() || 'مشاهده ↗',
+            clicks: Number(bannerObj.clicks) || 0,
+            updatedAt: Date.now()
+        };
+        return fetch(SPONSORS_ROOT + '/banner.json', {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+        }).then(function(r) { return r.ok; }).catch(function() { return false; });
+    }
+
     global.ChalbaziScore = {
         INVITER_BONUS: INVITER_BONUS,
         INVITEE_BONUS: INVITEE_BONUS,
@@ -341,6 +477,12 @@
         getLeaderboard: getLeaderboard,
         syncMyReferralProfile: syncMyReferralProfile,
         getReferralInfo: getReferralInfo,
-        processReferral: processReferral
+        processReferral: processReferral,
+        getSponsorData: getSponsorData,
+        claimSponsorTask: claimSponsorTask,
+        trackBannerClick: trackBannerClick,
+        saveSponsorTask: saveSponsorTask,
+        deleteSponsorTask: deleteSponsorTask,
+        saveSponsorBanner: saveSponsorBanner
     };
 })(window);
