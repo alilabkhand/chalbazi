@@ -5,19 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مسابقه شکار کلمات | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="score-manager.js?v=1"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Vazirmatn', sans-serif; }
-        body { margin: 0; padding: 0; min-height: 100vh; background: linear-gradient(160deg, #0F172A 0%, #1E1B4B 55%, #3B0764 100%); color: #fff; display: flex; flex-direction: column; align-items: center; }
+        html { margin: 0; padding: 0; height: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #0F172A; }
+        body { margin: 0; padding: 0 0 70px 0; min-height: 100vh; height: auto; overflow-x: hidden; background: linear-gradient(160deg, #0F172A 0%, #1E1B4B 55%, #3B0764 100%); color: #fff; display: flex; flex-direction: column; align-items: center; touch-action: pan-y; }
         .header { width: 100%; max-width: 480px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.12); }
         .back-btn { background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
         .header-right { display: flex; align-items: center; gap: 6px; }
         .admin-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #E2E8F0; width: 32px; height: 32px; border-radius: 10px; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .badge { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 5px 12px; border-radius: 14px; font-weight: 900; font-size: 12px; }
-        .container { width: 100%; max-width: 480px; padding: 14px 14px 28px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        .container { width: 100%; max-width: 480px; padding: 12px 14px 28px; display: flex; flex-direction: column; gap: 12px; }
+        .user-strip { display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; padding: 7px 12px; font-size: 12px; color: #E2E8F0; gap: 8px; }
+        .switch-btn { background: rgba(56,189,248,0.2); border: 1px solid rgba(56,189,248,0.45); color: #7DD3FC; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
         .card { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 22px; padding: 18px; box-shadow: 0 12px 28px rgba(0,0,0,0.4); text-align: center; }
         .pill { display: inline-block; background: linear-gradient(135deg, #EC4899, #8B5CF6); padding: 4px 14px; border-radius: 14px; font-size: 12px; font-weight: 900; margin-bottom: 8px; }
-        .dict-badge { display: inline-block; background: rgba(56,189,248,0.14); border: 1px solid rgba(56,189,248,0.35); color: #38BDF8; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px; margin-bottom: 8px; }
+        .dict-badge { display: inline-block; background: rgba(56,189,248,0.14); border: 1px solid rgba(56,189,248,0.35); color: #38BDF8; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px; }
         .countdown-big { font-size: 38px; font-weight: 900; color: #FBBF24; letter-spacing: 2px; direction: ltr; margin: 10px 0; text-shadow: 0 0 20px rgba(251,191,36,0.4); }
         .rule-box { background: linear-gradient(135deg, rgba(139,92,246,0.22), rgba(236,72,153,0.18)); border: 1.5px solid rgba(192,132,252,0.5); border-radius: 16px; padding: 14px; margin: 8px 0 12px; font-size: 15px; font-weight: 900; line-height: 1.7; color: #F8FAFC; }
         .rule-highlight { color: #FDE047; font-size: 18px; }
@@ -56,7 +60,7 @@
 <body>
 
     <div class="header">
-        <a href="index.html" class="back-btn">🏠 لابی</a>
+        <a href="index.html" class="back-btn" onclick="return goBackLobby(event)">🏠 لابی</a>
         <div style="font-weight: 900; font-size: 13px;">⚡ شکار کلمات</div>
         <div class="header-right">
             <div class="badge" id="my-total-badge">امتیاز کل: 0</div>
@@ -65,6 +69,11 @@
     </div>
 
     <div class="container">
+        <div class="user-strip">
+            <span id="active-user-label">👤 بازیکن: ...</span>
+            <button id="switch-guest-btn" class="switch-btn hidden" onclick="switchGuestAccount()">تغییر بازیکن</button>
+        </div>
+
         <div style="text-align: center;">
             <div class="dict-badge" id="dict-status">در حال بارگذاری دیکشنری...</div>
         </div>
@@ -186,10 +195,10 @@
     <script>
         var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
         var CHANNEL_URL = 'https://t.me/chalbazi';
-        var ADMIN_PIN = '1234'; // رمز پنل تنظیم ساعت شروع
+        var ADMIN_PIN = '1234';
         var MAX_WINNERS = 5;
         var RANK_POINTS = [100, 80, 60, 40, 20];
-        var ROUND_DURATION_MS = 180000; // حداکثر ۳ دقیقه برای هر مسابقه
+        var ROUND_DURATION_MS = 180000;
 
         var CLEAN_DB = FIREBASE_DB_URL.replace(/\/+$/, '');
         var RACE_PATH = CLEAN_DB + '/wordRaceLive';
@@ -198,23 +207,89 @@
         function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
         function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-        var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-        var savedUid = safeGet('chalbazi_uid', '');
-        if (!savedUid) {
-            savedUid = String(Math.floor(Math.random() * 999999));
-            safeSet('chalbazi_uid', savedUid);
+        function getQueryParam(name) {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                return params.get(name) || '';
+            } catch (e) { return ''; }
         }
-        var user = { id: 'u_' + savedUid, name: 'بازیکن چالبازی' };
+
+        function goBackLobby(ev) {
+            if (ev) ev.preventDefault();
+            window.location.href = 'index.html' + (window.location.hash || '');
+            return false;
+        }
+
+        var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
         if (tg) {
             try {
                 tg.ready();
                 tg.expand();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    var tu = tg.initDataUnsafe.user;
-                    user.id = 'tg_' + tu.id;
-                    user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || 'بازیکن';
-                }
+                if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
             } catch (e) {}
+        }
+
+        var isTelegramUser = false;
+        var user = { id: '', name: '' };
+
+        if (window.ChalbaziScore) {
+            var csUser = ChalbaziScore.getUser();
+            user.id = csUser.id;
+            user.name = csUser.name;
+            isTelegramUser = csUser.isTelegram;
+        } else {
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+                var tu = tg.initDataUnsafe.user;
+                user.id = 'tg_' + tu.id;
+                user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
+                isTelegramUser = true;
+            } else {
+                var qUid = getQueryParam('tg_uid');
+                var qName = getQueryParam('tg_name');
+                if (qUid) {
+                    user.id = 'tg_' + qUid;
+                    user.name = qName || ('کاربر ' + qUid);
+                    isTelegramUser = true;
+                } else {
+                    var savedUid = safeGet('chalbazi_uid', '');
+                    if (!savedUid) {
+                        savedUid = String(Date.now()).slice(-6) + '_' + Math.floor(Math.random() * 999);
+                        safeSet('chalbazi_uid', savedUid);
+                    }
+                    user.id = 'u_' + savedUid;
+                    user.name = safeGet('chalbazi_guest_name', 'بازیکن مهمان');
+                }
+            }
+        }
+
+        function updateUserStrip() {
+            var lbl = document.getElementById('active-user-label');
+            var swBtn = document.getElementById('switch-guest-btn');
+            if (isTelegramUser) {
+                lbl.textContent = '👤 اکانت تلگرام: ' + user.name;
+                swBtn.classList.add('hidden');
+            } else {
+                lbl.textContent = '👤 مهمان: ' + user.name;
+                swBtn.classList.remove('hidden');
+            }
+        }
+        updateUserStrip();
+
+        function switchGuestAccount() {
+            var newName = prompt('نام بازیکن جدید را وارد کن:', '');
+            if (!newName || !newName.trim()) return;
+            var newId = String(Date.now()).slice(-6) + '_' + Math.floor(Math.random() * 999);
+            safeSet('chalbazi_uid', newId);
+            safeSet('chalbazi_guest_name', newName.trim());
+            user.id = 'u_' + newId;
+            user.name = newName.trim();
+            myFoundWords = [];
+            hasSubmittedWin = false;
+            myLastEarnedRank = 0;
+            currentRaceId = null;
+            updateUserStrip();
+            syncRace();
+            loadOverallLeaderboard();
         }
 
         function normalizeFa(str) {
@@ -288,7 +363,6 @@
             setDictStatus('⚠️ dictionary.js پیدا نشد (' + VALID_WORDS_SET.size + ' واژه پایه)', '#FBBF24');
         });
 
-        // بررسی تطابق یک کلمه با شرط مسابقه
         function checkWordRule(word, rule) {
             if (!word || word.length < 3) return { ok: false, reason: 'کلمه باید حداقل ۳ حرف باشد!' };
             if (rule.type === 'same_first_last') {
@@ -331,21 +405,11 @@
 
         function describeRuleHTML(rule) {
             var cnt = '<span class="rule-highlight">' + rule.targetCount + ' کلمه</span>';
-            if (rule.type === 'same_first_last') {
-                return cnt + ' بگو که <span class="rule-highlight">حرف اول و آخرش یکی</span> باشه!';
-            }
-            if (rule.type === 'len_same_first_last') {
-                return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که <span class="rule-highlight">حرف اول و آخرش یکی</span> باشه!';
-            }
-            if (rule.type === 'second_and_last') {
-                return cnt + ' بگو که حرف دومش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
-            }
-            if (rule.type === 'len_second_last') {
-                return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که حرف دومش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
-            }
-            if (rule.type === 'len_first_last') {
-                return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که حرف اولش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
-            }
+            if (rule.type === 'same_first_last') return cnt + ' بگو که <span class="rule-highlight">حرف اول و آخرش یکی</span> باشه!';
+            if (rule.type === 'len_same_first_last') return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که <span class="rule-highlight">حرف اول و آخرش یکی</span> باشه!';
+            if (rule.type === 'second_and_last') return cnt + ' بگو که حرف دومش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
+            if (rule.type === 'len_second_last') return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که حرف دومش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
+            if (rule.type === 'len_first_last') return cnt + ' <span class="rule-highlight">' + rule.len + ' حرفی</span> بگو که حرف اولش «<span class="rule-highlight">' + rule.c1 + '</span>» و حرف آخرش «<span class="rule-highlight">' + rule.c2 + '</span>» باشه!';
             return '';
         }
 
@@ -359,25 +423,17 @@
             } else {
                 var len = rule.len || 5;
                 for (var i = 0; i < len; i++) {
-                    if (rule.type === 'len_same_first_last' && (i === 0 || i === len - 1)) {
-                        html += '<div class="p-box same">★</div>';
-                    } else if (rule.type === 'len_second_last' && i === 1) {
-                        html += '<div class="p-box fixed">' + rule.c1 + '</div>';
-                    } else if (rule.type === 'len_second_last' && i === len - 1) {
-                        html += '<div class="p-box fixed">' + rule.c2 + '</div>';
-                    } else if (rule.type === 'len_first_last' && i === 0) {
-                        html += '<div class="p-box fixed">' + rule.c1 + '</div>';
-                    } else if (rule.type === 'len_first_last' && i === len - 1) {
-                        html += '<div class="p-box fixed">' + rule.c2 + '</div>';
-                    } else {
-                        html += '<div class="p-box">؟</div>';
-                    }
+                    if (rule.type === 'len_same_first_last' && (i === 0 || i === len - 1)) html += '<div class="p-box same">★</div>';
+                    else if (rule.type === 'len_second_last' && i === 1) html += '<div class="p-box fixed">' + rule.c1 + '</div>';
+                    else if (rule.type === 'len_second_last' && i === len - 1) html += '<div class="p-box fixed">' + rule.c2 + '</div>';
+                    else if (rule.type === 'len_first_last' && i === 0) html += '<div class="p-box fixed">' + rule.c1 + '</div>';
+                    else if (rule.type === 'len_first_last' && i === len - 1) html += '<div class="p-box fixed">' + rule.c2 + '</div>';
+                    else html += '<div class="p-box">؟</div>';
                 }
             }
             el.innerHTML = html;
         }
 
-        // تولید تصادفی یک چالش که قطعاً ده‌ها جواب در دیکشنری دارد
         function generateSolvableRule() {
             var types = ['same_first_last', 'len_same_first_last', 'second_and_last', 'len_second_last', 'len_first_last'];
             var minNeeded = dictLoadedFull ? 30 : 5;
@@ -394,13 +450,9 @@
                 } else {
                     var sample = DICT_ARRAY[Math.floor(Math.random() * DICT_ARRAY.length)];
                     if (!sample || sample.length < 4 || sample.length > 6) continue;
-                    if (t === 'second_and_last') {
-                        rule = { type: t, c1: sample[1], c2: sample[sample.length - 1], targetCount: 5 };
-                    } else if (t === 'len_second_last') {
-                        rule = { type: t, len: sample.length, c1: sample[1], c2: sample[sample.length - 1], targetCount: (sample.length === 5 ? 5 : 3) };
-                    } else if (t === 'len_first_last') {
-                        rule = { type: t, len: sample.length, c1: sample[0], c2: sample[sample.length - 1], targetCount: 5 };
-                    }
+                    if (t === 'second_and_last') rule = { type: t, c1: sample[1], c2: sample[sample.length - 1], targetCount: 5 };
+                    else if (t === 'len_second_last') rule = { type: t, len: sample.length, c1: sample[1], c2: sample[sample.length - 1], targetCount: (sample.length === 5 ? 5 : 3) };
+                    else if (t === 'len_first_last') rule = { type: t, len: sample.length, c1: sample[0], c2: sample[sample.length - 1], targetCount: 5 };
                 }
 
                 if (!rule) continue;
@@ -416,7 +468,6 @@
                 }
             }
 
-            // پشتیبان قطعی
             var fallbackRule = { type: 'same_first_last', targetCount: 5 };
             var fbMatches = getMatchingWordsFromDict(fallbackRule);
             fallbackRule.possibleCount = fbMatches.length;
@@ -428,6 +479,13 @@
             var d = new Date();
             d.setHours(d.getHours() + 1, 0, 0, 0);
             return d.getTime();
+        }
+
+        function myWordsStorageKey(raceId) {
+            return 'wr_words_' + user.id + '_' + raceId;
+        }
+        function myAwardStorageKey(raceId) {
+            return 'wr_awarded_' + user.id + '_' + raceId;
         }
 
         var currentRace = null;
@@ -463,11 +521,9 @@
                 var data = await res.json();
 
                 if (!data || !data.rule || !data.scheduledStart) {
-                    // اولین اجرا: ۱۵ ثانیه دیگر شروع شود تا سریع قابل تست باشد
                     data = await createRaceAt(Date.now() + 15000, 1);
                 }
 
-                // اگر راند بیش از ۴۵ ثانیه است که تمام شده، راند بعدی را روی سر ساعت رند بعدی زمان‌بندی کن
                 var winnersArr = getSortedWinners(data.winners);
                 var isOver = winnersArr.length >= MAX_WINNERS || Date.now() >= data.roundEndTime;
                 if (isOver && !data.finishedAt) {
@@ -498,10 +554,8 @@
             if (isNewRace) {
                 currentRaceId = data.raceId;
                 myFoundWords = [];
-                hasSubmittedWin = false;
-                myLastEarnedRank = 0;
                 try {
-                    var saved = JSON.parse(safeGet('wr_words_' + currentRaceId, '[]'));
+                    var saved = JSON.parse(safeGet(myWordsStorageKey(currentRaceId), '[]'));
                     if (Array.isArray(saved)) myFoundWords = saved;
                 } catch (e) {}
 
@@ -509,7 +563,6 @@
                 document.getElementById('feedback-msg').textContent = '';
                 document.getElementById('round-num-badge').textContent = 'دور #' + (data.roundNumber || 1);
 
-                // ثبت حضور در لابی
                 fetch(RACE_PATH + '/waiting/' + user.id + '.json', {
                     method: 'PUT',
                     body: JSON.stringify({ name: user.name, ts: Date.now() })
@@ -519,15 +572,18 @@
             var winnersArr = getSortedWinners(data.winners);
             var top5 = winnersArr.slice(0, MAX_WINNERS);
 
-            // بررسی اینکه آیا من جزو برندگان ثبت شده‌ام
-            for (var wi = 0; wi < top5.length; wi++) {
-                if (top5[wi].id === user.id) {
-                    hasSubmittedWin = true;
-                    myLastEarnedRank = wi + 1;
+            if (!isSubmittingWin) {
+                hasSubmittedWin = false;
+                myLastEarnedRank = 0;
+                for (var wi = 0; wi < winnersArr.length; wi++) {
+                    if (winnersArr[wi].id === user.id) {
+                        hasSubmittedWin = true;
+                        myLastEarnedRank = wi < MAX_WINNERS ? (wi + 1) : 0;
+                        break;
+                    }
                 }
             }
 
-            // نمایش جدول برندگان همین دور
             var winListEl = document.getElementById('round-winners-list');
             if (top5.length === 0) {
                 winListEl.innerHTML = '<div style="font-size:12px; color:#94A3B8;">هنوز کسی تمام نکرده؛ اولین نفر باش! ⚡</div>';
@@ -545,7 +601,6 @@
                 winListEl.innerHTML = wHtml;
             }
 
-            // شمارش افراد حاضر در لابی
             var waitCount = 1;
             if (data.waiting) {
                 var wk = Object.keys(data.waiting);
@@ -570,7 +625,6 @@
             var actSc = document.getElementById('active-screen');
             var finSc = document.getElementById('finished-screen');
 
-            // فاز ۱: انتظار تا ساعت شروع
             if (now < currentRace.scheduledStart) {
                 waitSc.classList.remove('hidden');
                 actSc.classList.add('hidden');
@@ -588,7 +642,6 @@
                 return;
             }
 
-            // فاز ۳: پایان مسابقه (پر شدن ۵ جایگاه یا اتمام وقت ۳ دقیقه‌ای)
             if (spotsLeft === 0 || now >= currentRace.roundEndTime) {
                 waitSc.classList.add('hidden');
                 actSc.classList.add('hidden');
@@ -605,7 +658,6 @@
                 return;
             }
 
-            // فاز ۲: مسابقه فعال
             waitSc.classList.add('hidden');
             finSc.classList.add('hidden');
             actSc.classList.remove('hidden');
@@ -642,11 +694,8 @@
             var total = currentRace.rule.targetCount || 5;
             var html = '';
             for (var i = 0; i < total; i++) {
-                if (myFoundWords[i]) {
-                    html += '<div class="word-slot filled">✓ ' + myFoundWords[i] + '</div>';
-                } else {
-                    html += '<div class="word-slot">کلمه ' + (i + 1) + '</div>';
-                }
+                if (myFoundWords[i]) html += '<div class="word-slot filled">✓ ' + myFoundWords[i] + '</div>';
+                else html += '<div class="word-slot">کلمه ' + (i + 1) + '</div>';
             }
             document.getElementById('my-slots').innerHTML = html;
         }
@@ -682,9 +731,8 @@
                 return;
             }
 
-            // کلمه قبول شد!
             myFoundWords.push(word);
-            safeSet('wr_words_' + currentRaceId, JSON.stringify(myFoundWords));
+            safeSet(myWordsStorageKey(currentRaceId), JSON.stringify(myFoundWords));
             inputEl.value = '';
             if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             showFeedback('✅ «' + raw + '» قبول شد! (' + myFoundWords.length + ' از ' + currentRace.rule.targetCount + ')', '#34D399');
@@ -715,7 +763,6 @@
                     })
                 });
 
-                // خواندن مجدد لیست برندگان برای تعیین رتبه دقیق بر اساس زمان ثبت
                 var res = await fetch(RACE_PATH + '/winners.json');
                 var allWinners = await res.json();
                 var sorted = getSortedWinners(allWinners);
@@ -743,9 +790,15 @@
         }
 
         async function addPointsToOverallBoard(pts) {
-            var awardKey = 'wr_awarded_' + currentRaceId;
+            var awardKey = myAwardStorageKey(currentRaceId);
             if (safeGet(awardKey, '') === '1') return;
             safeSet(awardKey, '1');
+
+            // ثبت یکپارچه در لیدربوردهای روزانه، هفتگی، ماهانه و کلی
+            if (window.ChalbaziScore) {
+                ChalbaziScore.addScore(pts, 'word-race', currentRaceId);
+            }
+
             try {
                 var res = await fetch(BOARD_PATH + '/' + user.id + '.json');
                 var existing = await res.json();
@@ -763,6 +816,7 @@
                 var res = await fetch(BOARD_PATH + '.json');
                 var data = await res.json();
                 var el = document.getElementById('overall-leaderboard');
+                document.getElementById('my-total-badge').textContent = 'امتیاز کل: 0';
                 if (!data) {
                     el.innerHTML = '<div style="font-size:12px; color:#94A3B8;">هنوز امتیازی ثبت نشده است.</div>';
                     return;
@@ -791,7 +845,6 @@
             } catch (e) {}
         }
 
-        // پنل مدیریت زمان شروع
         function openAdminModal() {
             document.getElementById('admin-modal').classList.remove('hidden');
             document.getElementById('admin-status-msg').textContent = '';
@@ -831,7 +884,7 @@
             var target = new Date();
             target.setHours(Number(parts[0]), Number(parts[1]), 0, 0);
             if (target.getTime() <= Date.now()) {
-                target.setDate(target.getDate() + 1); // اگر ساعت گذشته بود، برای فردا تنظیم شود
+                target.setDate(target.getDate() + 1);
             }
             var nextNum = (currentRace && currentRace.roundNumber ? currentRace.roundNumber : 0) + 1;
             await createRaceAt(target.getTime(), nextNum);
@@ -849,7 +902,6 @@
             else window.open(url, '_blank');
         }
 
-        // شروع چرخه همگام‌سازی و تایمر زنده
         syncRace();
         loadOverallLeaderboard();
         setInterval(syncRace, 2000);
