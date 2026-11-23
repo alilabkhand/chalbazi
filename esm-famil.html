@@ -3,937 +3,1085 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>حدس کلمه سرعتی | @chalbazi</title>
+    <title>گیم‌هاب چالبازی | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="score-manager.js?v=3"></script>
-    <script src="wordle-words.js?v=1"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Vazirmatn', sans-serif; }
-        html { margin: 0; padding: 0; background: #1E1B4B; overflow-y: auto; }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        html {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #1A237E;
+        }
+
         body {
             margin: 0;
-            padding: 0 0 70px 0;
+            padding: 0 0 90px 0;
             min-height: 100vh;
-            background: linear-gradient(160deg, #0F172A 0%, #1E1B4B 55%, #312E81 100%);
+            height: auto;
+            overflow-x: hidden;
+            overflow-y: visible;
+            background: linear-gradient(155deg, #0F172A 0%, #1A237E 48%, #0277BD 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
+            touch-action: pan-y;
         }
-        .header {
+
+        .top-bar {
             width: 100%;
             max-width: 480px;
-            padding: 10px 14px;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.09);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-            gap: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
         }
-        .back-btn { background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 6px 11px; border-radius: 12px; font-size: 12px; font-weight: 700; }
-        .live-pill { background: rgba(139,92,246,0.25); border: 1px solid rgba(167,139,250,0.55); color: #DDD6FE; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
-        .live-dot { width: 8px; height: 8px; background: #A78BFA; border-radius: 50%; animation: pulse 1.3s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-        .score-badge { background: linear-gradient(135deg, #F59E0B, #D97706); padding: 5px 11px; border-radius: 12px; font-size: 12px; font-weight: 900; }
 
-        .container { width: 100%; max-width: 480px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
 
-        .friends-bar {
-            background: linear-gradient(135deg, rgba(139,92,246,0.28), rgba(236,72,153,0.22));
-            border: 1px solid rgba(192,132,252,0.5);
-            border-radius: 14px;
-            padding: 8px 10px;
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFB300, #F57C00);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
-        .invite-btn { background: linear-gradient(135deg, #8B5CF6, #EC4899); border: none; color: #fff; padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: 900; cursor: pointer; }
 
-        .round-hero {
-            background: rgba(15,23,42,0.72);
-            border: 1.5px solid rgba(167,139,250,0.35);
+        .user-name { font-weight: 900; font-size: 14px; }
+
+        .channel-badge {
+            background: rgba(255, 255, 255, 0.18);
+            padding: 4px 11px;
             border-radius: 20px;
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            direction: ltr;
+            cursor: pointer;
+            user-select: none;
         }
-        .letter-circle {
-            width: 64px;
-            height: 64px;
-            border-radius: 18px;
+
+        .welcome-toast {
+            width: calc(100% - 28px);
+            max-width: 452px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(56, 189, 248, 0.25));
+            border: 1.5px solid #34D399;
+            color: #ECFDF5;
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .stats-wrapper { width: 100%; max-width: 480px; padding: 12px 14px 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.12s, border-color 0.15s;
+        }
+
+        .stat-box:active { transform: scale(0.95); }
+        .stat-box.highlight { border-color: rgba(251, 191, 36, 0.55); background: rgba(245, 158, 11, 0.14); }
+        .stat-label { font-size: 10px; color: #BAE6FD; margin-bottom: 3px; font-weight: 700; }
+        .stat-val { font-size: 16px; font-weight: 900; color: #FDE047; line-height: 1.2; }
+
+        .main-tabs { width: 100%; max-width: 480px; padding: 10px 14px 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+
+        .main-tab-btn {
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(15, 23, 42, 0.45);
+            color: #CBD5E1;
+            border-radius: 14px;
+            padding: 10px 4px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .main-tab-btn.active {
             background: linear-gradient(135deg, #F59E0B, #EA580C);
+            border-color: #FDE68A;
             color: #fff;
-            font-size: 34px;
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+        }
+
+        .tab-badge {
+            position: absolute;
+            top: -6px;
+            left: -4px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 10px;
+            background: #EF4444;
+            color: #fff;
+            font-size: 10px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(245,158,11,0.35);
-            flex-shrink: 0;
-        }
-        .round-info { flex: 1; }
-        .round-title { font-size: 14px; font-weight: 900; color: #FDE047; margin-bottom: 3px; }
-        .round-sub { font-size: 11px; color: #CBD5E1; line-height: 1.5; }
-        .timer-box {
-            background: rgba(56,189,248,0.16);
-            border: 1px solid rgba(56,189,248,0.45);
-            color: #7DD3FC;
-            padding: 6px 10px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 900;
-            min-width: 56px;
-            text-align: center;
-            direction: ltr;
+            border: 2px solid #0F172A;
         }
 
-        .ticker {
-            background: rgba(56,189,248,0.12);
-            border: 1px solid rgba(56,189,248,0.28);
-            border-radius: 12px;
-            padding: 6px 10px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #BAE6FD;
-            text-align: center;
-            min-height: 29px;
-        }
+        .games-grid { width: 100%; max-width: 480px; padding: 8px 14px 20px; display: flex; flex-direction: column; gap: 11px; }
 
-        .cats-list { display: flex; flex-direction: column; gap: 8px; }
-        .cat-card {
-            background: rgba(30,41,59,0.85);
-            border: 1.5px solid rgba(255,255,255,0.12);
-            border-radius: 16px;
-            padding: 10px 12px;
+        .sponsor-banner {
+            background: linear-gradient(135deg, #451A03 0%, #92400E 55%, #B45309 100%);
+            border: 1.5px solid #FBBF24;
+            border-radius: 18px;
+            padding: 12px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
             cursor: pointer;
-            transition: all 0.15s;
         }
-        .cat-card.selected {
-            border-color: #FBBF24;
-            background: rgba(245,158,11,0.16);
-            box-shadow: 0 0 0 2px rgba(251,191,36,0.25);
-        }
-        .cat-card.claimed {
-            border-color: rgba(16,185,129,0.5);
-            background: rgba(16,185,129,0.14);
-            cursor: default;
-        }
-        .cat-left { display: flex; align-items: center; gap: 8px; }
-        .cat-icon { font-size: 22px; }
-        .cat-name { font-size: 13px; font-weight: 900; color: #F8FAFC; }
-        .cat-status { font-size: 11px; color: #94A3B8; }
-        .cat-right { text-align: left; }
-        .claimed-word { font-size: 14px; font-weight: 900; color: #6EE7B7; }
-        .claimed-by { font-size: 10px; color: #CBD5E1; }
 
-        .input-panel {
-            background: rgba(15,23,42,0.85);
-            border: 1.5px solid rgba(139,92,246,0.45);
+        .sponsor-banner:active { transform: scale(0.98); }
+        .sponsor-tag { display: inline-block; background: rgba(254, 240, 138, 0.22); color: #FEF08A; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 8px; margin-bottom: 3px; }
+        .sponsor-cta { background: linear-gradient(135deg, #FDE047, #F59E0B); color: #1E1B4B; padding: 7px 11px; border-radius: 11px; font-size: 11px; font-weight: 900; flex-shrink: 0; }
+
+        .game-card {
+            background: #fff;
+            color: #212121;
             border-radius: 18px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+            transition: transform 0.15s ease;
+        }
+
+        .game-card:active { transform: scale(0.97); }
+
+        .game-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .icon-crypto { background: linear-gradient(135deg, #FEF3C7, #FDE68A); border: 2px solid #D97706; }
+        .icon-wordle { background: linear-gradient(135deg, #DCFCE7, #FEF08A); border: 2px solid #53A548; }
+        .icon-grid { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); border: 2px solid #10B981; }
+        .icon-word { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border: 2px solid #8B5CF6; }
+        .icon-football { background: linear-gradient(135deg, #DCFCE7, #BBF7D0); border: 2px solid #16A34A; }
+        .icon-race { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); border: 2px solid #EC4899; }
+        .icon-giraffe { background: linear-gradient(135deg, #FFF8E1, #FFE082); border: 2px solid #FFB300; }
+        .icon-math { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border: 2px solid #E53935; }
+
+        .game-details { flex: 1; padding: 0 10px; }
+        .game-title { font-size: 14px; font-weight: 900; margin: 0 0 3px; color: #1A237E; }
+        .game-desc { font-size: 11px; color: #616161; margin: 0; line-height: 1.45; }
+
+        .play-btn {
+            background: linear-gradient(135deg, #00C853, #009624);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 4px 10px rgba(0, 200, 83, 0.35);
+            flex-shrink: 0;
+        }
+
+        .panel-section { width: 100%; max-width: 480px; padding: 8px 14px 24px; display: flex; flex-direction: column; gap: 12px; }
+
+        .panel-card {
+            background: rgba(15, 23, 42, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .section-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .section-heading h3 { margin: 0; font-size: 14px; font-weight: 900; color: #FDE047; }
+
+        .task-list { display: flex; flex-direction: column; gap: 9px; }
+
+        .task-item {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 15px;
             padding: 11px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .input-label { font-size: 11px; color: #DDD6FE; margin-bottom: 6px; font-weight: 700; display: flex; justify-content: space-between; }
-        .input-row { display: flex; gap: 7px; }
-        .word-input {
-            flex: 1;
-            background: #0F172A;
-            border: 1.5px solid #6366F1;
-            border-radius: 12px;
+
+        .task-item.done { opacity: 0.72; border-color: rgba(16, 185, 129, 0.35); }
+        .task-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(56, 189, 248, 0.16); border: 1px solid rgba(56, 189, 248, 0.35); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .task-body { flex: 1; min-width: 0; }
+        .task-title { font-size: 13px; font-weight: 900; color: #F8FAFC; margin-bottom: 2px; }
+        .task-desc { font-size: 11px; color: #94A3B8; line-height: 1.4; }
+        .task-reward { display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 900; color: #FDE047; }
+
+        .task-btn { border: none; border-radius: 11px; padding: 8px 11px; font-size: 11px; font-weight: 900; cursor: pointer; color: #fff; flex-shrink: 0; min-width: 82px; text-align: center; }
+        .task-btn.go { background: linear-gradient(135deg, #0284C7, #38BDF8); }
+        .task-btn.wait { background: #475569; cursor: wait; }
+        .task-btn.claim { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
+        .task-btn.done { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.4); cursor: default; }
+
+        .period-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+        .period-btn { border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.07); color: #CBD5E1; border-radius: 11px; padding: 7px 4px; font-size: 12px; font-weight: 900; cursor: pointer; }
+        .period-btn.active { background: linear-gradient(135deg, #0284C7, #38BDF8); border-color: #BAE6FD; color: #fff; }
+
+        .lb-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #94A3B8; margin-bottom: 10px; padding: 0 2px; }
+        .refresh-btn { background: rgba(255, 255, 255, 0.12); border: none; color: #E2E8F0; border-radius: 8px; padding: 4px 9px; font-size: 11px; font-weight: 700; cursor: pointer; }
+
+        .my-rank-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(14, 165, 233, 0.22));
+            border: 1px solid rgba(52, 211, 153, 0.45);
+            border-radius: 14px;
             padding: 10px 12px;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 900;
-            outline: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 12px;
         }
-        .word-input:focus { border-color: #FBBF24; }
-        .send-btn {
-            background: linear-gradient(135deg, #10B981, #059669);
-            border: none;
-            color: #fff;
-            border-radius: 12px;
-            padding: 0 18px;
-            font-size: 14px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-        .send-btn:active { transform: scale(0.96); }
-        .feedback { min-height: 20px; font-size: 11px; font-weight: 700; margin-top: 7px; text-align: center; }
 
-        .tools-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-        .btn-small { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 11px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .lb-list { display: flex; flex-direction: column; gap: 6px; }
+        .lb-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 9px 12px; font-size: 13px; }
+        .lb-row.top1 { background: linear-gradient(135deg, rgba(245, 158, 11, 0.24), rgba(217, 119, 6, 0.12)); border-color: rgba(251, 191, 36, 0.45); }
+        .lb-row.top2 { background: rgba(148, 163, 184, 0.16); border-color: rgba(203, 213, 225, 0.35); }
+        .lb-row.top3 { background: rgba(180, 83, 9, 0.2); border-color: rgba(251, 146, 60, 0.35); }
+        .lb-row.me { box-shadow: inset 0 0 0 1.5px #38BDF8; }
+        .lb-rank { font-weight: 900; min-width: 28px; text-align: center; margin-left: 8px; }
+        .lb-name { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-score { font-weight: 900; color: #FDE047; margin-right: 8px; white-space: nowrap; }
 
-        .board-box {
-            background: rgba(15,23,42,0.72);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 16px;
-            padding: 10px 12px;
-        }
-        .board-title { display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; color: #FBBF24; margin-bottom: 6px; }
-        .p-row { display: flex; justify-content: space-between; padding: 5px 6px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 12px; }
-        .p-row:last-child { border-bottom: none; }
-        .p-row.me { background: rgba(139,92,246,0.24); border-radius: 8px; }
-
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
-        .card { background: #1E293B; border: 1px solid rgba(255,255,255,0.18); color: #fff; width: 100%; max-width: 385px; border-radius: 24px; padding: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        .pill { display: inline-block; background: linear-gradient(135deg, #8B5CF6, #6366F1); padding: 4px 14px; border-radius: 14px; font-size: 12px; font-weight: 900; margin-bottom: 6px; }
-        .friends-box { background: rgba(15,23,42,0.65); border: 1px solid rgba(167,139,250,0.35); border-radius: 16px; padding: 11px; margin: 8px 0 10px; }
-        .join-row { display: flex; gap: 6px; margin-top: 8px; }
-        .code-input { flex: 1; background: #0F172A; border: 1.5px solid #6366F1; border-radius: 12px; padding: 9px; color: #fff; font-size: 14px; font-weight: 900; text-align: center; letter-spacing: 3px; outline: none; direction: ltr; }
-        .btn-main { width: 100%; padding: 12px; border: none; border-radius: 14px; font-size: 14px; font-weight: 900; cursor: pointer; margin-bottom: 8px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
-        .btn-main:active { transform: scale(0.97); }
-        .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
-        .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
+        .action-btn { width: 100%; margin-top: 10px; border: none; border-radius: 13px; padding: 12px; color: #fff; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .action-btn:active { transform: scale(0.97); }
         .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
-        .btn-amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
-        .btn-gray { background: rgba(255,255,255,0.12); }
+        .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
+        .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
+        .btn-ghost { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+        .ref-hero { text-align: center; background: linear-gradient(135deg, rgba(139, 92, 246, 0.24), rgba(236, 72, 153, 0.2)); border: 1px solid rgba(192, 132, 252, 0.45); border-radius: 16px; padding: 14px 12px; margin-bottom: 12px; }
+        .ref-hero h2 { margin: 0 0 6px; font-size: 15px; color: #FDE047; }
+        .ref-hero p { margin: 0; font-size: 12px; color: #E2E8F0; line-height: 1.7; }
+        .ref-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .ref-stat-card { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; text-align: center; }
+        .ref-stat-num { font-size: 20px; font-weight: 900; color: #34D399; }
+        .ref-stat-lbl { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+        .ref-link-box { background: #0B1224; border: 1px dashed rgba(56, 189, 248, 0.5); border-radius: 12px; padding: 9px 10px; font-size: 11px; color: #7DD3FC; direction: ltr; text-align: center; word-break: break-all; user-select: text; -webkit-user-select: text; }
+        .ref-feedback { min-height: 18px; font-size: 11px; font-weight: 700; text-align: center; margin-top: 6px; color: #34D399; }
+        .ref-list-title { font-size: 12px; font-weight: 900; color: #FBBF24; margin: 14px 0 8px; display: flex; justify-content: space-between; align-items: center; }
+
+        .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.88); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 14px; overflow-y: auto; }
+        .admin-card { width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; background: #1E293B; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 22px; padding: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6); }
+        .admin-box { background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+        .admin-box h4 { margin: 0 0 8px; font-size: 13px; color: #FDE047; }
+        .f-input { width: 100%; background: #0F172A; border: 1.5px solid #475569; border-radius: 10px; padding: 9px 10px; color: #fff; font-size: 13px; margin-bottom: 8px; outline: none; }
+        .f-input:focus { border-color: #38BDF8; }
+        .f-row { display: flex; gap: 6px; }
+        .admin-task-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font-size: 11px; }
+        .del-mini-btn { background: rgba(239, 68, 68, 0.25); border: 1px solid #EF4444; color: #FCA5A5; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer; flex-shrink: 0; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <a href="index.html" class="back-btn" onclick="return goBackLobby(event)">🏠 لابی</a>
-    <div class="live-pill"><span class="live-dot"></span><span id="online-status">در حال اتصال...</span></div>
-    <div class="score-badge">امتیاز: <span id="score-val">0</span></div>
-</div>
-
-<div class="container">
-    <div id="friends-bar" class="friends-bar hidden">
-        <span>👥 اتاق گروهی <strong id="room-code-txt" style="color:#FDE047; direction:ltr; display:inline-block;">#----</strong></span>
-        <button class="invite-btn" onclick="inviteFriendsToGroup()">📤 ارسال به گروه</button>
-    </div>
-
-    <div class="round-hero">
-        <div class="letter-circle" id="round-letter">؟</div>
-        <div class="round-info">
-            <div class="round-title" id="round-title">دور #1 • با این حرف بنویس!</div>
-            <div class="round-sub">فقط <strong>واژه مفرد و مستقل</strong> قبول می‌شود (بدون جمع و مضاف). هر کس زودتر ثبت کند قفل می‌شود!</div>
-        </div>
-        <div class="timer-box" id="timer-box">90s</div>
-    </div>
-
-    <div class="ticker" id="live-ticker">🧠 متصل به مسابقه سرعتی اسم‌فامیل @chalbazi</div>
-
-    <div class="cats-list" id="cats-list"></div>
-
-    <div class="input-panel">
-        <div class="input-label">
-            <span>موضوع انتخابی: <strong id="active-cat-label" style="color:#FDE047;">-</strong></span>
-            <span>شروع با حرف: <strong id="active-letter-hint" style="color:#34D399;">-</strong></span>
-        </div>
-        <div class="input-row">
-            <input type="text" id="word-input" class="word-input" placeholder="واژه مفرد و مستقل بنویس..." autocomplete="off">
-            <button class="send-btn" onclick="submitCategoryWord()">ثبت ✓</button>
-        </div>
-        <div class="feedback" id="feedback-msg"></div>
-    </div>
-
-    <div class="tools-row">
-        <span style="font-size:11px; color:#94A3B8;" id="dict-badge">📚 در حال آماده‌سازی دیکشنری...</span>
-        <div style="display:flex; gap:6px;">
-            <button id="solo-next-btn" class="btn-small hidden" onclick="startSoloRound()">🔄 حرف بعدی</button>
-            <button class="btn-small" onclick="openModeMenu()">⚙️ تغییر حالت</button>
-        </div>
-    </div>
-
-    <div class="board-box" id="live-board-box">
-        <div class="board-title">
-            <span id="board-title-txt">🏆 رده‌بندی زنده این دور</span>
-            <span id="round-badge" style="color:#94A3B8;">دور #1</span>
-        </div>
-        <div id="live-scoreboard">در حال دریافت...</div>
-    </div>
-</div>
-
-<!-- منوی انتخاب حالت -->
-<div id="mode-modal" class="overlay">
-    <div class="card">
-        <div class="pill">@chalbazi</div>
-        <h2 style="margin: 4px 0; font-size: 19px;">🧠 حدس کلمه سرعتی (اسم‌فامیل)</h2>
-        <p style="font-size: 11px; color: #CBD5E1; margin: 2px 0 12px; line-height: 1.7;">
-            رقابت سرعتی روی ۵ موضوع با یک حرف مشترک • فیلتر هوشمند <strong>فقط واژگان مفرد و مستقل</strong> فعال است!
-        </p>
-
-        <button class="btn-main btn-green" onclick="enterGlobalMode()">🌐 رقابت زنده همگانی (کل کانال)</button>
-        <div style="font-size: 10px; color: #94A3B8; margin: -4px 0 10px;">امتیاز این بخش در لیدربورد روزانه/هفتگی/ماهانه ربات ثبت می‌شود</div>
-
-        <div class="friends-box">
-            <button id="create-room-btn" class="btn-main btn-purple" style="margin-bottom:4px;" onclick="createFriendsRoom()">👥 بازی با دوستان (ارسال به گروه)</button>
-            <div style="font-size: 11px; color: #CBD5E1; margin-bottom: 6px;">بدون انتظار شروع میشه و پیام دعوت به اسم خودت در گروه ارسال میشه</div>
-            <div class="join-row">
-                <input type="text" id="join-code-input" class="code-input" maxlength="6" inputmode="numeric" placeholder="کد ۴ رقمی اتاق...">
-                <button class="btn-main btn-blue" style="width:auto; padding:9px 16px; margin:0;" onclick="joinFriendsByInput()">ورود</button>
+    <div class="top-bar">
+        <div class="user-info">
+            <div class="avatar">🎮</div>
+            <div>
+                <div class="user-name" id="tg-user-name">بازیکن چالبازی</div>
+                <div style="font-size: 11px; color: #BBDEFB;" id="tg-user-sub">خوش آمدی!</div>
             </div>
-            <div id="join-err" style="font-size:11px; color:#F87171; min-height:16px; margin-top:4px; font-weight:700;"></div>
+        </div>
+        <div class="channel-badge" onclick="handleAdminTap()" title="@chalbazi">@chalbazi</div>
+    </div>
+
+    <div id="welcome-toast" class="welcome-toast hidden"></div>
+
+    <div class="stats-wrapper">
+        <div class="stats-grid">
+            <div class="stat-box" onclick="jumpToLeaderboard('daily')">
+                <div class="stat-label">امروز</div>
+                <div class="stat-val" id="my-stat-daily">-</div>
+            </div>
+            <div class="stat-box" onclick="jumpToLeaderboard('weekly')">
+                <div class="stat-label">این هفته</div>
+                <div class="stat-val" id="my-stat-weekly">-</div>
+            </div>
+            <div class="stat-box" onclick="jumpToLeaderboard('monthly')">
+                <div class="stat-label">این ماه</div>
+                <div class="stat-val" id="my-stat-monthly">-</div>
+            </div>
+            <div class="stat-box highlight" onclick="jumpToLeaderboard('all')">
+                <div class="stat-label">امتیاز کل</div>
+                <div class="stat-val" id="my-stat-all">-</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-tabs">
+        <button id="tab-games" class="main-tab-btn active" onclick="switchMainTab('games')">🎮 بازی‌ها</button>
+        <button id="tab-leaderboard" class="main-tab-btn" onclick="switchMainTab('leaderboard')">🏆 لیدربورد</button>
+        <button id="tab-invite" class="main-tab-btn" onclick="switchMainTab('invite')">
+            🎁 جوایز و دعوت
+            <span id="tasks-badge" class="tab-badge hidden">0</span>
+        </button>
+    </div>
+
+    <!-- بخش ۱: لیست کامل بازی‌ها -->
+    <div id="section-games" class="games-grid">
+        <div id="sponsor-banner-slot" class="sponsor-banner hidden" onclick="handleSponsorBannerClick()">
+            <div style="flex:1; min-width:0;">
+                <span class="sponsor-tag">⭐ پیشنهاد ویژه اسپانسر</span>
+                <div id="sb-title" style="font-size:13px; font-weight:900; color:#FFFBEB;"></div>
+                <div id="sb-desc" style="font-size:11px; color:#FDE68A; margin-top:2px;"></div>
+            </div>
+            <div id="sb-btn" class="sponsor-cta">مشاهده ↗</div>
         </div>
 
-        <button class="btn-main btn-amber" onclick="enterSoloMode()">👤 تک‌نفره تمرینی (آفلاین)</button>
-        <a href="index.html" class="btn-main btn-gray" style="margin-bottom:0;" onclick="return goBackLobby(event)">🏠 بازگشت به لابی</a>
-    </div>
-</div>
+        <a href="cryptogram-fa.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-crypto">📜</div>
+            <div class="game-details">
+                <h2 class="game-title">رمزنامه ادبی زنده (۲۰۵ مرحله)</h2>
+                <p class="game-desc">رقابت زنده همگانی و گروه دوستان برای رمزگشایی شاهکارهای ادب ایران!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
 
-<!-- مودال پایان دور -->
-<div id="win-modal" class="overlay hidden">
-    <div class="card">
-        <div class="pill">🏁 پایان دور!</div>
-        <h2 id="win-title" style="margin: 4px 0; font-size: 18px; color:#34D399;">همه موضوعات تکمیل شد!</h2>
-        <div class="board-box" id="final-board-wrap" style="margin: 10px 0 12px; text-align: right; max-height: 165px; overflow-y: auto;">
-            <div id="final-board"></div>
+        <a href="wordle-fa.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-wordle">🟩</div>
+            <div class="game-details">
+                <h2 class="game-title">کلمه‌چین ۵ حرفی (روزانه و دوئل)</h2>
+                <p class="game-desc">کیبورد هوشمند ۲۱ حرفی، چالش کلمه امروز کانال و دوئل با دوستان در گروه!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <a href="word-grid.html?v=9" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-grid">🧩</div>
+            <div class="game-details">
+                <h2 class="game-title">جدول کلمات ۸×۸ (همگانی و دوستان)</h2>
+                <p class="game-desc">پازل زنده کانال، اتاق اختصاصی گروه و کوزه ابری دائمی!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <a href="esm-famil.html?v=3" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-word">🧠</div>
+            <div class="game-details">
+                <h2 class="game-title">حدس کلمه سرعتی (همگانی و گروهی)</h2>
+                <p class="game-desc">رقابت سرعتی روی ۵ موضوع با واژگان مفرد و مستقل؛ هم همگانی هم اتاق دوستان!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <a href="football-mario.html?v=1" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-football">⚽</div>
+            <div class="game-details">
+                <h2 class="game-title">سوپر فوتبال (رکوردی)</h2>
+                <p class="game-desc">با مسی، یامال، هالند، امباپه یا رونالدو تا جام قهرمانی بدو و رکورد زمان رو بشکن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <a href="word-race.html?v=4" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-race">⚡</div>
+            <div class="game-details">
+                <h2 class="game-title">شکار کلمات (مسابقه ساعتی)</h2>
+                <p class="game-desc">سر ساعت شروع میشه! کلمات خواسته‌شده رو پیدا کن و جزو ۵ نفر اول امتیاز بگیر.</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <a href="giraffe.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-giraffe">🦒</div>
+            <div class="game-details">
+                <h2 class="game-title">زرافه چوب‌بر</h2>
+                <p class="game-desc">با سرعت درخت رو قطع کن و نذار شاخه‌ها به سرت بخورن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <a href="math-sting.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-math">🦂</div>
+            <div class="game-details">
+                <h2 class="game-title">نیش ریاضی (Math Sting)</h2>
+                <p class="game-desc">سریع جواب بده قبل از اینکه زنبور، عقرب یا مار نیشت بزنن!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+    </div>
+
+    <!-- بخش ۲: لیدربورد -->
+    <div id="section-leaderboard" class="panel-section hidden">
+        <div class="panel-card">
+            <div class="period-tabs">
+                <button class="period-btn active" id="pbtn-daily" onclick="loadPeriodBoard('daily')">روزانه</button>
+                <button class="period-btn" id="pbtn-weekly" onclick="loadPeriodBoard('weekly')">هفتگی</button>
+                <button class="period-btn" id="pbtn-monthly" onclick="loadPeriodBoard('monthly')">ماهانه</button>
+                <button class="period-btn" id="pbtn-all" onclick="loadPeriodBoard('all')">کلی</button>
+            </div>
+
+            <div class="lb-meta">
+                <span id="lb-period-label">در حال بارگذاری...</span>
+                <button class="refresh-btn" onclick="refreshAllStats()">🔄 بروزرسانی</button>
+            </div>
+
+            <div class="my-rank-banner">
+                <span>جایگاه شما: <strong id="my-rank-val" style="color:#6EE7B7;">-</strong></span>
+                <span>امتیاز این بازه: <strong id="my-period-score" style="color:#FDE047;">0</strong></span>
+            </div>
+
+            <div class="lb-list" id="lb-list-container">
+                <div style="text-align:center; font-size:12px; color:#94A3B8; padding:18px;">در حال دریافت جدول رده‌بندی...</div>
+            </div>
+
+            <button class="action-btn btn-blue" onclick="shareMyStats()">📤 اشتراک‌گذاری کارنامه من در @chalbazi</button>
         </div>
-        <div id="next-countdown" style="font-size: 13px; font-weight: 900; color: #FBBF24; margin-bottom: 12px;">⏳ شروع دور بعدی با حرف جدید تا ۸ ثانیه دیگر...</div>
-        <button class="btn-main btn-blue" onclick="shareResult()">📤 اشتراک‌گذاری نتیجه</button>
-        <button id="force-next-btn" class="btn-main btn-green hidden" onclick="handleNextRound()">🔄 دور بعدی</button>
     </div>
-</div>
 
-<script>
-    var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
-    var CHANNEL_URL = 'https://t.me/chalbazi';
-    var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
-    var CLEAN_DB = FIREBASE_DB_URL.replace(/\/+$/, '');
+    <!-- بخش ۳: ماموریت‌های اسپانسری و دعوت دوستان -->
+    <div id="section-invite" class="panel-section hidden">
+        <div class="panel-card">
+            <div class="section-heading">
+                <h3>🎯 ماموریت‌های ویژه (امتیاز رایگان)</h3>
+                <button class="refresh-btn" onclick="loadSponsorData()">🔄 بروزرسانی</button>
+            </div>
+            <div id="sponsor-tasks-feedback" class="ref-feedback" style="margin:0 0 8px;"></div>
+            <div id="sponsor-tasks-list" class="task-list">
+                <div style="text-align:center; font-size:12px; color:#94A3B8; padding:12px;">در حال دریافت ماموریت‌ها...</div>
+            </div>
+        </div>
 
-    function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
-    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-    function getQueryParam(name) { try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; } }
+        <div class="panel-card">
+            <div class="ref-hero">
+                <h2>👥 دوستات رو بیار، امتیاز رایگان بگیر!</h2>
+                <p>
+                    با هر دوستی که با لینک اختصاصی تو وارد ربات بشه:<br>
+                    <strong style="color:#34D399;">+۵۰ امتیاز</strong> برای تو + <strong style="color:#38BDF8;">+۲۵ امتیاز هدیه</strong> برای دوستت!<br>
+                    <span style="font-size:11px; color:#CBD5E1;">(امتیازها مستقیم در لیدربورد روزانه، هفتگی، ماهانه و کلی حساب میشن)</span>
+                </p>
+            </div>
 
-    function goBackLobby(ev) {
-        if (ev) ev.preventDefault();
-        window.location.href = 'index.html?from=game' + (window.location.hash || '');
-        return false;
-    }
+            <div class="ref-stats-row">
+                <div class="ref-stat-card">
+                    <div class="ref-stat-num" id="ref-count-val">0</div>
+                    <div class="ref-stat-lbl">👥 دوستان دعوت‌شده</div>
+                </div>
+                <div class="ref-stat-card">
+                    <div class="ref-stat-num" id="ref-earned-val" style="color:#FDE047;">0</div>
+                    <div class="ref-stat-lbl">⭐ امتیاز از دعوت‌ها</div>
+                </div>
+            </div>
 
-    var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-    if (tg) {
-        try { tg.ready(); tg.expand(); if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
-    }
+            <div id="ref-guest-warning" class="hidden" style="background: rgba(245,158,11,0.16); border: 1px solid rgba(251,191,36,0.45); color:#FDE68A; border-radius:12px; padding:10px; font-size:11px; text-align:center; margin-bottom:10px;">
+                ⚠️ برای دریافت جوایز و داشتن لینک دعوت اختصاصی، حتماً از داخل ربات تلگرام (<strong>@Chalbazibot</strong>) وارد شو.
+            </div>
 
-    var user = { id: 'u_guest', name: 'بازیکن چالبازی' };
-    if (window.ChalbaziScore) {
-        var csU = ChalbaziScore.getUser();
-        user.id = csU.id;
-        user.name = csU.name;
-    } else if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-        var tu = tg.initDataUnsafe.user;
-        user.id = 'tg_' + tu.id;
-        user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
-    }
+            <div id="ref-link-area">
+                <div class="ref-link-box" id="my-ref-link">در حال ساخت لینک...</div>
+                <button class="action-btn btn-purple" onclick="shareInviteLink()">📤 ارسال لینک دعوت به دوستان و گروه‌ها</button>
+                <button class="action-btn btn-ghost" onclick="copyInviteLink()">📋 کپی کردن لینک اختصاصی</button>
+                <div class="ref-feedback" id="ref-feedback"></div>
+            </div>
 
-    var normalizeFa = window.normalizeFaStrict || function(s) {
-        return String(s || '').trim().replace(/\s+/g, '').replace(/\u200c/g, '')
-            .replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا').replace(/ة/g, 'ه');
-    };
+            <div class="ref-list-title">
+                <span>📋 لیست دوستانی که دعوت کردی</span>
+                <button class="refresh-btn" onclick="loadReferralTab()">🔄 بروزرسانی</button>
+            </div>
+            <div class="lb-list" id="ref-invited-list">
+                <div style="text-align:center; font-size:12px; color:#94A3B8; padding:14px;">در حال دریافت...</div>
+            </div>
+        </div>
+    </div>
 
-    var LETTERS = ['ا','ب','پ','ت','ج','چ','ح','خ','د','ر','ز','س','ش','ص','ط','ع','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
-    var CATEGORIES = [
-        { key: 'name', label: 'نام انسان', icon: '👤' },
-        { key: 'place', label: 'شهر یا کشور', icon: '🌍' },
-        { key: 'animal', label: 'حیوان', icon: '🦁' },
-        { key: 'food', label: 'میوه یا غذا', icon: '🍎' },
-        { key: 'object', label: 'اشیا و وسایل', icon: '🎒' }
-    ];
+    <!-- پنل مخفی مدیریت اسپانسرها (۵ بار لمس روی @chalbazi) -->
+    <div id="sponsor-admin-modal" class="overlay hidden" onclick="if(event.target===this) closeSponsorAdmin()">
+        <div class="admin-card">
+            <div class="section-heading">
+                <h3>⚙️ پنل مدیریت اسپانسرها</h3>
+                <button class="refresh-btn" onclick="closeSponsorAdmin()">✕ بستن</button>
+            </div>
 
-    // واژگان پایه و دوحرفی معتبر برای اسم‌فامیل
-    var SHORT_VALID_2 = new Set(['قم','بم','جم','ری','بز','خر','نی','تب','رز','هل','مس','نخ','در','سگ','موش']);
-    var VALID_WORDS = new Set([
-        'علی','امیر','آرش','آیدا','آرزو','بهرام','باران','پویا','پریسا','تارا','ترانه','جواد','چنگیز','حسین','حمید','خسرو','داریوش','دنیا','رضا','راحله','زهرا','سارا','سیروان','شجاع','شلیل','صادق','طاها','عرفان','فرید','فرزین','قاسم','کامران','گلناز','لیلا','مریم','محمد','نرگس','وحید','هستی','یاسمن',
-        'ایران','اصفهان','اهواز','اراک','بوشهر','بندرعباس','پاریس','تهران','تبریز','جهرم','چابهار','خرمشهر','دبی','رشت','زنجان','ساری','شیراز','صربستان','طبرستان','عراق','فرانسه','قم','قزوین','کرمان','گرگان','لامرد','لندن','مشهد','نیشابور','ورامین','همدان','یزد',
-        'آهو','اسب','ببر','پلنگ','تمساح','جغد','چیتا','حلزون','خرگوش','دلفین','روباه','زرافه','سنجاب','شیر','صقر','طاووس','عقاب','فیل','قورباغه','کبوتر','گوزن','لاکپشت','مار','نهنگ','وال','هدهد','یوزپلنگ',
-        'انار','انگور','بادام','پرتقال','توت','جگر','چلوکباب','حلوا','خیار','دلمه','رشته','زردآلو','سیب','شلیل','صبحانه','طالبی','عسل','فسنجان','قرمه','کباب','گیلاس','لیمو','موز','نارنگی','ولیک','هندوانه','یخنی',
-        'آینه','بخاری','پرده','ترازو','جارو','چکش','حوله','خودکار','دفتر','رادیو','زنجیر','ساعت','شانه','صندلی','طناب','عینک','فانوس','قفل','کلید','گیتار','لیوان','مداد','نردبان','وان','هواپیما','یخچال'
-    ].map(normalizeFa));
+            <div id="sp-admin-lock">
+                <p style="font-size:12px; color:#CBD5E1; margin:0 0 10px;">رمز مدیر را وارد کنید (پیش‌فرض: 1234)</p>
+                <input type="password" id="sp-admin-pin" class="f-input" placeholder="رمز مدیر..." style="text-align:center;">
+                <button class="action-btn btn-purple" onclick="unlockSponsorAdmin()">ورود به پنل 🔓</button>
+            </div>
 
-    SHORT_VALID_2.forEach(function(w) { VALID_WORDS.add(normalizeFa(w)); });
+            <div id="sp-admin-body" class="hidden">
+                <div class="admin-box">
+                    <h4>➕ افزودن ماموریت اسپانسری جدید</h4>
+                    <input type="text" id="new-task-title" class="f-input" placeholder="عنوان (مثلاً: عضویت در کانال X)">
+                    <input type="text" id="new-task-desc" class="f-input" placeholder="توضیح کوتاه (اختیاری)">
+                    <input type="text" id="new-task-url" class="f-input" placeholder="لینک (مثلاً: https://t.me/channel)" dir="ltr">
+                    <div class="f-row">
+                        <input type="number" id="new-task-reward" class="f-input" value="40" placeholder="امتیاز جایزه" style="flex:1;">
+                        <input type="text" id="new-task-icon" class="f-input" value="📢" placeholder="آیکون" style="width:70px; text-align:center;">
+                    </div>
+                    <button class="action-btn btn-green" style="margin-top:2px;" onclick="adminAddTask()">ثبت و انتشار ماموریت ✓</button>
+                </div>
 
-    function updateDictStatus() {
-        var el = document.getElementById('dict-badge');
-        if (el) el.textContent = '📚 دیکشنری فعال: ' + VALID_WORDS.size.toLocaleString('fa-IR') + ' واژه مستقل';
-    }
-    updateDictStatus();
+                <div class="admin-box">
+                    <h4>📊 ماموریت‌های فعلی و گزارش اسپانسر</h4>
+                    <div id="admin-tasks-list" style="font-size:11px; color:#94A3B8;">در حال دریافت...</div>
+                </div>
 
-    function loadScript(src, onload) {
-        var s = document.createElement('script');
-        s.src = src; s.async = true; s.onload = onload;
-        document.head.appendChild(s);
-    }
+                <div class="admin-box">
+                    <h4>📢 بنر تبلیغاتی بالای صفحه بازی‌ها</h4>
+                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:8px; cursor:pointer;">
+                        <input type="checkbox" id="ban-active">
+                        <span>بنر اسپانسر فعال باشد (<span id="ban-clicks-stat" style="color:#34D399;">0 کلیک</span>)</span>
+                    </label>
+                    <input type="text" id="ban-title" class="f-input" placeholder="تیتر بنر">
+                    <input type="text" id="ban-desc" class="f-input" placeholder="زیرتیتر کوتاه">
+                    <input type="text" id="ban-url" class="f-input" placeholder="لینک مقصد" dir="ltr">
+                    <input type="text" id="ban-btn" class="f-input" value="مشاهده ↗" placeholder="متن دکمه">
+                    <button class="action-btn btn-blue" style="margin-top:2px;" onclick="adminSaveBanner()">💾 ذخیره تنظیمات بنر</button>
+                </div>
 
-    loadScript('words.js', function() {
-        try {
-            if (typeof WORDS_DB !== 'undefined') {
-                Object.keys(WORDS_DB).forEach(function(cat) {
-                    if (Array.isArray(WORDS_DB[cat])) {
-                        WORDS_DB[cat].forEach(function(w) {
-                            var nw = normalizeFa(w);
-                            if (nw.length >= 2) VALID_WORDS.add(nw);
-                        });
+                <div id="sp-admin-msg" class="ref-feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var CHANNEL_URL = 'https://t.me/chalbazi';
+        var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
+        var SPONSOR_ADMIN_PIN = '1234';
+        var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+        var currentPeriod = 'daily';
+        var cachedStats = { daily: 0, weekly: 0, monthly: 0, all: 0 };
+        var sponsorCache = { banner: null, tasks: [], claimedMap: {} };
+        var taskStepState = {};
+
+        if (tg) {
+            try { tg.ready(); tg.expand(); if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
+        }
+
+        function esc(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function getQueryParam(name) {
+            try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; }
+        }
+
+        function openExternalUrl(url) {
+            if (!url) return;
+            var fullUrl = /^https?:\/\//i.test(url) ? url : ('https://' + url);
+            if (tg) {
+                if (fullUrl.indexOf('https://t.me/') === 0 && tg.openTelegramLink) { tg.openTelegramLink(fullUrl); return; }
+                if (tg.openLink) { tg.openLink(fullUrl); return; }
+            }
+            window.open(fullUrl, '_blank');
+        }
+
+        var currentUser = window.ChalbaziScore ? ChalbaziScore.getUser() : { id: '', rawId: '', name: 'بازیکن چالبازی', isTelegram: false };
+        var myInviteLink = currentUser.isTelegram ? (BOT_MINIAPP_URL + '?startapp=ref_' + currentUser.rawId) : BOT_MINIAPP_URL;
+
+        if (window.ChalbaziScore && currentUser.isTelegram) {
+            ChalbaziScore.syncMyReferralProfile();
+        }
+
+        function showWelcomeToast(html) {
+            var el = document.getElementById('welcome-toast');
+            if (!el) return;
+            el.innerHTML = html;
+            el.classList.remove('hidden');
+        }
+
+        function redirectWithUser(destUrl) {
+            var dest = destUrl;
+            if (currentUser.isTelegram && currentUser.rawId) {
+                dest += (dest.indexOf('?') === -1 ? '?' : '&')
+                    + 'tg_uid=' + encodeURIComponent(currentUser.rawId)
+                    + '&tg_name=' + encodeURIComponent(currentUser.name);
+            }
+            if (window.location.hash) dest += window.location.hash;
+            window.location.replace(dest);
+        }
+
+        // مسیریاب یکپارچه startapp برای هر ۴ بازی گروهی + دعوت دوستان
+        (function routeDeepLink() {
+            if (getQueryParam('from') === 'game') return;
+            var startParam = '';
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+                startParam = String(tg.initDataUnsafe.start_param);
+            }
+            if (!startParam) {
+                startParam = getQueryParam('tgWebAppStartParam') || getQueryParam('startapp');
+            }
+            if (!startParam) return;
+
+            var handled = '';
+            try { handled = sessionStorage.getItem('cb_handled_sp') || ''; } catch (e) {}
+            if (handled === startParam) return;
+
+            var roomRoutes = [
+                { prefix: 'grid_', file: 'word-grid.html?v=9&room=' },
+                { prefix: 'crypto_', file: 'cryptogram-fa.html?v=2&room=' },
+                { prefix: 'wordle_', file: 'wordle-fa.html?v=2&room=' },
+                { prefix: 'esm_', file: 'esm-famil.html?v=3&room=' }
+            ];
+
+            for (var i = 0; i < roomRoutes.length; i++) {
+                var rt = roomRoutes[i];
+                if (startParam.indexOf(rt.prefix) === 0) {
+                    var code = startParam.substring(rt.prefix.length).replace(/[^0-9a-zA-Z]/g, '');
+                    if (code) {
+                        try { sessionStorage.setItem('cb_handled_sp', startParam); } catch (e) {}
+                        redirectWithUser(rt.file + encodeURIComponent(code));
                     }
-                });
-                updateDictStatus();
-            }
-        } catch (e) {}
-    });
-
-    loadScript('keywords.js?v=2', function() {
-        try {
-            if (typeof COMMON_KEY_WORDS !== 'undefined' && Array.isArray(COMMON_KEY_WORDS)) {
-                COMMON_KEY_WORDS.forEach(function(w) {
-                    var nw = normalizeFa(w);
-                    if (nw.length >= 3) VALID_WORDS.add(nw);
-                });
-                updateDictStatus();
-            }
-        } catch (e) {}
-    });
-
-    loadScript('dictionary.js?v=2', function() {
-        try {
-            if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
-                for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) {
-                    var nw = normalizeFa(BIG_PERSIAN_DICT[i]);
-                    if (nw.length >= 3) VALID_WORDS.add(nw);
+                    return;
                 }
-                updateDictStatus();
             }
-        } catch (e) {}
-    });
 
-    // بررسی دقیق واژه مفرد و مستقل (رد کردن جمع و مضاف)
-    function validateStandaloneWord(raw, expectedLetter) {
-        var w = normalizeFa(raw);
-        if (w.length < 2) return { ok: false, msg: '⚠️ واژه خیلی کوتاه است!' };
-        if (!/^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]+$/.test(w)) {
-            return { ok: false, msg: '⚠️ فقط حروف فارسی بدون فاصله و عدد بنویس!' };
-        }
-        if (w[0] !== normalizeFa(expectedLetter)) {
-            return { ok: false, msg: '❌ کلمه باید با حرف «' + expectedLetter + '» شروع شود!' };
-        }
-        // رد کردن کلمات مضاف (مثل شورای، دنیای، آهوی، خانهی)
-        if (w.length >= 4 && w.slice(-2) === 'ای') {
-            return { ok: false, msg: '❌ کلمه مضاف (مثل شورای/دنیای) قبول نیست؛ اصل واژه مستقل را بنویس!' };
-        }
-        if (w.length >= 5 && w.slice(-2) === 'وی' && ['موسوی','رضوی','علوی','نبوی'].indexOf(w) === -1) {
-            return { ok: false, msg: '❌ کلمه مضاف ختم به «ـوی» قبول نیست؛ اصل کلمه را بنویس!' };
-        }
-        if (w.length >= 4 && w.slice(-2) === 'هی') {
-            return { ok: false, msg: '❌ کلمه کسره‌دار/مضاف قابل قبول نیست!' };
-        }
-        // رد کردن جمع‌ها برای واژگان ۳ حرف به بالا
-        if (w.length >= 3 && window.isStandalonePersianWord && !window.isStandalonePersianWord(w)) {
-            if (w.slice(-2) === 'ها' || w.slice(-2) === 'ات' || w.slice(-2) === 'ان') {
-                return { ok: false, msg: '❌ کلمه جمع قابل قبول نیست! فقط حالت مفرد بنویس.' };
+            if (startParam.indexOf('ref_') === 0 && window.ChalbaziScore) {
+                var refRawId = startParam.substring(4).replace(/[^0-9]/g, '');
+                try { sessionStorage.setItem('cb_handled_sp', startParam); } catch (e) {}
+                if (refRawId) {
+                    ChalbaziScore.processReferral(refRawId).then(function(res) {
+                        if (res && res.status === 'success') {
+                            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                            showWelcomeToast('🎉 با دعوت <strong>' + esc(res.inviterName) + '</strong> خوش اومدی! <strong>+' + res.bonus + ' امتیاز هدیه</strong> به حسابت اضافه شد.');
+                            loadMySummary();
+                        }
+                    });
+                }
             }
-            return { ok: false, msg: '❌ فقط واژه مفرد و مستقل قابل قبول است!' };
-        }
-        if (w.length === 2 && !SHORT_VALID_2.has(w)) {
-            return { ok: false, msg: '❌ این واژه ۲ حرفی معتبر نیست!' };
-        }
-        if (w.length >= 3 && !VALID_WORDS.has(w)) {
-            return { ok: false, msg: '❌ «' + w + '» در دیکشنری معتبر نیست!' };
-        }
-        return { ok: true, word: w };
-    }
+        })();
 
-    // ==================== وضعیت اتاق و همگام‌سازی ====================
-    var gameMode = 'global'; // 'global' | 'friends' | 'solo'
-    var activeRoomCode = '';
-    var currentRoundId = null;
-    var currentRoundNum = 1;
-    var currentLetter = 'س';
-    var roundExpiresAt = 0;
-    var slotsState = {};
-    var selectedCatKey = 'name';
-    var myScore = 0;
-    var syncTimer = null;
-    var heartbeatTimer = null;
-    var uiTimer = null;
-    var countdownTimer = null;
-    var isCreatingNext = false;
-
-    function getRoomPath() {
-        if (gameMode === 'friends' && activeRoomCode) return CLEAN_DB + '/esmRooms/' + activeRoomCode;
-        return CLEAN_DB + '/esmLive';
-    }
-
-    function stopTimers() {
-        clearInterval(syncTimer);
-        clearInterval(heartbeatTimer);
-        clearInterval(uiTimer);
-        clearInterval(countdownTimer);
-    }
-
-    function openModeMenu() {
-        stopTimers();
-        document.getElementById('join-err').textContent = '';
-        document.getElementById('win-modal').classList.add('hidden');
-        document.getElementById('mode-modal').classList.remove('hidden');
-    }
-
-    function buildRoundData(roundNum, startText) {
-        var letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-        var slots = {};
-        CATEGORIES.forEach(function(c) { slots[c.key] = { claimed: false, word: '', by: '' }; });
-        var playersInit = {};
-        playersInit[user.id] = { name: user.name, score: 0, lastSeen: Date.now() };
-        return {
-            roundId: 'esm_' + Date.now(),
-            roundNumber: roundNum,
-            letter: letter,
-            createdAt: Date.now(),
-            expiresAt: Date.now() + 90000,
-            finishedAt: 0,
-            finishedById: '',
-            slots: slots,
-            lastEvent: { text: startText || ('🚀 دور #' + roundNum + ' با حرف «' + letter + '» شروع شد!'), ts: Date.now() },
-            players: playersInit
-        };
-    }
-
-    function configureModeUI() {
-        document.getElementById('friends-bar').classList.toggle('hidden', gameMode !== 'friends');
-        document.getElementById('solo-next-btn').classList.toggle('hidden', gameMode !== 'solo');
-        document.getElementById('live-board-box').classList.toggle('hidden', gameMode === 'solo');
-        if (gameMode === 'friends') {
-            document.getElementById('room-code-txt').textContent = '#' + activeRoomCode;
-            document.getElementById('board-title-txt').textContent = '🏆 رده‌بندی اتاق #' + activeRoomCode;
-        } else if (gameMode === 'solo') {
-            document.getElementById('online-status').textContent = 'حالت انفرادی';
+        document.getElementById('tg-user-name').textContent = currentUser.name;
+        if (currentUser.isTelegram) {
+            document.getElementById('tg-user-sub').textContent = 'متصل به اکانت تلگرام ✓';
+            document.getElementById('my-ref-link').textContent = myInviteLink;
         } else {
-            document.getElementById('board-title-txt').textContent = '🏆 رده‌بندی زنده این دور';
+            document.getElementById('ref-guest-warning').classList.remove('hidden');
+            document.getElementById('ref-link-area').classList.add('hidden');
         }
-    }
 
-    async function enterGlobalMode() {
-        stopTimers();
-        gameMode = 'global';
-        activeRoomCode = '';
-        currentRoundId = null;
-        configureModeUI();
-        document.getElementById('mode-modal').classList.add('hidden');
-        await syncRoom(true, true);
-        syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
-        heartbeatTimer = setInterval(sendHeartbeat, 10000);
-        uiTimer = setInterval(updateClockUI, 500);
-    }
-
-    async function createFriendsRoom() {
-        var btn = document.getElementById('create-room-btn');
-        btn.disabled = true;
-        btn.textContent = '⏳ در حال ساخت اتاق...';
-        try {
-            var code = String(Math.floor(1000 + Math.random() * 9000));
-            stopTimers();
-            gameMode = 'friends';
-            activeRoomCode = code;
-            currentRoundId = null;
-            var data = buildRoundData(1, '👥 ' + user.name + ' اتاق اسم‌فامیل #' + code + ' رو ساخت! شروع شد 🔥');
-            await fetch(getRoomPath() + '.json', { method: 'PUT', body: JSON.stringify(data) });
-            configureModeUI();
-            document.getElementById('mode-modal').classList.add('hidden');
-            applyRoomState(data, true);
-            syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
-            heartbeatTimer = setInterval(sendHeartbeat, 10000);
-            uiTimer = setInterval(updateClockUI, 500);
-            inviteFriendsToGroup();
-        } catch (e) {
-            document.getElementById('join-err').textContent = '❌ خطا در اتصال به سرور';
+        function vibrate() {
+            if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {} }
         }
-        btn.disabled = false;
-        btn.textContent = '👥 بازی با دوستان (ارسال به گروه)';
-    }
 
-    async function joinFriendsByInput() {
-        var code = document.getElementById('join-code-input').value.trim().replace(/[^0-9]/g, '');
-        var err = document.getElementById('join-err');
-        if (code.length < 3) { err.textContent = '⚠️ کد ۴ رقمی اتاق را وارد کن'; return; }
-        err.textContent = '⏳ در حال بررسی...';
-        try {
-            var r = await fetch(CLEAN_DB + '/esmRooms/' + code + '.json');
-            var d = r.ok ? await r.json() : null;
-            if (!d || !d.letter) { err.textContent = '❌ اتاق #' + code + ' پیدا نشد!'; return; }
-            err.textContent = '';
-            await enterFriendsRoom(code, false);
-        } catch (e) { err.textContent = '❌ خطا در اتصال'; }
-    }
+        function openGame(linkEl, ev) {
+            if (ev) ev.preventDefault();
+            vibrate();
+            var targetUrl = linkEl.getAttribute('href');
+            if (currentUser.isTelegram && currentUser.rawId) {
+                var sep = targetUrl.indexOf('?') === -1 ? '?' : '&';
+                targetUrl += sep + 'tg_uid=' + encodeURIComponent(currentUser.rawId) + '&tg_name=' + encodeURIComponent(currentUser.name);
+            }
+            if (window.location.hash) targetUrl += window.location.hash;
+            window.location.href = targetUrl;
+            return false;
+        }
 
-    async function enterFriendsRoom(code, autoCreate) {
-        stopTimers();
-        gameMode = 'friends';
-        activeRoomCode = String(code);
-        currentRoundId = null;
-        configureModeUI();
-        document.getElementById('mode-modal').classList.add('hidden');
-        await syncRoom(true, autoCreate);
-        syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
-        heartbeatTimer = setInterval(sendHeartbeat, 10000);
-        uiTimer = setInterval(updateClockUI, 500);
-    }
+        function switchMainTab(tabName) {
+            vibrate();
+            var tabs = ['games', 'leaderboard', 'invite'];
+            for (var i = 0; i < tabs.length; i++) {
+                var t = tabs[i];
+                var active = (t === tabName);
+                document.getElementById('tab-' + t).className = active ? 'main-tab-btn active' : 'main-tab-btn';
+                document.getElementById('section-' + t).classList.toggle('hidden', !active);
+            }
+            if (tabName === 'leaderboard') loadPeriodBoard(currentPeriod);
+            if (tabName === 'invite') { loadSponsorData(); loadReferralTab(); }
+        }
 
-    function inviteFriendsToGroup() {
-        if (!activeRoomCode) return;
-        var link = BOT_MINIAPP_URL + '?startapp=esm_' + activeRoomCode;
-        var text = '🧠 ' + user.name + ' بازی «حدس کلمه سرعتی (اسم‌فامیل)» رو شروع کرد!\nبدون انتظار بیاین تو اتاق ببینیم کی سریع‌تره 👇\n(کد اتاق: ' + activeRoomCode + ')';
-        var url = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
-        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-        else window.open(url, '_blank');
-    }
+        function jumpToLeaderboard(period) {
+            currentPeriod = period;
+            switchMainTab('leaderboard');
+        }
 
-    function enterSoloMode() {
-        stopTimers();
-        gameMode = 'solo';
-        activeRoomCode = '';
-        currentRoundNum = 0;
-        configureModeUI();
-        document.getElementById('mode-modal').classList.add('hidden');
-        startSoloRound();
-        uiTimer = setInterval(updateClockUI, 500);
-    }
-
-    function startSoloRound() {
-        currentRoundNum++;
-        var data = buildRoundData(currentRoundNum, '👤 تمرین سرعتی تک‌نفره — دور #' + currentRoundNum);
-        document.getElementById('win-modal').classList.add('hidden');
-        applyRoomState(data, true);
-    }
-
-    async function sendHeartbeat() {
-        if (gameMode === 'solo' || !currentRoundId) return;
-        try {
-            await fetch(getRoomPath() + '/players/' + user.id + '/lastSeen.json', { method: 'PUT', body: JSON.stringify(Date.now()) });
-        } catch (e) {}
-    }
-
-    async function registerPlayer() {
-        if (gameMode === 'solo') return;
-        try {
-            await fetch(getRoomPath() + '/players/' + user.id + '.json', {
-                method: 'PUT',
-                body: JSON.stringify({ name: user.name, score: myScore, lastSeen: Date.now() })
+        function loadMySummary() {
+            if (!window.ChalbaziScore) return;
+            ChalbaziScore.getMyStats().then(function(stats) {
+                cachedStats = stats;
+                document.getElementById('my-stat-daily').textContent = stats.daily.toLocaleString('fa-IR');
+                document.getElementById('my-stat-weekly').textContent = stats.weekly.toLocaleString('fa-IR');
+                document.getElementById('my-stat-monthly').textContent = stats.monthly.toLocaleString('fa-IR');
+                document.getElementById('my-stat-all').textContent = stats.all.toLocaleString('fa-IR');
             });
-        } catch (e) {}
-    }
+        }
 
-    function handleNextRound() {
-        if (gameMode === 'solo') startSoloRound();
-        else createNextOnlineRound();
-    }
-
-    async function createNextOnlineRound() {
-        if (gameMode === 'solo' || isCreatingNext) return;
-        isCreatingNext = true;
-        try {
-            var path = getRoomPath();
-            var r = await fetch(path + '.json');
-            var cur = r.ok ? await r.json() : null;
-            if (cur && cur.roundId !== currentRoundId && !cur.finishedAt) {
-                applyRoomState(cur, false);
-                isCreatingNext = false;
-                return;
+        function loadPeriodBoard(period) {
+            currentPeriod = period;
+            var allPeriods = ['daily', 'weekly', 'monthly', 'all'];
+            for (var i = 0; i < allPeriods.length; i++) {
+                var p = allPeriods[i];
+                var btn = document.getElementById('pbtn-' + p);
+                if (btn) btn.className = (p === period) ? 'period-btn active' : 'period-btn';
             }
-            var nextNum = (cur && cur.roundNumber ? cur.roundNumber : 0) + 1;
-            var nextData = buildRoundData(nextNum);
-            await fetch(path + '.json', { method: 'PUT', body: JSON.stringify(nextData) });
-            applyRoomState(nextData, false);
-        } catch (e) {}
-        isCreatingNext = false;
-    }
 
-    async function syncRoom(isInitial, autoCreate) {
-        if (gameMode === 'solo') return;
-        try {
-            var r = await fetch(getRoomPath() + '.json');
-            if (!r.ok) return;
-            var data = await r.json();
-            if (!data || !data.letter || !data.slots) {
-                if (autoCreate) await createNextOnlineRound();
-                return;
-            }
-            if (data.finishedAt && (Date.now() - data.finishedAt > 15000)) {
-                currentRoundId = data.roundId;
-                await createNextOnlineRound();
-                return;
-            }
-            if (!data.finishedAt && data.expiresAt && Date.now() > data.expiresAt + 2000) {
-                await fetch(getRoomPath() + '.json', {
-                    method: 'PATCH',
-                    body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id })
-                });
-                return;
-            }
-            applyRoomState(data, isInitial);
-        } catch (e) {}
-    }
+            var listEl = document.getElementById('lb-list-container');
+            listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:18px;">⏳ در حال دریافت رده‌بندی...</div>';
 
-    function applyRoomState(data, isInitial) {
-        var isNew = (data.roundId !== currentRoundId);
-        if (isNew) {
-            currentRoundId = data.roundId;
-            currentRoundNum = data.roundNumber || 1;
-            currentLetter = data.letter;
-            roundExpiresAt = data.expiresAt || (Date.now() + 90000);
-            clearInterval(countdownTimer);
-            document.getElementById('win-modal').classList.add('hidden');
-            document.getElementById('force-next-btn').classList.add('hidden');
-            document.getElementById('word-input').value = '';
-            showFeedback('', '#fff');
+            if (!window.ChalbaziScore) return;
+            ChalbaziScore.getLeaderboard(period, 20).then(function(res) {
+                document.getElementById('lb-period-label').textContent = '📅 ' + res.label + ' (' + res.totalPlayers + ' بازیکن)';
+                document.getElementById('my-rank-val').textContent = res.myRank > 0 ? ('رتبه ' + res.myRank + ' از ' + res.totalPlayers) : 'ثبت نشده';
+                document.getElementById('my-period-score').textContent = res.myScore.toLocaleString('fa-IR') + ' امتیاز';
 
-            if (data.players && data.players[user.id]) {
-                myScore = data.players[user.id].score || 0;
+                if (res.top.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:20px;">هنوز امتیازی در این بازه ثبت نشده؛ اولین نفر باش! 🚀</div>';
+                    return;
+                }
+
+                var html = '';
+                for (var j = 0; j < res.top.length; j++) {
+                    var item = res.top[j];
+                    var medal = j === 0 ? '🥇' : (j === 1 ? '🥈' : (j === 2 ? '🥉' : (j + 1)));
+                    var rowCls = 'lb-row';
+                    if (j === 0) rowCls += ' top1';
+                    else if (j === 1) rowCls += ' top2';
+                    else if (j === 2) rowCls += ' top3';
+                    if (item.isMe) rowCls += ' me';
+
+                    html += '<div class="' + rowCls + '">'
+                        + '<span class="lb-rank">' + medal + '</span>'
+                        + '<span class="lb-name">' + esc(item.name) + (item.isMe ? ' (شما)' : '') + '</span>'
+                        + '<span class="lb-score">' + item.score.toLocaleString('fa-IR') + '</span>'
+                        + '</div>';
+                }
+                listEl.innerHTML = html;
+            });
+        }
+
+        function loadSponsorData() {
+            if (!window.ChalbaziScore) return;
+            ChalbaziScore.getSponsorData().then(function(data) {
+                sponsorCache = data;
+                renderSponsorBanner();
+                renderSponsorTasks();
+                renderAdminSponsorPanel();
+            });
+        }
+
+        function renderSponsorBanner() {
+            var b = sponsorCache.banner;
+            var slot = document.getElementById('sponsor-banner-slot');
+            if (b && b.active && b.title && b.url) {
+                document.getElementById('sb-title').textContent = b.title;
+                document.getElementById('sb-desc').textContent = b.desc || '';
+                document.getElementById('sb-btn').textContent = b.btnText || 'مشاهده ↗';
+                slot.classList.remove('hidden');
             } else {
-                myScore = 0;
-                registerPlayer();
-            }
-            document.getElementById('round-letter').textContent = currentLetter;
-            document.getElementById('round-title').textContent = 'دور #' + currentRoundNum + ' • حرف «' + currentLetter + '»';
-            document.getElementById('round-badge').textContent = 'دور #' + currentRoundNum;
-            document.getElementById('active-letter-hint').textContent = currentLetter;
-        } else if (isInitial && (!data.players || !data.players[user.id])) {
-            registerPlayer();
-        }
-
-        slotsState = data.slots || {};
-        if (!slotsState[selectedCatKey] || slotsState[selectedCatKey].claimed) {
-            selectNextOpenCategory();
-        }
-
-        if (data.lastEvent && data.lastEvent.text) {
-            document.getElementById('live-ticker').textContent = data.lastEvent.text;
-        }
-
-        document.getElementById('score-val').textContent = myScore;
-        renderCategories();
-
-        var playersObj = data.players || {};
-        var list = [];
-        var online = 0;
-        var now = Date.now();
-        Object.keys(playersObj).forEach(function(pid) {
-            var p = playersObj[pid];
-            if (p) {
-                list.push({ id: pid, name: p.name || 'بازیکن', score: p.score || 0 });
-                if (now - (p.lastSeen || 0) < 35000) online++;
-            }
-        });
-        if (online < 1) online = 1;
-        if (gameMode !== 'solo') {
-            document.getElementById('online-status').textContent = (gameMode === 'friends' ? ('اتاق ' + activeRoomCode + ' | ') : 'زنده | ') + online + ' نفر';
-        }
-        list.sort(function(a, b) { return b.score - a.score; });
-        var bHtml = '';
-        for (var i = 0; i < Math.min(10, list.length); i++) {
-            var pl = list[i];
-            var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
-            bHtml += '<div class="p-row' + (pl.id === user.id ? ' me' : '') + '"><span>' + m + ' ' + pl.name + '</span><strong style="color:#FDE047;">' + pl.score + ' امتیاز</strong></div>';
-        }
-        document.getElementById('live-scoreboard').innerHTML = bHtml || '<div style="font-size:12px; color:#94A3B8;">اولین کلمه رو ثبت کن!</div>';
-
-        var allClaimed = CATEGORIES.every(function(c) { return slotsState[c.key] && slotsState[c.key].claimed; });
-        if (allClaimed || data.finishedAt) {
-            showRoundEndModal(data, bHtml);
-        }
-    }
-
-    function selectNextOpenCategory() {
-        for (var i = 0; i < CATEGORIES.length; i++) {
-            var k = CATEGORIES[i].key;
-            if (!slotsState[k] || !slotsState[k].claimed) {
-                selectedCatKey = k;
-                return;
-            }
-        }
-    }
-
-    function renderCategories() {
-        var box = document.getElementById('cats-list');
-        var html = '';
-        CATEGORIES.forEach(function(c) {
-            var st = slotsState[c.key] || { claimed: false, word: '', by: '' };
-            var isSel = (!st.claimed && selectedCatKey === c.key);
-            if (isSel) document.getElementById('active-cat-label').textContent = c.icon + ' ' + c.label;
-            var cls = 'cat-card' + (st.claimed ? ' claimed' : (isSel ? ' selected' : ''));
-            html += '<div class="' + cls + '" onclick="pickCategory(\'' + c.key + '\')">'
-                + '<div class="cat-left"><span class="cat-icon">' + c.icon + '</span><div><div class="cat-name">' + c.label + '</div>'
-                + '<div class="cat-status">' + (st.claimed ? 'قفل شد ✓' : (isSel ? 'در حال پاسخ دادن...' : 'برای پاسخ لمس کن')) + '</div></div></div>'
-                + '<div class="cat-right">' + (st.claimed ? ('<div class="claimed-word">' + st.word + '</div><div class="claimed-by">' + st.by + '</div>') : '<span style="font-size:11px; color:#FBBF24; font-weight:900;">+۲۰</span>') + '</div>'
-                + '</div>';
-        });
-        box.innerHTML = html;
-    }
-
-    function pickCategory(key) {
-        if (slotsState[key] && slotsState[key].claimed) return;
-        selectedCatKey = key;
-        renderCategories();
-        document.getElementById('word-input').focus();
-    }
-
-    function updateClockUI() {
-        var left = Math.max(0, Math.ceil((roundExpiresAt - Date.now()) / 1000));
-        var el = document.getElementById('timer-box');
-        el.textContent = left + 's';
-        el.style.color = left <= 15 ? '#F87171' : '#7DD3FC';
-        if (gameMode === 'solo' && left === 0 && document.getElementById('win-modal').classList.contains('hidden')) {
-            showRoundEndModal({ finishedAt: Date.now() }, '');
-        }
-    }
-
-    function showFeedback(msg, color) {
-        var el = document.getElementById('feedback-msg');
-        el.textContent = msg;
-        el.style.color = color;
-    }
-
-    async function submitCategoryWord() {
-        var inputEl = document.getElementById('word-input');
-        var raw = inputEl.value.trim();
-        if (!raw) return;
-
-        var st = slotsState[selectedCatKey];
-        if (st && st.claimed) {
-            selectNextOpenCategory();
-            renderCategories();
-            return;
-        }
-
-        var check = validateStandaloneWord(raw, currentLetter);
-        if (!check.ok) {
-            showFeedback(check.msg, '#F87171');
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            return;
-        }
-
-        var word = check.word;
-        // بررسی عدم تکرار همین کلمه در موضوعات دیگر همین دور
-        for (var i = 0; i < CATEGORIES.length; i++) {
-            var ck = CATEGORIES[i].key;
-            if (slotsState[ck] && slotsState[ck].claimed && slotsState[ck].word === word) {
-                showFeedback('⚠️ این کلمه در موضوع دیگری همین دور ثبت شده!', '#FBBF24');
-                return;
+                slot.classList.add('hidden');
             }
         }
 
-        var remCount = CATEGORIES.filter(function(c) { return !slotsState[c.key] || !slotsState[c.key].claimed; }).length;
-        var earned = 20 + (remCount * 3);
-
-        if (gameMode === 'solo') {
-            slotsState[selectedCatKey] = { claimed: true, word: word, by: user.name };
-            myScore += earned;
-            inputEl.value = '';
-            showFeedback('✅ عالی! «' + word + '» ثبت شد (+' + earned + ' امتیاز)', '#34D399');
-            document.getElementById('score-val').textContent = myScore;
-            selectNextOpenCategory();
-            renderCategories();
-            if (remCount === 1) showRoundEndModal({ finishedAt: Date.now() }, '');
-            return;
+        function handleSponsorBannerClick() {
+            var b = sponsorCache.banner;
+            if (!b || !b.url) return;
+            vibrate();
+            if (window.ChalbaziScore) ChalbaziScore.trackBannerClick();
+            openExternalUrl(b.url);
         }
 
-        try {
-            var path = getRoomPath();
-            var r = await fetch(path + '/slots/' + selectedCatKey + '.json');
-            var liveSlot = r.ok ? await r.json() : null;
-            if (liveSlot && liveSlot.claimed) {
-                showFeedback('⚡ «' + liveSlot.by + '» یک لحظه زودتر این موضوع را قفل کرد!', '#FBBF24');
-                syncRoom(false, false);
-                return;
+        function renderSponsorTasks() {
+            var tasks = sponsorCache.tasks || [];
+            var claimedMap = sponsorCache.claimedMap || {};
+            var activeTasks = tasks.filter(function(t) { return t.active; });
+
+            var unclaimedCount = 0;
+            for (var c = 0; c < activeTasks.length; c++) {
+                if (!claimedMap[activeTasks[c].id]) unclaimedCount++;
             }
-
-            myScore += earned;
-            inputEl.value = '';
-
-            if (gameMode === 'global' && window.ChalbaziScore) {
-                ChalbaziScore.addScore(earned, 'esm-famil', currentRoundId + '_' + selectedCatKey);
-            }
-
-            var catObj = CATEGORIES.filter(function(c) { return c.key === selectedCatKey; })[0];
-            await fetch(path + '/slots/' + selectedCatKey + '.json', {
-                method: 'PUT',
-                body: JSON.stringify({ claimed: true, word: word, by: user.name, ts: Date.now() })
-            });
-            await registerPlayer();
-            await fetch(path + '/lastEvent.json', {
-                method: 'PUT',
-                body: JSON.stringify({ text: '⚡ ' + user.name + ' در «' + catObj.label + '» کلمه «' + word + '» را ثبت کرد! (+' + earned + ')', ts: Date.now() })
-            });
-
-            if (remCount === 1) {
-                await fetch(path + '.json', {
-                    method: 'PATCH',
-                    body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id })
-                });
-            }
-
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            showFeedback('🌟 عالی! «' + word + '» ثبت شد (+' + earned + ' امتیاز)', '#34D399');
-            syncRoom(false, false);
-        } catch (e) {
-            showFeedback('❌ خطا در ثبت روی سرور', '#F87171');
-        }
-    }
-
-    document.getElementById('word-input').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') submitCategoryWord();
-    });
-
-    function showRoundEndModal(data, boardHtml) {
-        var modal = document.getElementById('win-modal');
-        if (!modal.classList.contains('hidden')) return;
-        modal.classList.remove('hidden');
-
-        if (gameMode === 'solo') {
-            document.getElementById('win-title').textContent = 'امتیاز این دور: ' + myScore;
-            document.getElementById('final-board-wrap').classList.add('hidden');
-            document.getElementById('next-countdown').textContent = 'آماده حرف بعدی هستی؟';
-            document.getElementById('force-next-btn').classList.remove('hidden');
-            return;
-        }
-
-        document.getElementById('final-board-wrap').classList.remove('hidden');
-        document.getElementById('final-board').innerHTML = boardHtml;
-        var finishedAt = data.finishedAt || Date.now();
-        clearInterval(countdownTimer);
-        countdownTimer = setInterval(function() {
-            var left = Math.max(0, Math.ceil((finishedAt + 8000 - Date.now()) / 1000));
-            var cd = document.getElementById('next-countdown');
-            if (left > 0) {
-                cd.textContent = '⏳ دور بعدی با حرف جدید تا ' + left + ' ثانیه دیگر...';
+            var badgeEl = document.getElementById('tasks-badge');
+            if (unclaimedCount > 0) {
+                badgeEl.textContent = unclaimedCount;
+                badgeEl.classList.remove('hidden');
             } else {
-                cd.textContent = '🚀 در حال شروع دور جدید...';
-                clearInterval(countdownTimer);
-                document.getElementById('force-next-btn').classList.remove('hidden');
-                var delay = (data.finishedById === user.id) ? 300 : (1400 + Math.random() * 1400);
-                setTimeout(function() {
-                    if (!document.getElementById('win-modal').classList.contains('hidden')) createNextOnlineRound();
-                }, delay);
+                badgeEl.classList.add('hidden');
             }
-        }, 500);
-    }
 
-    function shareResult() {
-        var targetUrl = (gameMode === 'friends' && activeRoomCode)
-            ? (BOT_MINIAPP_URL + '?startapp=esm_' + activeRoomCode)
-            : CHANNEL_URL;
-        var text = '🧠 من (' + user.name + ') در مسابقه سرعتی اسم‌فامیل @chalbazi امتیاز ' + myScore + ' گرفتم! 🔥\nبیا ببینیم سرعت دست تو چقدره 👇';
-        var url = 'https://t.me/share/url?url=' + encodeURIComponent(targetUrl) + '&text=' + encodeURIComponent(text);
-        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-        else window.open(url, '_blank');
-    }
+            var listEl = document.getElementById('sponsor-tasks-list');
+            if (activeTasks.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:12px;">فعلاً ماموریت اسپانسری فعالی نیست؛ به‌زودی ماموریت‌های جدید اضافه می‌شه! ✨</div>';
+                return;
+            }
 
-    (function checkAutoJoin() {
-        var room = getQueryParam('room');
-        if (!room && tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-            var sp = String(tg.initDataUnsafe.start_param);
-            if (sp.indexOf('esm_') === 0) room = sp.substring(4);
+            var html = '';
+            for (var i = 0; i < activeTasks.length; i++) {
+                var t = activeTasks[i];
+                var isClaimed = !!claimedMap[t.id];
+                var st = taskStepState[t.id];
+                var btnHtml = '';
+
+                if (isClaimed) btnHtml = '<button class="task-btn done" disabled>✓ انجام شد</button>';
+                else if (st && st.phase === 'waiting') btnHtml = '<button class="task-btn wait" disabled>⏳ ' + st.secs + ' ثانیه</button>';
+                else if (st && st.phase === 'ready') btnHtml = '<button class="task-btn claim" onclick="claimTaskReward(\'' + t.id + '\')">🎁 دریافت</button>';
+                else btnHtml = '<button class="task-btn go" onclick="startSponsorTask(\'' + t.id + '\')">انجام ↗</button>';
+
+                html += '<div class="task-item' + (isClaimed ? ' done' : '') + '">'
+                    + '<div class="task-icon">' + esc(t.icon) + '</div>'
+                    + '<div class="task-body"><div class="task-title">' + esc(t.title) + '</div>'
+                    + (t.desc ? '<div class="task-desc">' + esc(t.desc) + '</div>' : '')
+                    + '<div class="task-reward">⭐ +' + t.reward.toLocaleString('fa-IR') + ' امتیاز</div></div>'
+                    + btnHtml + '</div>';
+            }
+            listEl.innerHTML = html;
         }
-        if (room) enterFriendsRoom(room.replace(/[^0-9]/g, ''), true);
-    })();
-</script>
+
+        function startSponsorTask(taskId) {
+            vibrate();
+            var task = null;
+            for (var i = 0; i < sponsorCache.tasks.length; i++) {
+                if (sponsorCache.tasks[i].id === taskId) { task = sponsorCache.tasks[i]; break; }
+            }
+            if (!task) return;
+            openExternalUrl(task.url);
+
+            taskStepState[taskId] = { phase: 'waiting', secs: 5 };
+            renderSponsorTasks();
+
+            var timer = setInterval(function() {
+                if (!taskStepState[taskId]) { clearInterval(timer); return; }
+                taskStepState[taskId].secs--;
+                if (taskStepState[taskId].secs <= 0) {
+                    clearInterval(timer);
+                    taskStepState[taskId] = { phase: 'ready', secs: 0 };
+                }
+                renderSponsorTasks();
+            }, 1000);
+        }
+
+        function claimTaskReward(taskId) {
+            if (!window.ChalbaziScore) return;
+            var fb = document.getElementById('sponsor-tasks-feedback');
+            if (!currentUser.isTelegram) {
+                fb.style.color = '#FBBF24';
+                fb.textContent = '⚠️ برای دریافت امتیاز ماموریت‌ها از داخل ربات @Chalbazibot وارد شو.';
+                return;
+            }
+            fb.style.color = '#38BDF8';
+            fb.textContent = '⏳ در حال ثبت امتیاز...';
+
+            ChalbaziScore.claimSponsorTask(taskId).then(function(res) {
+                if (res && res.status === 'success') {
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    fb.style.color = '#34D399';
+                    fb.textContent = '🎉 +' + res.reward + ' امتیاز به حسابت اضافه شد!';
+                    delete taskStepState[taskId];
+                    loadSponsorData();
+                    loadMySummary();
+                } else if (res && res.status === 'already_claimed') {
+                    fb.style.color = '#FBBF24';
+                    fb.textContent = '⚠️ جایزه این ماموریت را قبلاً دریافت کرده‌ای.';
+                    loadSponsorData();
+                } else {
+                    fb.style.color = '#F87171';
+                    fb.textContent = '❌ خطا در ثبت امتیاز؛ دوباره تلاش کن.';
+                }
+                setTimeout(function() { fb.textContent = ''; }, 3500);
+            });
+        }
+
+        var adminTapCount = 0;
+        var adminTapTimer = null;
+
+        function handleAdminTap() {
+            adminTapCount++;
+            clearTimeout(adminTapTimer);
+            if (adminTapCount >= 5) {
+                adminTapCount = 0;
+                openSponsorAdmin();
+            } else {
+                adminTapTimer = setTimeout(function() { adminTapCount = 0; }, 2200);
+            }
+        }
+
+        function openSponsorAdmin() {
+            document.getElementById('sponsor-admin-modal').classList.remove('hidden');
+            document.getElementById('sp-admin-msg').textContent = '';
+            loadSponsorData();
+        }
+
+        function closeSponsorAdmin() { document.getElementById('sponsor-admin-modal').classList.add('hidden'); }
+
+        function unlockSponsorAdmin() {
+            var pin = document.getElementById('sp-admin-pin').value.trim();
+            if (pin === SPONSOR_ADMIN_PIN) {
+                document.getElementById('sp-admin-lock').classList.add('hidden');
+                document.getElementById('sp-admin-body').classList.remove('hidden');
+                renderAdminSponsorPanel();
+            } else {
+                alert('رمز مدیر اشتباه است!');
+            }
+        }
+
+        function renderAdminSponsorPanel() {
+            var listEl = document.getElementById('admin-tasks-list');
+            var tasks = sponsorCache.tasks || [];
+            if (tasks.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding:8px;">هنوز ماموریتی ثبت نکرده‌ای.</div>';
+            } else {
+                var html = '';
+                for (var i = 0; i < tasks.length; i++) {
+                    var t = tasks[i];
+                    html += '<div class="admin-task-row">'
+                        + '<div style="flex:1; min-width:0;"><strong>' + esc(t.icon) + ' ' + esc(t.title) + '</strong> (+' + t.reward + ')<br>'
+                        + '<span style="color:#34D399;">📊 انجام‌شده: ' + t.claimsCount + ' نفر</span></div>'
+                        + '<button class="del-mini-btn" onclick="adminDeleteTask(\'' + t.id + '\')">حذف 🗑</button></div>';
+                }
+                listEl.innerHTML = html;
+            }
+            var b = sponsorCache.banner;
+            if (b) {
+                document.getElementById('ban-active').checked = !!b.active;
+                document.getElementById('ban-title').value = b.title || '';
+                document.getElementById('ban-desc').value = b.desc || '';
+                document.getElementById('ban-url').value = b.url || '';
+                document.getElementById('ban-btn').value = b.btnText || 'مشاهده ↗';
+                document.getElementById('ban-clicks-stat').textContent = (b.clicks || 0) + ' کلیک';
+            }
+        }
+
+        function setAdminMsg(txt, color) {
+            var el = document.getElementById('sp-admin-msg');
+            el.style.color = color || '#34D399';
+            el.textContent = txt;
+        }
+
+        function adminAddTask() {
+            var title = document.getElementById('new-task-title').value.trim();
+            var desc = document.getElementById('new-task-desc').value.trim();
+            var url = document.getElementById('new-task-url').value.trim();
+            var reward = document.getElementById('new-task-reward').value;
+            var icon = document.getElementById('new-task-icon').value.trim() || '📢';
+            if (!title || !url) { setAdminMsg('⚠️ عنوان و لینک ماموریت الزامی است!', '#FBBF24'); return; }
+            setAdminMsg('⏳ در حال ثبت...', '#38BDF8');
+            ChalbaziScore.saveSponsorTask({ title: title, desc: desc, url: url, reward: reward, icon: icon, active: true })
+                .then(function(ok) {
+                    if (ok) {
+                        document.getElementById('new-task-title').value = '';
+                        document.getElementById('new-task-desc').value = '';
+                        document.getElementById('new-task-url').value = '';
+                        setAdminMsg('✅ ماموریت جدید منتشر شد!', '#34D399');
+                        loadSponsorData();
+                    } else setAdminMsg('❌ خطا در ذخیره ماموریت', '#F87171');
+                });
+        }
+
+        function adminDeleteTask(taskId) {
+            if (!confirm('این ماموریت حذف شود؟')) return;
+            setAdminMsg('⏳ در حال حذف...', '#38BDF8');
+            ChalbaziScore.deleteSponsorTask(taskId).then(function(ok) {
+                if (ok) { setAdminMsg('✅ ماموریت حذف شد.', '#34D399'); loadSponsorData(); }
+            });
+        }
+
+        function adminSaveBanner() {
+            var active = document.getElementById('ban-active').checked;
+            var title = document.getElementById('ban-title').value.trim();
+            var desc = document.getElementById('ban-desc').value.trim();
+            var url = document.getElementById('ban-url').value.trim();
+            var btnText = document.getElementById('ban-btn').value.trim() || 'مشاهده ↗';
+            var oldClicks = (sponsorCache.banner && sponsorCache.banner.clicks) ? sponsorCache.banner.clicks : 0;
+            if (active && (!title || !url)) { setAdminMsg('⚠️ برای فعال کردن بنر، تیتر و لینک الزامی است!', '#FBBF24'); return; }
+            setAdminMsg('⏳ در حال ذخیره بنر...', '#38BDF8');
+            ChalbaziScore.saveSponsorBanner({ active: active, title: title, desc: desc, url: url, btnText: btnText, clicks: oldClicks })
+                .then(function(ok) {
+                    if (ok) { setAdminMsg('✅ تنظیمات بنر ذخیره شد!', '#34D399'); loadSponsorData(); }
+                    else setAdminMsg('❌ خطا در ذخیره بنر', '#F87171');
+                });
+        }
+
+        function loadReferralTab() {
+            if (!window.ChalbaziScore) return;
+            var listEl = document.getElementById('ref-invited-list');
+            listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:14px;">⏳ در حال دریافت لیست...</div>';
+
+            ChalbaziScore.getReferralInfo().then(function(info) {
+                document.getElementById('ref-count-val').textContent = info.count.toLocaleString('fa-IR');
+                document.getElementById('ref-earned-val').textContent = '+' + info.totalEarned.toLocaleString('fa-IR');
+                if (!info.invitedList || info.invitedList.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:14px;">هنوز کسی با لینک تو وارد نشده؛ همین الان لینکت رو بفرست! 🚀</div>';
+                    return;
+                }
+                var html = '';
+                for (var i = 0; i < info.invitedList.length; i++) {
+                    var f = info.invitedList[i];
+                    html += '<div class="lb-row"><span class="lb-rank">' + (i + 1) + '.</span><span class="lb-name">' + esc(f.name) + '</span><span class="lb-score" style="color:#34D399;">+۵۰</span></div>';
+                }
+                listEl.innerHTML = html;
+            });
+        }
+
+        function shareInviteLink() {
+            vibrate();
+            var text = '🎮 بیا تو شهربازی @chalbazi با هم رقابت کنیم! (رمزنامه ادبی، کلمه‌چین ۵ حرفی، جدول ۸×۸، اسم‌فامیل و...)\n🎁 با لینک من وارد شو تا همین الان ۲۵ امتیاز هدیه بگیری 👇';
+            var url = 'https://t.me/share/url?url=' + encodeURIComponent(myInviteLink) + '&text=' + encodeURIComponent(text);
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+
+        function copyInviteLink() {
+            vibrate();
+            var fb = document.getElementById('ref-feedback');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(myInviteLink).then(function() {
+                    fb.textContent = '✅ لینک دعوت اختصاصی تو کپی شد!';
+                    setTimeout(function() { fb.textContent = ''; }, 2500);
+                }).catch(function() { fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.'; });
+            } else { fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.'; }
+        }
+
+        function refreshAllStats() { vibrate(); loadMySummary(); loadPeriodBoard(currentPeriod); }
+
+        function shareMyStats() {
+            var shareUrl = currentUser.isTelegram ? myInviteLink : CHANNEL_URL;
+            var text = '🏆 کارنامه من (' + currentUser.name + ') در گیم‌هاب @chalbazi:\n'
+                + '☀️ امروز: ' + cachedStats.daily + ' امتیاز\n'
+                + '📅 این هفته: ' + cachedStats.weekly + ' امتیاز\n'
+                + '🌙 این ماه: ' + cachedStats.monthly + ' امتیاز\n'
+                + '👑 مجموع کل: ' + cachedStats.all + ' امتیاز\n\n'
+                + 'با لینک من بیا و ۲۵ امتیاز هدیه بگیر 👇';
+            var url = 'https://t.me/share/url?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(text);
+            if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+            else window.open(url, '_blank');
+        }
+
+        loadMySummary();
+        loadSponsorData();
+    </script>
 </body>
 </html>
