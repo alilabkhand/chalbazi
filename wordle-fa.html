@@ -6,6 +6,7 @@
     <title>کلمه‌چین ۵ حرفی | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="score-manager.js?v=3"></script>
+    <script src="wordle-words.js?v=1"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;700;900&display=swap');
 
@@ -37,23 +38,23 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 8px 8px 12px;
+            padding: 7px 8px 10px;
             position: relative;
         }
 
-        /* نوار بالایی مشابه طراحی نمونه */
+        /* نوار بالایی */
         .top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
-            padding: 2px 4px 6px;
+            gap: 6px;
+            padding: 2px 2px 4px;
             flex-shrink: 0;
         }
 
         .nav-circle {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: #1E1E20;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -62,7 +63,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 900;
             cursor: pointer;
             flex-shrink: 0;
@@ -72,7 +73,7 @@
 
         .streaks-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex: 1;
             justify-content: center;
         }
@@ -80,64 +81,107 @@
         .streak-box {
             background: #1A1A1C;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 4px 12px;
-            min-width: 96px;
+            border-radius: 11px;
+            padding: 3px 10px;
+            min-width: 84px;
             text-align: center;
         }
 
-        .streak-lbl {
-            font-size: 9px;
-            font-weight: 700;
+        .streak-lbl { font-size: 9px; font-weight: 700; color: #A1A1AA; line-height: 1.3; }
+        .streak-lbl.best { color: #4ADE80; }
+        .streak-num { font-size: 16px; font-weight: 900; color: #FFFFFF; line-height: 1.2; }
+        .streak-num.best { color: #53B848; }
+
+        .top-right-btns { display: flex; gap: 5px; align-items: center; }
+
+        /* تب‌های ۳ حالته: رکوردی / کلمه روزانه / دوئل دوستان */
+        .mode-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            padding: 2px 0 4px;
+            flex-shrink: 0;
+        }
+
+        .m-tab {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #1C1C1E;
             color: #A1A1AA;
-            line-height: 1.3;
-        }
-
-        .streak-lbl.best {
-            color: #4ADE80;
-        }
-
-        .streak-num {
-            font-size: 18px;
+            border-radius: 10px;
+            padding: 6px 4px;
+            font-size: 11px;
             font-weight: 900;
+            cursor: pointer;
+            transition: all 0.14s;
+        }
+
+        .m-tab.active {
+            background: linear-gradient(135deg, #53A548, #16A34A);
+            border-color: #86EFAC;
             color: #FFFFFF;
-            line-height: 1.2;
         }
 
-        .streak-num.best {
-            color: #53B848;
+        .m-tab.daily-active {
+            background: linear-gradient(135deg, #0284C7, #38BDF8);
+            border-color: #BAE6FD;
+            color: #FFFFFF;
         }
 
-        .top-right-btns {
+        .m-tab.duel-active {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border-color: #F5D0FE;
+            color: #FFFFFF;
+        }
+
+        /* نوار وضعیت حالت روزانه یا دوئل */
+        .sub-banner {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #E4E4E7;
             display: flex;
-            gap: 6px;
+            justify-content: space-between;
             align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            margin-bottom: 2px;
         }
 
-        /* پیام شناور کوتاه (Toast) */
+        .mini-pill-btn {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            padding: 4px 9px;
+            font-size: 10px;
+            font-weight: 900;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
         .toast {
             position: fixed;
-            top: 64px;
+            top: 86px;
             left: 50%;
             transform: translateX(-50%) translateY(-10px);
             background: #F4F4F5;
             color: #18181B;
-            padding: 8px 16px;
+            padding: 8px 15px;
             border-radius: 12px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 900;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.18s ease, transform 0.18s ease;
-            z-index: 80;
+            z-index: 90;
             white-space: nowrap;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* جدول ۶ در ۵ */
         .board-wrap {
@@ -146,14 +190,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px 0;
+            padding: 3px 0;
         }
 
         .board {
             display: grid;
             grid-template-rows: repeat(6, 1fr);
-            gap: 6px;
-            width: min(310px, 84vw, calc((100dvh - 285px) * 5 / 6));
+            gap: 5px;
+            width: min(295px, 80vw, calc((100dvh - 305px) * 5 / 6));
             aspect-ratio: 5 / 6;
             max-height: 100%;
         }
@@ -161,7 +205,7 @@
         .board-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
+            gap: 5px;
             direction: rtl;
         }
 
@@ -172,7 +216,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(20px, 5.5vw, 28px);
+            font-size: clamp(19px, 5.2vw, 26px);
             font-weight: 900;
             color: #FFFFFF;
             position: relative;
@@ -188,112 +232,51 @@
         .tile.hint-ghost::after {
             content: attr(data-hint);
             position: absolute;
-            color: rgba(236, 72, 153, 0.55);
-            font-size: clamp(18px, 5vw, 24px);
+            color: rgba(236, 72, 153, 0.6);
+            font-size: clamp(18px, 4.8vw, 23px);
             pointer-events: none;
         }
 
-        .tile.filled.hint-ghost::after {
-            content: '';
-        }
+        .tile.filled.hint-ghost::after { content: ''; }
 
-        .tile.correct {
-            background: #53A548;
-            border-color: #53A548;
-            color: #FFFFFF;
-        }
+        .tile.correct { background: #53A548; border-color: #53A548; color: #FFFFFF; }
+        .tile.present { background: #E5A024; border-color: #E5A024; color: #FFFFFF; }
+        .tile.absent { background: #3A3A3C; border-color: #3A3A3C; color: #E4E4E7; }
+        .tile.flip { animation: flipTile 0.45s ease; }
+        .tile.win-bounce { animation: winBounce 0.55s ease; box-shadow: 0 0 14px rgba(83, 165, 72, 0.55); }
+        .board-row.shake { animation: shakeRow 0.36s ease; }
 
-        .tile.present {
-            background: #E5A024;
-            border-color: #E5A024;
-            color: #FFFFFF;
-        }
+        @keyframes popTile { 0% { transform: scale(0.88); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+        @keyframes flipTile { 0% { transform: scaleY(1); } 45% { transform: scaleY(0.08); } 100% { transform: scaleY(1); } }
+        @keyframes winBounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-9px) scale(1.05); } 70% { transform: translateY(2px); } }
+        @keyframes shakeRow { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
 
-        .tile.absent {
-            background: #3A3A3C;
-            border-color: #3A3A3C;
-            color: #E4E4E7;
-        }
-
-        .tile.flip {
-            animation: flipTile 0.45s ease;
-        }
-
-        .tile.win-bounce {
-            animation: winBounce 0.55s ease;
-            box-shadow: 0 0 14px rgba(83, 165, 72, 0.55);
-        }
-
-        .board-row.shake {
-            animation: shakeRow 0.36s ease;
-        }
-
-        @keyframes popTile {
-            0% { transform: scale(0.88); }
-            60% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes flipTile {
-            0% { transform: scaleY(1); }
-            45% { transform: scaleY(0.08); }
-            100% { transform: scaleY(1); }
-        }
-
-        @keyframes winBounce {
-            0%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-9px) scale(1.05); }
-            70% { transform: translateY(2px); }
-        }
-
-        @keyframes shakeRow {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-7px); }
-            40% { transform: translateX(7px); }
-            60% { transform: translateX(-5px); }
-            80% { transform: translateX(5px); }
-        }
-
-        .sparkle {
-            position: absolute;
-            color: #D9F99D;
-            font-size: 13px;
-            pointer-events: none;
-            animation: sparkleFade 0.9s ease forwards;
-        }
-
-        @keyframes sparkleFade {
-            0% { opacity: 0; transform: scale(0.3); }
-            40% { opacity: 1; transform: scale(1.25); }
-            100% { opacity: 0; transform: scale(0.6) translateY(-10px); }
-        }
-
-        /* کیبورد استاندارد فارسی (چپ به راست مثل گوشی) */
+        /* کیبورد ۲۱ حرفی پویا و خوش‌دست (۳ ردیف ۷تایی + پاک کردن) */
         .keyboard {
             direction: ltr;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding: 6px 0 8px;
+            padding: 4px 2px 6px;
             flex-shrink: 0;
         }
 
         .kb-row {
             display: flex;
             justify-content: center;
-            gap: 4px;
+            gap: 5px;
             width: 100%;
         }
 
         .key-btn {
             flex: 1;
-            max-width: 38px;
-            height: 44px;
+            max-width: 52px;
+            height: 45px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             background: #9E9B95;
             color: #FFFFFF;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 900;
             cursor: pointer;
             display: flex;
@@ -305,38 +288,38 @@
 
         .key-btn:active { transform: scale(0.92); }
         .key-btn.backspace {
-            flex: 1.45;
-            max-width: 54px;
+            flex: 1.35;
+            max-width: 68px;
             background: #787570;
-            font-size: 18px;
+            font-size: 19px;
         }
 
         .key-btn.correct { background: #53A548; color: #fff; }
         .key-btn.present { background: #E5A024; color: #fff; }
         .key-btn.absent { background: #3A3A3C; color: #A1A1AA; }
 
-        /* ردیف پایینی: دکمه بزرگ ثبت + دکمه صورتی راهنما */
+        /* ردیف پایینی: دکمه بزرگ ثبت + راهنما */
         .bottom-actions {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 2px 10px 4px;
+            gap: 10px;
+            padding: 2px 8px 2px;
             flex-shrink: 0;
         }
 
         .submit-btn {
             flex: 1;
-            max-width: 270px;
-            height: 50px;
+            max-width: 275px;
+            height: 48px;
             border: none;
             border-radius: 999px;
             background: #9E9B95;
             color: #3F3F46;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
             cursor: pointer;
-            transition: transform 0.08s, background 0.2s, color 0.2s, box-shadow 0.2s;
+            transition: transform 0.08s, background 0.2s, color 0.2s;
         }
 
         .submit-btn.ready {
@@ -349,13 +332,13 @@
 
         .hint-btn {
             position: relative;
-            width: 52px;
-            height: 52px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: none;
             background: linear-gradient(135deg, #EC4899, #DB2777);
             color: #FFFFFF;
-            font-size: 24px;
+            font-size: 23px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -365,18 +348,14 @@
         }
 
         .hint-btn:active { transform: scale(0.92); }
-        .hint-btn.used {
-            background: #3F3F46;
-            box-shadow: none;
-            opacity: 0.6;
-        }
+        .hint-btn.used { background: #3F3F46; box-shadow: none; opacity: 0.6; }
 
         .hint-badge {
             position: absolute;
             top: -3px;
             left: -3px;
-            width: 21px;
-            height: 21px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #FFFFFF;
             color: #18181B;
@@ -385,14 +364,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
         }
 
         /* مودال‌ها */
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.82);
+            background: rgba(0, 0, 0, 0.84);
             backdrop-filter: blur(6px);
             z-index: 120;
             display: flex;
@@ -403,13 +381,15 @@
 
         .modal-card {
             width: 100%;
-            max-width: 370px;
+            max-width: 375px;
             background: #1C1C1E;
             border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 24px;
             padding: 20px;
             text-align: center;
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+            max-height: 90dvh;
+            overflow-y: auto;
         }
 
         .pill {
@@ -419,7 +399,19 @@
             border-radius: 14px;
             font-size: 12px;
             font-weight: 900;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+
+        .genius-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #F59E0B, #EA580C);
+            color: #FFFBEB;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 900;
+            margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
         }
 
         .answer-reveal {
@@ -447,15 +439,10 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            margin: 12px 0 14px;
+            margin: 10px 0 14px;
         }
 
-        .m-stat {
-            background: #27272A;
-            border-radius: 12px;
-            padding: 8px 4px;
-        }
-
+        .m-stat { background: #27272A; border-radius: 12px; padding: 8px 4px; }
         .m-stat-val { font-size: 18px; font-weight: 900; color: #FDE047; }
         .m-stat-lbl { font-size: 10px; color: #A1A1AA; margin-top: 2px; }
 
@@ -477,14 +464,33 @@
 
         .btn-main:active { transform: scale(0.97); }
         .btn-green { background: linear-gradient(135deg, #53A548, #3D8B34); }
+        .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
         .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
         .btn-gray { background: #3A3A3C; }
+
+        .join-row { display: flex; gap: 6px; margin-top: 8px; }
+        .code-input {
+            flex: 1;
+            background: #121213;
+            border: 1.5px solid #8B5CF6;
+            border-radius: 12px;
+            padding: 9px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 3px;
+            outline: none;
+            direction: ltr;
+            user-select: text;
+            -webkit-user-select: text;
+        }
 
         .lb-list {
             background: #141416;
             border-radius: 14px;
             padding: 8px 10px;
-            max-height: 240px;
+            max-height: 220px;
             overflow-y: auto;
             margin: 10px 0 12px;
             text-align: right;
@@ -506,7 +512,7 @@
             text-align: right;
             font-size: 12px;
             color: #D4D4D8;
-            line-height: 1.8;
+            line-height: 1.85;
             background: #141416;
             border-radius: 14px;
             padding: 12px;
@@ -535,9 +541,22 @@
         </div>
 
         <div class="top-right-btns">
-            <button class="nav-circle" style="font-size:17px;" onclick="openLeaderboard()" title="جدول رکوردها">🏆</button>
-            <button class="nav-circle" style="font-size:16px;" onclick="openHelp()" title="راهنما">؟</button>
+            <button class="nav-circle" style="font-size:16px;" onclick="openLeaderboard()" title="جدول رکوردها">🏆</button>
+            <button class="nav-circle" style="font-size:15px;" onclick="openHelp()" title="راهنما">؟</button>
         </div>
+    </div>
+
+    <!-- تب‌های ۳ حالته -->
+    <div class="mode-tabs">
+        <button id="mtab-endless" class="m-tab active" onclick="switchMode('endless')">🔥 رکوردی</button>
+        <button id="mtab-daily" class="m-tab" onclick="switchMode('daily')">📅 کلمه امروز</button>
+        <button id="mtab-duel" class="m-tab" onclick="openDuelSetup()">👥 دوئل گروهی</button>
+    </div>
+
+    <!-- نوار وضعیت کلمه امروز یا دوئل دوستان -->
+    <div id="sub-banner" class="sub-banner hidden">
+        <span id="sub-banner-text"></span>
+        <button id="sub-banner-btn" class="mini-pill-btn hidden" onclick="shareDuelInvite()">📤 ارسال به گروه</button>
     </div>
 
     <!-- جدول ۶×۵ -->
@@ -545,7 +564,7 @@
         <div class="board" id="board"></div>
     </div>
 
-    <!-- کیبورد فارسی -->
+    <!-- کیبورد ۲۱ حرفی پویا -->
     <div class="keyboard" id="keyboard"></div>
 
     <!-- دکمه ثبت + راهنما -->
@@ -560,11 +579,33 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- مودال پایان دست (برد یا باخت) -->
+<!-- مودال راه‌اندازی دوئل گروهی -->
+<div id="duel-setup-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('duel-setup-modal')">
+    <div class="modal-card">
+        <div class="pill" style="background: linear-gradient(135deg, #8B5CF6, #EC4899);">👥 دوئل ۵ حرفی در گروه</div>
+        <h2 style="margin: 4px 0; font-size: 18px;">رقابت سر یک کلمه مشترک</h2>
+        <p style="font-size: 12px; color: #A1A1AA; margin: 4px 0 12px; line-height: 1.7;">
+            اتاق بساز و لینک را در گروه بفرست؛ هر کس با تعداد حدس کمتر و زمان سریع‌تر کلمه را پیدا کند برنده دوئل است!
+        </p>
+
+        <button id="create-duel-btn" class="btn-main btn-purple" onclick="createDuelRoom()">🚀 ساخت دوئل و ارسال به گروه</button>
+
+        <div class="join-row">
+            <input type="text" id="duel-code-input" class="code-input" maxlength="6" inputmode="numeric" placeholder="کد ۴ رقمی دوئل...">
+            <button class="btn-main btn-blue" style="width:auto; padding:9px 16px; margin:0;" onclick="joinDuelByInput()">ورود</button>
+        </div>
+        <div id="duel-err" style="font-size:11px; color:#F87171; min-height:16px; margin:5px 0 8px; font-weight:700;"></div>
+
+        <button class="btn-main btn-gray" style="margin-bottom:0;" onclick="closeModal('duel-setup-modal')">بستن</button>
+    </div>
+</div>
+
+<!-- مودال پایان دست -->
 <div id="result-modal" class="overlay hidden">
     <div class="modal-card">
         <div class="pill" id="res-pill">🎉 آفرین!</div>
-        <h2 id="res-title" style="margin: 4px 0; font-size: 19px;">کلمه رو پیدا کردی!</h2>
+        <div id="genius-wrap" class="hidden"><span class="genius-badge">🧠 نشان نابغه (حل سریع بدون راهنما • امتیاز ×۲)</span></div>
+        <h2 id="res-title" style="margin: 6px 0 2px; font-size: 18px;">کلمه رو پیدا کردی!</h2>
         <div class="answer-reveal" id="res-answer"></div>
         <p id="res-desc" style="font-size: 12px; color: #A1A1AA; margin: 4px 0;"></p>
 
@@ -583,13 +624,16 @@
             </div>
         </div>
 
-        <button class="btn-main btn-green" onclick="startNewRound()">▶ مرحله بعدی</button>
+        <!-- جدول نتایج دوئل (فقط در حالت دوئل) -->
+        <div id="duel-results-box" class="lb-list hidden" style="max-height:140px;"></div>
+
+        <button id="next-round-btn" class="btn-main btn-green" onclick="handleNextAction()">▶ مرحله بعدی</button>
         <button class="btn-main btn-blue" onclick="shareWordleResult()">📤 اشتراک‌گذاری نتیجه</button>
         <button class="btn-main btn-gray" style="margin-bottom:0;" onclick="openLeaderboard()">🏆 جدول برترین‌ها</button>
     </div>
 </div>
 
-<!-- مودال جدول برترین‌های برد پیاپی -->
+<!-- مودال جدول برترین‌ها -->
 <div id="lb-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('lb-modal')">
     <div class="modal-card">
         <div class="pill">🏆 برترین‌های کلمه‌چین ۵ حرفی</div>
@@ -599,19 +643,17 @@
     </div>
 </div>
 
-<!-- مودال راهنمای بازی -->
+<!-- مودال راهنما -->
 <div id="help-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('help-modal')">
     <div class="modal-card">
         <div class="pill" style="background: linear-gradient(135deg, #E5A024, #D97706);">📖 روش بازی کلمه‌چین</div>
         <div class="rules-box">
-            در <strong>۶ تلاش</strong> باید کلمه <strong>۵ حرفی فارسی</strong> مخفی را حدس بزنی:<br><br>
-            🟩 <strong>سبز:</strong> حرف در کلمه هست و <strong>دقیقاً در جای درستش</strong> قرار گرفته.<br>
-            🟨 <strong>زرد:</strong> حرف در کلمه هست، اما <strong>در جای اشتباهی</strong> قرار گرفته.<br>
-            ⬛ <strong>خاکستری:</strong> این حرف اصلاً در کلمه وجود ندارد.<br><br>
-            💡 در هر دست <strong>۱ راهنمای رایگان</strong> داری که یک حرف مخفی را در جای دقیقش نشانت می‌دهد.<br>
-            🔥 با بردهای پشت‌سرهم، رکوردت در جدول کانال ثبت می‌شود!
+            🔹 در <strong>۶ تلاش</strong> باید کلمه <strong>۵ حرفی مفرد و مستقل فارسی</strong> را حدس بزنی.<br>
+            🔹 <strong>کیبورد هوشمند ۲۱ حرفی:</strong> در هر دست ۱۰ حرف غیرمرتبط از کیبورد حذف می‌شوند تا کلیدها بزرگ و خوش‌دست باشند، بدون اینکه هیچ کلمه‌ای از فارسی خط بخورد!<br>
+            🔹 🟩 <strong>سبز:</strong> حرف و جای درست | 🟨 <strong>زرد:</strong> حرف درست در جای اشتباه | ⬛ <strong>خاکستری:</strong> ناموجود.<br>
+            🔹 🧠 <strong>نشان نابغه:</strong> اگر بدون استفاده از لامپ راهنما 💡 در تلاش ۱ تا ۳ کلمه را پیدا کنی، امتیازت <strong>دو برابر</strong> می‌شود!<br>
+            🔹 📅 <strong>کلمه امروز:</strong> یک کلمه مشترک برای کل اعضای کانال در امروز.
         </div>
-        <div id="dict-info-help" style="font-size: 11px; color: #38BDF8; margin-bottom: 12px;"></div>
         <button class="btn-main btn-green" style="margin-bottom:0;" onclick="closeModal('help-modal')">متوجه شدم ✓</button>
     </div>
 </div>
@@ -619,10 +661,13 @@
 <script>
     var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
     var CHANNEL_URL = 'https://t.me/chalbazi';
-    var WORDLE_BOARD_PATH = FIREBASE_DB_URL.replace(/\/+$/, '') + '/wordleFaLeaderboard';
+    var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
+    var CLEAN_DB = FIREBASE_DB_URL.replace(/\/+$/, '');
+    var WORDLE_BOARD_PATH = CLEAN_DB + '/wordleFaLeaderboard';
 
     function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
     function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function getQueryParam(name) { try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; } }
 
     function goBackLobby(ev) {
         if (ev) ev.preventDefault();
@@ -650,14 +695,13 @@
         user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
     }
 
-    function normalizeFa(str) {
-        return String(str || '').trim().replace(/\s+/g, '').replace(/\u200c/g, '')
-            .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
-            .replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا')
-            .replace(/ة/g, 'ه').replace(/[\u064B-\u065F]/g, '');
-    }
+    var normalizeFn = window.normalizeFaStrict || function(s) {
+        return String(s || '').trim().replace(/\s+/g, '').replace(/\u200c/g, '')
+            .replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/آ/g, 'ا').replace(/أ/g, 'ا').replace(/إ/g, 'ا').replace(/ة/g, 'ه');
+    };
+    var standaloneCheckFn = window.isStandalonePersianWord || function() { return true; };
 
-    // ==================== افکت‌های صوتی سبک (Web Audio) ====================
+    // ==================== افکت صوتی ====================
     var audioCtx = null;
     function beep(f1, f2, dur, type, vol, delay) {
         try {
@@ -681,12 +725,11 @@
             osc.stop(t0 + dur + 0.01);
         } catch (e) {}
     }
-
     function playSound(kind) {
         if (kind === 'tap') beep(520, 420, 0.04, 'triangle', 0.04);
         else if (kind === 'del') beep(320, 220, 0.05, 'triangle', 0.04);
         else if (kind === 'err') beep(190, 140, 0.14, 'sawtooth', 0.06);
-        else if (kind === 'hint') { beep(740, 980, 0.12, 'sine', 0.07); }
+        else if (kind === 'hint') beep(740, 980, 0.12, 'sine', 0.07);
         else if (kind === 'win') {
             beep(523, 523, 0.09, 'triangle', 0.09, 0);
             beep(659, 659, 0.09, 'triangle', 0.09, 0.1);
@@ -698,105 +741,35 @@
         }
     }
 
-    // ==================== بانک کلمات ۵ حرفی فارسی ====================
-    var FALLBACK_5 = [
-        "ستاره","باران","پرنده","زندگی","اسمان","مهتاب","لبخند","پیروز","شیرین","پاییز",
-        "خرداد","مرداد","اسفند","تهران","شیراز","تبریز","کرمان","اهواز","بوشهر","قزوین",
-        "گرگان","ابشار","جزیره","موتور","طوفان","دوستی","برادر","خواهر","فرزند","مسافر",
-        "مدرسه","میدان","پنجره","دیوار","صندلی","لیوان","بشقاب","چنگال","صابون","جوراب",
-        "شلوار","بادام","انگور","گیلاس","گلابی","ریحان","جعفری","خاموش","ارامش","امروز",
-        "دیروز","خاطره","ترانه","گیتار","پیانو","سینما","شطرنج","شناگر","زنبور","زرافه",
-        "روباه","گنجشک","کبوتر","دلفین","طاووس","شاهین","قناری","پیتزا","بستنی","شکلات",
-        "کلوچه","نانوا","خیاطی","نقاشی","عکاسی","باغچه","بیدار","استاد","شاگرد","مهندس",
-        "خلبان","ملوان","سرباز","فرمان","انرژی","باروت","فانوس","سیمان","پولاد","الماس",
-        "یاقوت","فیروز","طلایی","نارنج","صورتی","چمدان","زنجیر","ترازو","مقراض","پارچه",
-        "پالتو","دستکش","مسواک","ایوان","بلوار","بازار","مغازه","پاساژ","کارگر","استخر",
-        "شقایق","بامبو","انجیر","زیتون","چغندر","تربچه","لوبیا","پرچم","دریاچه","فروشگاه"
-    ];
+    // ==================== بانک کلمات هدف (مستقل) و دیکشنری حدس ====================
+    var TARGET_POOL = (typeof WORDLE_TARGET_WORDS !== 'undefined' && Array.isArray(WORDLE_TARGET_WORDS) && WORDLE_TARGET_WORDS.length > 0)
+        ? WORDLE_TARGET_WORDS.slice()
+        : ["ستاره","باران","پرنده","لبخند","پنجره","الماس","فانوس","پاییز","زمستان","جنگل"];
 
-    var TARGET_POOL = [];
-    var TARGET_SET = new Set();
-    var VALID_GUESS_SET = new Set();
+    var VALID_GUESS_SET = new Set(TARGET_POOL);
 
-    function addTargetWord(w) {
-        var nw = normalizeFa(w);
-        if (nw.length === 5 && /^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]{5}$/.test(nw)) {
-            if (!TARGET_SET.has(nw)) {
-                TARGET_SET.add(nw);
-                TARGET_POOL.push(nw);
-            }
-            VALID_GUESS_SET.add(nw);
-        }
-    }
-
-    function addValidWord(w) {
-        var nw = normalizeFa(w);
-        if (nw.length === 5 && /^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]{5}$/.test(nw)) {
-            VALID_GUESS_SET.add(nw);
-        }
-    }
-
-    for (var fi = 0; fi < FALLBACK_5.length; fi++) addTargetWord(FALLBACK_5[fi]);
-
-    function updateDictInfoHelp() {
-        var el = document.getElementById('dict-info-help');
-        if (el) {
-            el.textContent = '📚 کلمات هدف: ' + TARGET_POOL.length.toLocaleString('fa-IR') + ' واژه ۵ حرفی | دیکشنری مجاز: ' + VALID_GUESS_SET.size.toLocaleString('fa-IR') + ' واژه';
-        }
-    }
-    updateDictInfoHelp();
-
-    function loadScript(src, ok, err) {
+    (function loadBigDict() {
         var s = document.createElement('script');
-        s.src = src; s.async = true; s.onload = ok; s.onerror = err;
-        document.head.appendChild(s);
-    }
-
-    var keywordsLoadedPromise = new Promise(function(resolve) {
-        loadScript('keywords.js?v=2', function() {
+        s.src = 'dictionary.js?v=2';
+        s.async = true;
+        s.onload = function() {
             try {
-                if (typeof COMMON_KEY_WORDS !== 'undefined' && Array.isArray(COMMON_KEY_WORDS)) {
-                    for (var i = 0; i < COMMON_KEY_WORDS.length; i++) addTargetWord(COMMON_KEY_WORDS[i]);
-                    updateDictInfoHelp();
+                if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
+                    for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) {
+                        var nw = normalizeFn(BIG_PERSIAN_DICT[i]);
+                        if (nw.length === 5 && standaloneCheckFn(nw)) {
+                            VALID_GUESS_SET.add(nw);
+                        }
+                    }
                 }
             } catch (e) {}
-            resolve();
-        }, function() { resolve(); });
-        setTimeout(resolve, 1800);
-    });
+        };
+        document.head.appendChild(s);
+    })();
 
-    loadScript('words.js', function() {
-        try {
-            if (typeof WORDS_DB !== 'undefined') {
-                Object.keys(WORDS_DB).forEach(function(cat) {
-                    var arr = WORDS_DB[cat];
-                    if (Array.isArray(arr)) {
-                        for (var i = 0; i < arr.length; i++) addTargetWord(arr[i]);
-                    }
-                });
-                updateDictInfoHelp();
-            }
-        } catch (e) {}
-    }, function() {});
-
-    loadScript('dictionary.js?v=2', function() {
-        try {
-            if (typeof BIG_PERSIAN_DICT !== 'undefined' && Array.isArray(BIG_PERSIAN_DICT)) {
-                for (var i = 0; i < BIG_PERSIAN_DICT.length; i++) addValidWord(BIG_PERSIAN_DICT[i]);
-                updateDictInfoHelp();
-            }
-        } catch (e) {}
-    }, function() {});
-
-    // ==================== ساخت جدول و کیبورد فارسی ====================
+    // ==================== ساخت جدول ۶×۵ ====================
     var ROWS = 6;
     var COLS = 5;
-    var KB_LAYOUT = [
-        ['ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج'],
-        ['ش','س','ی','ب','ل','ا','ت','ن','م','ک','گ'],
-        ['ظ','ط','ز','ر','ذ','د','پ','و','چ','ژ','⌫']
-    ];
-
     var boardEl = document.getElementById('board');
     var rowEls = [];
     var tileEls = [];
@@ -816,49 +789,110 @@
         tileEls.push(rowTiles);
     }
 
-    var kbEl = document.getElementById('keyboard');
+    // ==================== کیبورد ۲۱ حرفی پویا (حذف ۱۰ حرف غیرمرتبط در هر دست) ====================
+    var ALL_FA_LETTERS = [
+        'ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج',
+        'ش','س','ی','ب','ل','ا','ت','ن','م','ک','گ',
+        'ظ','ط','ز','ر','ذ','د','پ','و','چ','ژ'
+    ];
+    // حروف پرکاربرد همیشه حفظ می‌شوند تا کیبورد دست را لو ندهد
+    var CORE_KEEP_LETTERS = ['ا','ر','ن','م','ی','د','س','ت','ب','ک','ل','و','ه','ش','گ'];
     var keyBtns = {};
 
-    for (var kr = 0; kr < KB_LAYOUT.length; kr++) {
-        var krDiv = document.createElement('div');
-        krDiv.className = 'kb-row';
-        for (var kc = 0; kc < KB_LAYOUT[kr].length; kc++) {
-            var ch = KB_LAYOUT[kr][kc];
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = ch === '⌫' ? 'key-btn backspace' : 'key-btn';
-            btn.textContent = ch;
-            (function(letter) {
-                btn.addEventListener('click', function() {
-                    if (letter === '⌫') onBackspace();
-                    else onLetterInput(letter);
-                });
-            })(ch);
-            krDiv.appendChild(btn);
-            if (ch !== '⌫') keyBtns[ch] = btn;
+    function seededRandom(seedStr) {
+        var h = 2166136261 >>> 0;
+        for (var i = 0; i < seedStr.length; i++) {
+            h ^= seedStr.charCodeAt(i);
+            h = Math.imul(h, 16777619);
         }
-        kbEl.appendChild(krDiv);
+        return function() {
+            h += 0x6D2B79F5;
+            var t = Math.imul(h ^ (h >>> 15), 1 | h);
+            t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
     }
 
-    // ==================== وضعیت بازی و رکوردها ====================
-    function streakKey(suffix) { return 'wf_' + user.id + '_' + suffix; }
+    function buildDynamicKeyboard(wordStr, seedKey) {
+        var rng = seedKey ? seededRandom(seedKey) : Math.random;
+        var mustKeep = new Set();
+        for (var i = 0; i < wordStr.length; i++) mustKeep.add(wordStr[i]);
 
-    var curStreak = Number(safeGet(streakKey('cur'), '0')) || 0;
-    var bestStreak = Number(safeGet(streakKey('best'), '0')) || 0;
-    var totalWins = Number(safeGet(streakKey('wins'), '0')) || 0;
+        // کاندیداهای حذف (۱۰ حرف از میان حروفی که نه در کلمه هدف هستند و نه جزو هسته پرکاربرد)
+        var removable = ALL_FA_LETTERS.filter(function(ch) {
+            return !mustKeep.has(ch) && CORE_KEEP_LETTERS.indexOf(ch) === -1;
+        });
+        removable.sort(function() { return rng() - 0.5; });
+
+        var dropped = new Set(removable.slice(0, 10));
+        // اگر هنوز بیش از ۲۲ حرف باقی مانده، از حروف غیرهدف دیگر تا رسیدن به ۲۲ حرف کم می‌کنیم
+        if (ALL_FA_LETTERS.length - dropped.size > 22) {
+            var extraRem = ALL_FA_LETTERS.filter(function(ch) { return !mustKeep.has(ch) && !dropped.has(ch); });
+            extraRem.sort(function() { return rng() - 0.5; });
+            while (ALL_FA_LETTERS.length - dropped.size > 22 && extraRem.length > 0) {
+                dropped.add(extraRem.pop());
+            }
+        }
+
+        // حفظ ترتیب استاندارد چیدمان فارسی روی کیبورد خلوت‌شده
+        var activeLetters = ALL_FA_LETTERS.filter(function(ch) { return !dropped.has(ch); });
+        var rowsSplit = [
+            activeLetters.slice(0, 8),
+            activeLetters.slice(8, 15),
+            activeLetters.slice(15).concat(['⌫'])
+        ];
+
+        var kbEl = document.getElementById('keyboard');
+        kbEl.innerHTML = '';
+        keyBtns = {};
+
+        for (var kr = 0; kr < rowsSplit.length; kr++) {
+            var krDiv = document.createElement('div');
+            krDiv.className = 'kb-row';
+            for (var kc = 0; kc < rowsSplit[kr].length; kc++) {
+                var ch = rowsSplit[kr][kc];
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = ch === '⌫' ? 'key-btn backspace' : 'key-btn';
+                btn.textContent = ch;
+                (function(letter) {
+                    btn.addEventListener('click', function() {
+                        if (letter === '⌫') onBackspace();
+                        else onLetterInput(letter);
+                    });
+                })(ch);
+                krDiv.appendChild(btn);
+                if (ch !== '⌫') keyBtns[ch] = btn;
+            }
+            kbEl.appendChild(krDiv);
+        }
+    }
+
+    // ==================== وضعیت بازی و حالت‌های سه‌گانه ====================
+    function storeKey(s) { return 'wf2_' + user.id + '_' + s; }
+
+    var curStreak = Number(safeGet(storeKey('cur'), '0')) || 0;
+    var bestStreak = Number(safeGet(storeKey('best'), '0')) || 0;
+    var totalWins = Number(safeGet(storeKey('wins'), '0')) || 0;
+
+    var playMode = 'endless'; // 'endless' | 'daily' | 'duel'
+    var duelRoomCode = '';
+    var duelStartTime = 0;
+    var duelPollTimer = null;
 
     var targetWord = '';
     var currentRow = 0;
     var currentGuess = [];
-    var guessResults = []; // برای ساخت متن اشتراک‌گذاری ایموجی
+    var guessResults = [];
     var lockedGreen = [false, false, false, false, false];
-    var hintedIndices = {}; // { colIndex: letter }
-    var keyStates = {}; // { ch: 1(absent) | 2(present) | 3(correct) }
+    var hintedIndices = {};
+    var keyStates = {};
     var hintsLeft = 1;
+    var usedHintThisRound = false;
     var isAnimating = false;
     var gameOver = false;
     var lastEarnedPts = 0;
-    var roundCounter = Number(safeGet(streakKey('rc'), '0')) || 0;
+    var isGeniusWin = false;
 
     function updateStreakUI() {
         document.getElementById('cur-streak').textContent = curStreak;
@@ -872,29 +906,37 @@
         el.textContent = msg;
         el.classList.add('show');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+        toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2200);
     }
 
-    function pickFreshTargetWord() {
-        var recent = [];
-        try { recent = JSON.parse(safeGet(streakKey('recent'), '[]')); } catch (e) {}
-        if (!Array.isArray(recent)) recent = [];
+    function getTodayIranKey() {
+        var tehran = new Date(Date.now() + 210 * 60 * 1000);
+        return tehran.getUTCFullYear() + '-' + (tehran.getUTCMonth() + 1) + '-' + tehran.getUTCDate();
+    }
 
-        var pool = TARGET_POOL.length > 0 ? TARGET_POOL : FALLBACK_5;
-        var chosen = pool[Math.floor(Math.random() * pool.length)];
-        for (var i = 0; i < 40; i++) {
-            var cand = pool[Math.floor(Math.random() * pool.length)];
+    function pickEndlessWord() {
+        var recent = [];
+        try { recent = JSON.parse(safeGet(storeKey('recent'), '[]')); } catch (e) {}
+        if (!Array.isArray(recent)) recent = [];
+        var chosen = TARGET_POOL[Math.floor(Math.random() * TARGET_POOL.length)];
+        for (var i = 0; i < 50; i++) {
+            var cand = TARGET_POOL[Math.floor(Math.random() * TARGET_POOL.length)];
             if (recent.indexOf(cand) === -1) { chosen = cand; break; }
         }
         recent.push(chosen);
-        if (recent.length > 80) recent = recent.slice(-80);
-        safeSet(streakKey('recent'), JSON.stringify(recent));
+        if (recent.length > 90) recent = recent.slice(-90);
+        safeSet(storeKey('recent'), JSON.stringify(recent));
         return chosen;
     }
 
-    function startNewRound() {
-        closeModal('result-modal');
-        targetWord = pickFreshTargetWord();
+    function pickDailyWord(dayKey) {
+        var rng = seededRandom('chalbazi_daily_' + dayKey);
+        var idx = Math.floor(rng() * TARGET_POOL.length);
+        return TARGET_POOL[idx];
+    }
+
+    function resetBoardVisuals(wordStr, kbSeed) {
+        targetWord = wordStr;
         currentRow = 0;
         currentGuess = [];
         guessResults = [];
@@ -902,11 +944,11 @@
         hintedIndices = {};
         keyStates = {};
         hintsLeft = 1;
+        usedHintThisRound = false;
         isAnimating = false;
         gameOver = false;
         lastEarnedPts = 0;
-        roundCounter++;
-        safeSet(streakKey('rc'), String(roundCounter));
+        isGeniusWin = false;
 
         for (var r = 0; r < ROWS; r++) {
             rowEls[r].classList.remove('shake');
@@ -917,29 +959,139 @@
                 t.removeAttribute('data-hint');
             }
         }
-
-        Object.keys(keyBtns).forEach(function(k) {
-            keyBtns[k].className = 'key-btn';
-        });
-
+        buildDynamicKeyboard(wordStr, kbSeed);
         updateHintUI();
         updateSubmitBtn();
     }
 
-    function updateSubmitBtn() {
-        var btn = document.getElementById('submit-btn');
-        if (currentGuess.length === COLS && !gameOver && !isAnimating) {
-            btn.classList.add('ready');
-        } else {
-            btn.classList.remove('ready');
+    function switchMode(mode) {
+        clearInterval(duelPollTimer);
+        closeModal('result-modal');
+        playMode = mode;
+
+        document.getElementById('mtab-endless').className = mode === 'endless' ? 'm-tab active' : 'm-tab';
+        document.getElementById('mtab-daily').className = mode === 'daily' ? 'm-tab daily-active' : 'm-tab';
+        document.getElementById('mtab-duel').className = mode === 'duel' ? 'm-tab duel-active' : 'm-tab';
+
+        var subBar = document.getElementById('sub-banner');
+        var subBtn = document.getElementById('sub-banner-btn');
+
+        if (mode === 'endless') {
+            subBar.classList.add('hidden');
+            resetBoardVisuals(pickEndlessWord(), '');
+        } else if (mode === 'daily') {
+            var dayKey = getTodayIranKey();
+            var dWord = pickDailyWord(dayKey);
+            subBar.classList.remove('hidden');
+            subBtn.classList.add('hidden');
+            document.getElementById('sub-banner-text').textContent = '📅 کلمه روزانه مشترک کل کانال @chalbazi (' + dayKey + ')';
+            resetBoardVisuals(dWord, 'daily_kb_' + dayKey);
+
+            // اگر امروز قبلاً این مرحله را بازی کرده، وضعیتش را نشان بده
+            var savedDaily = null;
+            try { savedDaily = JSON.parse(safeGet(storeKey('daily_' + dayKey), 'null')); } catch (e) {}
+            if (savedDaily && savedDaily.done) {
+                gameOver = true;
+                guessResults = savedDaily.results || [];
+                lastEarnedPts = savedDaily.earned || 0;
+                showEndModal(savedDaily.won, savedDaily.tries || 1);
+            }
         }
     }
 
+    // ==================== دوئل دوستان در گروه ====================
+    function openDuelSetup() {
+        document.getElementById('duel-err').textContent = '';
+        document.getElementById('duel-setup-modal').classList.remove('hidden');
+    }
+
+    async function createDuelRoom() {
+        var btn = document.getElementById('create-duel-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ در حال ساخت دوئل...';
+        try {
+            var code = String(Math.floor(1000 + Math.random() * 9000));
+            var word = TARGET_POOL[Math.floor(Math.random() * TARGET_POOL.length)];
+            var payload = {
+                code: code,
+                word: word,
+                hostName: user.name,
+                createdAt: Date.now(),
+                results: {}
+            };
+            await fetch(CLEAN_DB + '/wordleDuels/' + code + '.json', {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+            closeModal('duel-setup-modal');
+            startDuelSession(code, word);
+            shareDuelInvite();
+        } catch (e) {
+            document.getElementById('duel-err').textContent = '❌ خطا در ساخت اتاق دوئل';
+        }
+        btn.disabled = false;
+        btn.textContent = '🚀 ساخت دوئل و ارسال به گروه';
+    }
+
+    async function joinDuelByInput() {
+        var code = document.getElementById('duel-code-input').value.trim().replace(/[^0-9]/g, '');
+        var errEl = document.getElementById('duel-err');
+        if (code.length < 3) {
+            errEl.textContent = '⚠️ کد ۴ رقمی دوئل را وارد کنید.';
+            return;
+        }
+        errEl.textContent = '⏳ در حال بررسی...';
+        try {
+            var res = await fetch(CLEAN_DB + '/wordleDuels/' + code + '.json');
+            var data = res.ok ? await res.json() : null;
+            if (!data || !data.word) {
+                errEl.textContent = '❌ دوئلی با کد #' + code + ' پیدا نشد!';
+                return;
+            }
+            closeModal('duel-setup-modal');
+            startDuelSession(code, data.word);
+        } catch (e) {
+            errEl.textContent = '❌ خطا در اتصال';
+        }
+    }
+
+    function startDuelSession(code, word) {
+        clearInterval(duelPollTimer);
+        playMode = 'duel';
+        duelRoomCode = String(code);
+        duelStartTime = Date.now();
+
+        document.getElementById('mtab-endless').className = 'm-tab';
+        document.getElementById('mtab-daily').className = 'm-tab';
+        document.getElementById('mtab-duel').className = 'm-tab duel-active';
+
+        var subBar = document.getElementById('sub-banner');
+        var subBtn = document.getElementById('sub-banner-btn');
+        subBar.classList.remove('hidden');
+        subBtn.classList.remove('hidden');
+        document.getElementById('sub-banner-text').textContent = '👥 دوئل گروهی #' + duelRoomCode + ' — سریع‌تر و با حدس کمتر ببر!';
+
+        resetBoardVisuals(word, 'duel_kb_' + duelRoomCode);
+    }
+
+    function shareDuelInvite() {
+        if (!duelRoomCode) return;
+        var link = BOT_MINIAPP_URL + '?startapp=wordle_' + duelRoomCode;
+        var text = '🟩 ' + user.name + ' چالش «کلمه‌چین ۵ حرفی» رو شروع کرد!\nبیاین سر همین کلمه رقابت کنیم ببینیم کی با حدس کمتر پیداش می‌کنه 👇\n(کد دوئل: ' + duelRoomCode + ')';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+        else window.open(url, '_blank');
+    }
+
+    // ==================== ورودی کیبورد و بررسی حدس ====================
+    function updateSubmitBtn() {
+        var btn = document.getElementById('submit-btn');
+        btn.classList.toggle('ready', currentGuess.length === COLS && !gameOver && !isAnimating);
+    }
+
     function updateHintUI() {
-        var btn = document.getElementById('hint-btn');
-        var badge = document.getElementById('hint-badge');
-        badge.textContent = hintsLeft;
-        btn.classList.toggle('used', hintsLeft <= 0);
+        document.getElementById('hint-badge').textContent = hintsLeft;
+        document.getElementById('hint-btn').classList.toggle('used', hintsLeft <= 0);
     }
 
     function applyHintGhostsToCurrentRow() {
@@ -954,8 +1106,7 @@
     }
 
     function onLetterInput(letter) {
-        if (gameOver || isAnimating) return;
-        if (currentGuess.length >= COLS) return;
+        if (gameOver || isAnimating || currentGuess.length >= COLS) return;
         var col = currentGuess.length;
         currentGuess.push(letter);
         var tile = tileEls[currentRow][col];
@@ -967,8 +1118,7 @@
     }
 
     function onBackspace() {
-        if (gameOver || isAnimating) return;
-        if (currentGuess.length === 0) return;
+        if (gameOver || isAnimating || currentGuess.length === 0) return;
         currentGuess.pop();
         var col = currentGuess.length;
         var tile = tileEls[currentRow][col];
@@ -992,10 +1142,10 @@
             showToast('همه حروف قبلاً مشخص شده‌اند!');
             return;
         }
-
         var idx = candidates[Math.floor(Math.random() * candidates.length)];
         var ch = targetWord[idx];
         hintsLeft--;
+        usedHintThisRound = true;
         hintedIndices[idx] = ch;
         updateHintUI();
         applyHintGhostsToCurrentRow();
@@ -1019,22 +1169,16 @@
         else if (rank === 1) btn.classList.add('absent');
     }
 
-    // الگوریتم دقیق ۲مرحله‌ای وردل برای مدیریت صحیح حروف تکراری
     function evaluateGuess(guessArr, targetStr) {
         var res = ['absent', 'absent', 'absent', 'absent', 'absent'];
         var counts = {};
-        for (var i = 0; i < COLS; i++) {
-            var tc = targetStr[i];
-            counts[tc] = (counts[tc] || 0) + 1;
-        }
-        // مرحله ۱: تطابق دقیق (سبز)
+        for (var i = 0; i < COLS; i++) counts[targetStr[i]] = (counts[targetStr[i]] || 0) + 1;
         for (var j = 0; j < COLS; j++) {
             if (guessArr[j] === targetStr[j]) {
                 res[j] = 'correct';
                 counts[guessArr[j]]--;
             }
         }
-        // مرحله ۲: وجود در جای اشتباه (زرد)
         for (var k = 0; k < COLS; k++) {
             if (res[k] === 'correct') continue;
             var g = guessArr[k];
@@ -1056,24 +1200,6 @@
         showToast(msg);
     }
 
-    function spawnWinSparkles(rowIndex) {
-        for (var c = 0; c < COLS; c++) {
-            var tile = tileEls[rowIndex][c];
-            tile.classList.add('win-bounce');
-            if (c === 0 || c === 2 || c === 4) {
-                var sp = document.createElement('span');
-                sp.className = 'sparkle';
-                sp.textContent = '✦';
-                sp.style.top = (c === 2 ? '-8px' : '4px');
-                sp.style.left = (c === 4 ? '-6px' : '4px');
-                tile.appendChild(sp);
-                (function(el) {
-                    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 950);
-                })(sp);
-            }
-        }
-    }
-
     function submitGuess() {
         if (gameOver || isAnimating) return;
         if (currentGuess.length < COLS) {
@@ -1081,7 +1207,11 @@
             return;
         }
 
-        var guessWord = normalizeFa(currentGuess.join(''));
+        var guessWord = normalizeFn(currentGuess.join(''));
+        if (!standaloneCheckFn(guessWord) && guessWord !== targetWord) {
+            shakeCurrentRow('فقط کلمه مفرد و مستقل قابل قبول است!');
+            return;
+        }
         if (!VALID_GUESS_SET.has(guessWord) && guessWord !== targetWord) {
             shakeCurrentRow('«' + guessWord + '» در دیکشنری فارسی نیست!');
             return;
@@ -1092,7 +1222,6 @@
 
         var evalRes = evaluateGuess(currentGuess, targetWord);
         guessResults.push(evalRes);
-
         var rowIdx = currentRow;
         var guessCopy = currentGuess.slice();
 
@@ -1102,12 +1231,11 @@
                     var tile = tileEls[rowIdx][col];
                     tile.classList.remove('hint-ghost');
                     tile.classList.add('flip', evalRes[col]);
-
                     var rank = evalRes[col] === 'correct' ? 3 : (evalRes[col] === 'present' ? 2 : 1);
                     setKeyColor(guessCopy[col], rank);
                     if (evalRes[col] === 'correct') lockedGreen[col] = true;
                     playSound('tap');
-                }, col * 115);
+                }, col * 110);
             })(c);
         }
 
@@ -1118,26 +1246,41 @@
 
             if (didWin) {
                 gameOver = true;
-                spawnWinSparkles(rowIdx);
+                for (var b = 0; b < COLS; b++) tileEls[rowIdx][b].classList.add('win-bounce');
                 playSound('win');
                 if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
-                curStreak++;
-                totalWins++;
-                if (curStreak > bestStreak) bestStreak = curStreak;
-                saveLocalAndRemoteStats();
-
-                // امتیازدهی بر اساس سرعت حدس + بونوس برد پیاپی
                 var rowPoints = [60, 50, 40, 30, 25, 20];
                 var basePts = rowPoints[rowIdx] || 20;
-                var streakBonus = Math.min(30, (curStreak - 1) * 5);
-                lastEarnedPts = basePts + streakBonus;
 
-                if (window.ChalbaziScore) {
-                    ChalbaziScore.addScore(lastEarnedPts, 'wordle-fa', 'wf_' + roundCounter + '_' + Date.now());
+                // نشان نابغه: حل در تلاش ۱ تا ۳ بدون استفاده از راهنما = امتیاز ۲ برابر
+                isGeniusWin = (!usedHintThisRound && rowIdx <= 2);
+                if (isGeniusWin) basePts *= 2;
+
+                if (playMode === 'endless') {
+                    curStreak++;
+                    totalWins++;
+                    if (curStreak > bestStreak) bestStreak = curStreak;
+                    saveLocalAndRemoteStats();
+                    lastEarnedPts = basePts + Math.min(30, (curStreak - 1) * 5);
+                    if (window.ChalbaziScore) {
+                        ChalbaziScore.addScore(lastEarnedPts, 'wordle-fa', 'wf_' + Date.now());
+                    }
+                } else if (playMode === 'daily') {
+                    var dayKey = getTodayIranKey();
+                    lastEarnedPts = basePts + 25;
+                    safeSet(storeKey('daily_' + dayKey), JSON.stringify({
+                        done: true, won: true, tries: rowIdx + 1, earned: lastEarnedPts, results: guessResults
+                    }));
+                    if (window.ChalbaziScore) {
+                        ChalbaziScore.addScore(lastEarnedPts, 'wordle-daily', 'wfd_' + dayKey);
+                    }
+                } else if (playMode === 'duel') {
+                    lastEarnedPts = basePts;
+                    submitDuelScore(true, rowIdx + 1);
                 }
 
-                setTimeout(function() { showEndModal(true, rowIdx + 1); }, 800);
+                setTimeout(function() { showEndModal(true, rowIdx + 1); }, 700);
                 return;
             }
 
@@ -1148,20 +1291,76 @@
                 gameOver = true;
                 playSound('lose');
                 if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                curStreak = 0;
-                saveLocalAndRemoteStats();
-                setTimeout(function() { showEndModal(false, ROWS); }, 550);
+
+                if (playMode === 'endless') {
+                    curStreak = 0;
+                    saveLocalAndRemoteStats();
+                } else if (playMode === 'daily') {
+                    var dk = getTodayIranKey();
+                    safeSet(storeKey('daily_' + dk), JSON.stringify({
+                        done: true, won: false, tries: ROWS, earned: 0, results: guessResults
+                    }));
+                } else if (playMode === 'duel') {
+                    submitDuelScore(false, ROWS);
+                }
+
+                setTimeout(function() { showEndModal(false, ROWS); }, 500);
             } else {
                 applyHintGhostsToCurrentRow();
                 updateSubmitBtn();
             }
-        }, COLS * 115 + 260);
+        }, COLS * 110 + 250);
+    }
+
+    async function submitDuelScore(won, tries) {
+        if (!duelRoomCode) return;
+        var elapsedSec = Math.max(1, Math.round((Date.now() - duelStartTime) / 1000));
+        try {
+            await fetch(CLEAN_DB + '/wordleDuels/' + duelRoomCode + '/results/' + user.id + '.json', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    name: user.name,
+                    won: won,
+                    tries: tries,
+                    seconds: elapsedSec,
+                    ts: Date.now()
+                })
+            });
+            refreshDuelStandings();
+            duelPollTimer = setInterval(refreshDuelStandings, 3000);
+        } catch (e) {}
+    }
+
+    async function refreshDuelStandings() {
+        if (!duelRoomCode) return;
+        try {
+            var res = await fetch(CLEAN_DB + '/wordleDuels/' + duelRoomCode + '/results.json');
+            var data = res.ok ? await res.json() : null;
+            var box = document.getElementById('duel-results-box');
+            if (!data) return;
+            var arr = [];
+            Object.keys(data).forEach(function(id) { if (data[id]) arr.push(Object.assign({ id: id }, data[id])); });
+            arr.sort(function(a, b) {
+                if (a.won !== b.won) return a.won ? -1 : 1;
+                if (a.tries !== b.tries) return a.tries - b.tries;
+                return a.seconds - b.seconds;
+            });
+            var html = '';
+            for (var i = 0; i < arr.length; i++) {
+                var p = arr[i];
+                var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i + 2 ? '🥉' : (i + 1) + '.'));
+                var st = p.won ? (p.tries + '/6 (' + p.seconds + 'ث)') : 'ناموفق';
+                html += '<div class="lb-row' + (p.id === user.id ? ' me' : '') + '"><span>' + m + ' ' + p.name + '</span><strong style="color:#53B848;">' + st + '</strong></div>';
+            }
+            box.innerHTML = html;
+            box.classList.remove('hidden');
+        } catch (e) {}
     }
 
     function saveLocalAndRemoteStats() {
-        safeSet(streakKey('cur'), String(curStreak));
-        safeSet(streakKey('best'), String(bestStreak));
-        safeSet(streakKey('wins'), String(totalWins));
+        safeSet(storeKey('cur'), String(curStreak));
+        safeSet(storeKey('best'), String(bestStreak));
+        safeSet(storeKey('wins'), String(totalWins));
         updateStreakUI();
 
         fetch(WORDLE_BOARD_PATH + '/' + user.id + '.json', {
@@ -1180,29 +1379,46 @@
         var pill = document.getElementById('res-pill');
         var title = document.getElementById('res-title');
         var desc = document.getElementById('res-desc');
+        var nextBtn = document.getElementById('next-round-btn');
+        document.getElementById('genius-wrap').classList.toggle('hidden', !isGeniusWin);
+        document.getElementById('duel-results-box').classList.toggle('hidden', playMode !== 'duel');
 
         if (won) {
-            pill.textContent = '🎉 آفرین!';
+            pill.textContent = playMode === 'daily' ? '📅 چالش امروز حل شد!' : '🎉 آفرین!';
             pill.style.background = 'linear-gradient(135deg, #53A548, #10B981)';
             title.textContent = 'در تلاش ' + tries + ' از ۶ پیداش کردی!';
-            desc.textContent = 'امتیاز این دست در لیدربورد کل @chalbazi ثبت شد.';
+            desc.textContent = playMode === 'duel'
+                ? 'نتیجه‌ات در جدول دوئل گروهی ثبت شد!'
+                : 'امتیاز این دست در لیدربورد کل @chalbazi ثبت شد.';
         } else {
             pill.textContent = '😔 فرصت تمام شد';
             pill.style.background = 'linear-gradient(135deg, #EF4444, #B91C1C)';
             title.textContent = 'کلمه مخفی این بود:';
-            desc.textContent = 'رکورد برد پیاپی ریست شد؛ دوباره شروع کن و رکوردت رو بزن!';
+            desc.textContent = 'دوباره تلاش کن و رکوردت رو بزن!';
         }
 
         var ansHtml = '';
-        for (var i = 0; i < targetWord.length; i++) {
-            ansHtml += '<div class="ans-box">' + targetWord[i] + '</div>';
-        }
+        for (var i = 0; i < targetWord.length; i++) ansHtml += '<div class="ans-box">' + targetWord[i] + '</div>';
         document.getElementById('res-answer').innerHTML = ansHtml;
         document.getElementById('m-cur-streak').textContent = curStreak;
         document.getElementById('m-best-streak').textContent = bestStreak;
         document.getElementById('m-earned').textContent = won ? ('+' + lastEarnedPts) : '0';
 
+        nextBtn.textContent = playMode === 'daily' ? '🔥 رفتن به حالت رکوردی بی‌نهایت' : (playMode === 'duel' ? '🔄 ساخت دوئل جدید' : '▶ مرحله بعدی');
         document.getElementById('result-modal').classList.remove('hidden');
+        if (playMode === 'duel') refreshDuelStandings();
+    }
+
+    function handleNextAction() {
+        if (playMode === 'daily') {
+            switchMode('endless');
+        } else if (playMode === 'duel') {
+            closeModal('result-modal');
+            openDuelSetup();
+        } else {
+            closeModal('result-modal');
+            resetBoardVisuals(pickEndlessWord(), '');
+        }
     }
 
     function shareWordleResult() {
@@ -1215,11 +1431,13 @@
             }
             lines.push(line);
         }
-        var text = '🟩 کلمه‌چین ۵ حرفی @chalbazi\n'
-            + '🔥 برد پیاپی من: ' + curStreak + ' (رکورد کل: ' + bestStreak + ')\n\n'
-            + lines.join('\n') + '\n\n'
-            + 'می‌تونی رکورد منو بشکنی؟ 👇';
-        var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+        var shareUrl = (playMode === 'duel' && duelRoomCode) ? (BOT_MINIAPP_URL + '?startapp=wordle_' + duelRoomCode) : CHANNEL_URL;
+        var headerLine = playMode === 'daily'
+            ? ('📅 کلمه امروز @chalbazi (' + getTodayIranKey() + ')')
+            : (playMode === 'duel' ? ('👥 دوئل کلمه‌چین #' + duelRoomCode) : ('🟩 کلمه‌چین ۵ حرفی @chalbazi (برد پیاپی: ' + curStreak + ')'));
+
+        var text = headerLine + '\n' + (isGeniusWin ? '🧠 نشان نابغه گرفتم!\n\n' : '\n') + lines.join('\n') + '\n\nمی‌تونی رکورد منو بزنی؟ 👇';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(text);
         if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
         else window.open(url, '_blank');
     }
@@ -1240,76 +1458,65 @@
                 Object.keys(data).forEach(function(id) {
                     var item = data[id];
                     if (item && (item.bestStreak > 0 || item.wins > 0)) {
-                        arr.push({
-                            id: id,
-                            name: item.name || 'بازیکن',
-                            best: item.bestStreak || 0,
-                            cur: item.currentStreak || 0,
-                            wins: item.wins || 0
-                        });
+                        arr.push({ id: id, name: item.name || 'بازیکن', best: item.bestStreak || 0, wins: item.wins || 0 });
                     }
                 });
-                arr.sort(function(a, b) {
-                    if (b.best !== a.best) return b.best - a.best;
-                    return b.wins - a.wins;
-                });
+                arr.sort(function(a, b) { return b.best !== a.best ? b.best - a.best : b.wins - a.wins; });
                 if (arr.length === 0) {
                     listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#A1A1AA;">هنوز بردی ثبت نشده!</div>';
                     return;
                 }
                 var html = '';
-                var lim = Math.min(20, arr.length);
-                for (var i = 0; i < lim; i++) {
+                for (var i = 0; i < Math.min(20, arr.length); i++) {
                     var p = arr[i];
                     var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
-                    var cls = p.id === user.id ? 'lb-row me' : 'lb-row';
-                    html += '<div class="' + cls + '">'
-                        + '<span><strong>' + m + ' ' + p.name + '</strong> <small style="color:#A1A1AA;">(' + p.wins + ' برد)</small></span>'
-                        + '<strong style="color:#53B848;">🔥 ' + p.best + '</strong>'
-                        + '</div>';
+                    html += '<div class="lb-row' + (p.id === user.id ? ' me' : '') + '"><span><strong>' + m + ' ' + p.name + '</strong> <small style="color:#A1A1AA;">(' + p.wins + ' برد)</small></span><strong style="color:#53B848;">🔥 ' + p.best + '</strong></div>';
                 }
                 listEl.innerHTML = html;
             })
-            .catch(function() {
-                listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#F87171;">❌ خطا در اتصال به سرور</div>';
-            });
+            .catch(function() { listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#F87171;">❌ خطا در اتصال</div>'; });
     }
 
     function openHelp() { document.getElementById('help-modal').classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // پشتیبانی از کیبورد فیزیکی (دسکتاپ و تبلت)
     window.addEventListener('keydown', function(e) {
         if (gameOver || isAnimating) return;
         if (e.key === 'Backspace') { onBackspace(); return; }
         if (e.key === 'Enter') { submitGuess(); return; }
-        var ch = normalizeFa(e.key);
-        if (ch.length === 1 && keyBtns[ch]) {
-            onLetterInput(ch);
-        }
+        var ch = normalizeFn(e.key);
+        if (ch.length === 1 && keyBtns[ch]) onLetterInput(ch);
     });
 
-    // همگام‌سازی رکورد کاربر از سرور در شروع (اگر گوشی عوض شده باشد)
+    // همگام‌سازی رکورد کاربر و بررسی ورود از لینک دوئل گروهی
     fetch(WORDLE_BOARD_PATH + '/' + user.id + '.json')
         .then(function(r) { return r.ok ? r.json() : null; })
         .then(function(remote) {
             if (remote) {
-                if ((remote.bestStreak || 0) > bestStreak) {
-                    bestStreak = remote.bestStreak;
-                    safeSet(streakKey('best'), String(bestStreak));
-                }
-                if ((remote.wins || 0) > totalWins) {
-                    totalWins = remote.wins;
-                    safeSet(streakKey('wins'), String(totalWins));
-                }
+                if ((remote.bestStreak || 0) > bestStreak) { bestStreak = remote.bestStreak; safeSet(storeKey('best'), String(bestStreak)); }
+                if ((remote.wins || 0) > totalWins) { totalWins = remote.wins; safeSet(storeKey('wins'), String(totalWins)); }
                 updateStreakUI();
             }
         }).catch(function() {});
 
-    // شروع اولین دور پس از لود شدن keywords.js
-    keywordsLoadedPromise.then(function() {
-        startNewRound();
-    });
+    (function checkAutoJoinDuel() {
+        var room = getQueryParam('room');
+        if (!room && tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+            var sp = String(tg.initDataUnsafe.start_param);
+            if (sp.indexOf('wordle_') === 0) room = sp.substring(7);
+        }
+        if (room) {
+            var cleanCode = room.replace(/[^0-9]/g, '');
+            fetch(CLEAN_DB + '/wordleDuels/' + cleanCode + '.json')
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(d) {
+                    if (d && d.word) startDuelSession(cleanCode, d.word);
+                    else switchMode('endless');
+                }).catch(function() { switchMode('endless'); });
+        } else {
+            switchMode('endless');
+        }
+    })();
 </script>
 </body>
 </html>
