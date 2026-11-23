@@ -410,3 +410,530 @@
     function validateStandaloneWord(raw, expectedLetter) {
         var w = normalizeFa(raw);
         if (w.length < 2) return { ok: false, msg: '⚠️ واژه خیلی کوتاه است!' };
+        if (!/^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]+$/.test(w)) {
+            return { ok: false, msg: '⚠️ فقط حروف فارسی بدون فاصله و عدد بنویس!' };
+        }
+        if (w[0] !== normalizeFa(expectedLetter)) {
+            return { ok: false, msg: '❌ کلمه باید با حرف «' + expectedLetter + '» شروع شود!' };
+        }
+        // رد کردن کلمات مضاف (مثل شورای، دنیای، آهوی، خانهی)
+        if (w.length >= 4 && w.slice(-2) === 'ای') {
+            return { ok: false, msg: '❌ کلمه مضاف (مثل شورای/دنیای) قبول نیست؛ اصل واژه مستقل را بنویس!' };
+        }
+        if (w.length >= 5 && w.slice(-2) === 'وی' && ['موسوی','رضوی','علوی','نبوی'].indexOf(w) === -1) {
+            return { ok: false, msg: '❌ کلمه مضاف ختم به «ـوی» قبول نیست؛ اصل کلمه را بنویس!' };
+        }
+        if (w.length >= 4 && w.slice(-2) === 'هی') {
+            return { ok: false, msg: '❌ کلمه کسره‌دار/مضاف قابل قبول نیست!' };
+        }
+        // رد کردن جمع‌ها برای واژگان ۳ حرف به بالا
+        if (w.length >= 3 && window.isStandalonePersianWord && !window.isStandalonePersianWord(w)) {
+            if (w.slice(-2) === 'ها' || w.slice(-2) === 'ات' || w.slice(-2) === 'ان') {
+                return { ok: false, msg: '❌ کلمه جمع قابل قبول نیست! فقط حالت مفرد بنویس.' };
+            }
+            return { ok: false, msg: '❌ فقط واژه مفرد و مستقل قابل قبول است!' };
+        }
+        if (w.length === 2 && !SHORT_VALID_2.has(w)) {
+            return { ok: false, msg: '❌ این واژه ۲ حرفی معتبر نیست!' };
+        }
+        if (w.length >= 3 && !VALID_WORDS.has(w)) {
+            return { ok: false, msg: '❌ «' + w + '» در دیکشنری معتبر نیست!' };
+        }
+        return { ok: true, word: w };
+    }
+
+    // ==================== وضعیت اتاق و همگام‌سازی ====================
+    var gameMode = 'global'; // 'global' | 'friends' | 'solo'
+    var activeRoomCode = '';
+    var currentRoundId = null;
+    var currentRoundNum = 1;
+    var currentLetter = 'س';
+    var roundExpiresAt = 0;
+    var slotsState = {};
+    var selectedCatKey = 'name';
+    var myScore = 0;
+    var syncTimer = null;
+    var heartbeatTimer = null;
+    var uiTimer = null;
+    var countdownTimer = null;
+    var isCreatingNext = false;
+
+    function getRoomPath() {
+        if (gameMode === 'friends' && activeRoomCode) return CLEAN_DB + '/esmRooms/' + activeRoomCode;
+        return CLEAN_DB + '/esmLive';
+    }
+
+    function stopTimers() {
+        clearInterval(syncTimer);
+        clearInterval(heartbeatTimer);
+        clearInterval(uiTimer);
+        clearInterval(countdownTimer);
+    }
+
+    function openModeMenu() {
+        stopTimers();
+        document.getElementById('join-err').textContent = '';
+        document.getElementById('win-modal').classList.add('hidden');
+        document.getElementById('mode-modal').classList.remove('hidden');
+    }
+
+    function buildRoundData(roundNum, startText) {
+        var letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+        var slots = {};
+        CATEGORIES.forEach(function(c) { slots[c.key] = { claimed: false, word: '', by: '' }; });
+        var playersInit = {};
+        playersInit[user.id] = { name: user.name, score: 0, lastSeen: Date.now() };
+        return {
+            roundId: 'esm_' + Date.now(),
+            roundNumber: roundNum,
+            letter: letter,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + 90000,
+            finishedAt: 0,
+            finishedById: '',
+            slots: slots,
+            lastEvent: { text: startText || ('🚀 دور #' + roundNum + ' با حرف «' + letter + '» شروع شد!'), ts: Date.now() },
+            players: playersInit
+        };
+    }
+
+    function configureModeUI() {
+        document.getElementById('friends-bar').classList.toggle('hidden', gameMode !== 'friends');
+        document.getElementById('solo-next-btn').classList.toggle('hidden', gameMode !== 'solo');
+        document.getElementById('live-board-box').classList.toggle('hidden', gameMode === 'solo');
+        if (gameMode === 'friends') {
+            document.getElementById('room-code-txt').textContent = '#' + activeRoomCode;
+            document.getElementById('board-title-txt').textContent = '🏆 رده‌بندی اتاق #' + activeRoomCode;
+        } else if (gameMode === 'solo') {
+            document.getElementById('online-status').textContent = 'حالت انفرادی';
+        } else {
+            document.getElementById('board-title-txt').textContent = '🏆 رده‌بندی زنده این دور';
+        }
+    }
+
+    async function enterGlobalMode() {
+        stopTimers();
+        gameMode = 'global';
+        activeRoomCode = '';
+        currentRoundId = null;
+        configureModeUI();
+        document.getElementById('mode-modal').classList.add('hidden');
+        await syncRoom(true, true);
+        syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
+        heartbeatTimer = setInterval(sendHeartbeat, 10000);
+        uiTimer = setInterval(updateClockUI, 500);
+    }
+
+    async function createFriendsRoom() {
+        var btn = document.getElementById('create-room-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ در حال ساخت اتاق...';
+        try {
+            var code = String(Math.floor(1000 + Math.random() * 9000));
+            stopTimers();
+            gameMode = 'friends';
+            activeRoomCode = code;
+            currentRoundId = null;
+            var data = buildRoundData(1, '👥 ' + user.name + ' اتاق اسم‌فامیل #' + code + ' رو ساخت! شروع شد 🔥');
+            await fetch(getRoomPath() + '.json', { method: 'PUT', body: JSON.stringify(data) });
+            configureModeUI();
+            document.getElementById('mode-modal').classList.add('hidden');
+            applyRoomState(data, true);
+            syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
+            heartbeatTimer = setInterval(sendHeartbeat, 10000);
+            uiTimer = setInterval(updateClockUI, 500);
+            inviteFriendsToGroup();
+        } catch (e) {
+            document.getElementById('join-err').textContent = '❌ خطا در اتصال به سرور';
+        }
+        btn.disabled = false;
+        btn.textContent = '👥 بازی با دوستان (ارسال به گروه)';
+    }
+
+    async function joinFriendsByInput() {
+        var code = document.getElementById('join-code-input').value.trim().replace(/[^0-9]/g, '');
+        var err = document.getElementById('join-err');
+        if (code.length < 3) { err.textContent = '⚠️ کد ۴ رقمی اتاق را وارد کن'; return; }
+        err.textContent = '⏳ در حال بررسی...';
+        try {
+            var r = await fetch(CLEAN_DB + '/esmRooms/' + code + '.json');
+            var d = r.ok ? await r.json() : null;
+            if (!d || !d.letter) { err.textContent = '❌ اتاق #' + code + ' پیدا نشد!'; return; }
+            err.textContent = '';
+            await enterFriendsRoom(code, false);
+        } catch (e) { err.textContent = '❌ خطا در اتصال'; }
+    }
+
+    async function enterFriendsRoom(code, autoCreate) {
+        stopTimers();
+        gameMode = 'friends';
+        activeRoomCode = String(code);
+        currentRoundId = null;
+        configureModeUI();
+        document.getElementById('mode-modal').classList.add('hidden');
+        await syncRoom(true, autoCreate);
+        syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
+        heartbeatTimer = setInterval(sendHeartbeat, 10000);
+        uiTimer = setInterval(updateClockUI, 500);
+    }
+
+    function inviteFriendsToGroup() {
+        if (!activeRoomCode) return;
+        var link = BOT_MINIAPP_URL + '?startapp=esm_' + activeRoomCode;
+        var text = '🧠 ' + user.name + ' بازی «حدس کلمه سرعتی (اسم‌فامیل)» رو شروع کرد!\nبدون انتظار بیاین تو اتاق ببینیم کی سریع‌تره 👇\n(کد اتاق: ' + activeRoomCode + ')';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+        else window.open(url, '_blank');
+    }
+
+    function enterSoloMode() {
+        stopTimers();
+        gameMode = 'solo';
+        activeRoomCode = '';
+        currentRoundNum = 0;
+        configureModeUI();
+        document.getElementById('mode-modal').classList.add('hidden');
+        startSoloRound();
+        uiTimer = setInterval(updateClockUI, 500);
+    }
+
+    function startSoloRound() {
+        currentRoundNum++;
+        var data = buildRoundData(currentRoundNum, '👤 تمرین سرعتی تک‌نفره — دور #' + currentRoundNum);
+        document.getElementById('win-modal').classList.add('hidden');
+        applyRoomState(data, true);
+    }
+
+    async function sendHeartbeat() {
+        if (gameMode === 'solo' || !currentRoundId) return;
+        try {
+            await fetch(getRoomPath() + '/players/' + user.id + '/lastSeen.json', { method: 'PUT', body: JSON.stringify(Date.now()) });
+        } catch (e) {}
+    }
+
+    async function registerPlayer() {
+        if (gameMode === 'solo') return;
+        try {
+            await fetch(getRoomPath() + '/players/' + user.id + '.json', {
+                method: 'PUT',
+                body: JSON.stringify({ name: user.name, score: myScore, lastSeen: Date.now() })
+            });
+        } catch (e) {}
+    }
+
+    function handleNextRound() {
+        if (gameMode === 'solo') startSoloRound();
+        else createNextOnlineRound();
+    }
+
+    async function createNextOnlineRound() {
+        if (gameMode === 'solo' || isCreatingNext) return;
+        isCreatingNext = true;
+        try {
+            var path = getRoomPath();
+            var r = await fetch(path + '.json');
+            var cur = r.ok ? await r.json() : null;
+            if (cur && cur.roundId !== currentRoundId && !cur.finishedAt) {
+                applyRoomState(cur, false);
+                isCreatingNext = false;
+                return;
+            }
+            var nextNum = (cur && cur.roundNumber ? cur.roundNumber : 0) + 1;
+            var nextData = buildRoundData(nextNum);
+            await fetch(path + '.json', { method: 'PUT', body: JSON.stringify(nextData) });
+            applyRoomState(nextData, false);
+        } catch (e) {}
+        isCreatingNext = false;
+    }
+
+    async function syncRoom(isInitial, autoCreate) {
+        if (gameMode === 'solo') return;
+        try {
+            var r = await fetch(getRoomPath() + '.json');
+            if (!r.ok) return;
+            var data = await r.json();
+            if (!data || !data.letter || !data.slots) {
+                if (autoCreate) await createNextOnlineRound();
+                return;
+            }
+            if (data.finishedAt && (Date.now() - data.finishedAt > 15000)) {
+                currentRoundId = data.roundId;
+                await createNextOnlineRound();
+                return;
+            }
+            if (!data.finishedAt && data.expiresAt && Date.now() > data.expiresAt + 2000) {
+                await fetch(getRoomPath() + '.json', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id })
+                });
+                return;
+            }
+            applyRoomState(data, isInitial);
+        } catch (e) {}
+    }
+
+    function applyRoomState(data, isInitial) {
+        var isNew = (data.roundId !== currentRoundId);
+        if (isNew) {
+            currentRoundId = data.roundId;
+            currentRoundNum = data.roundNumber || 1;
+            currentLetter = data.letter;
+            roundExpiresAt = data.expiresAt || (Date.now() + 90000);
+            clearInterval(countdownTimer);
+            document.getElementById('win-modal').classList.add('hidden');
+            document.getElementById('force-next-btn').classList.add('hidden');
+            document.getElementById('word-input').value = '';
+            showFeedback('', '#fff');
+
+            if (data.players && data.players[user.id]) {
+                myScore = data.players[user.id].score || 0;
+            } else {
+                myScore = 0;
+                registerPlayer();
+            }
+            document.getElementById('round-letter').textContent = currentLetter;
+            document.getElementById('round-title').textContent = 'دور #' + currentRoundNum + ' • حرف «' + currentLetter + '»';
+            document.getElementById('round-badge').textContent = 'دور #' + currentRoundNum;
+            document.getElementById('active-letter-hint').textContent = currentLetter;
+        } else if (isInitial && (!data.players || !data.players[user.id])) {
+            registerPlayer();
+        }
+
+        slotsState = data.slots || {};
+        if (!slotsState[selectedCatKey] || slotsState[selectedCatKey].claimed) {
+            selectNextOpenCategory();
+        }
+
+        if (data.lastEvent && data.lastEvent.text) {
+            document.getElementById('live-ticker').textContent = data.lastEvent.text;
+        }
+
+        document.getElementById('score-val').textContent = myScore;
+        renderCategories();
+
+        var playersObj = data.players || {};
+        var list = [];
+        var online = 0;
+        var now = Date.now();
+        Object.keys(playersObj).forEach(function(pid) {
+            var p = playersObj[pid];
+            if (p) {
+                list.push({ id: pid, name: p.name || 'بازیکن', score: p.score || 0 });
+                if (now - (p.lastSeen || 0) < 35000) online++;
+            }
+        });
+        if (online < 1) online = 1;
+        if (gameMode !== 'solo') {
+            document.getElementById('online-status').textContent = (gameMode === 'friends' ? ('اتاق ' + activeRoomCode + ' | ') : 'زنده | ') + online + ' نفر';
+        }
+        list.sort(function(a, b) { return b.score - a.score; });
+        var bHtml = '';
+        for (var i = 0; i < Math.min(10, list.length); i++) {
+            var pl = list[i];
+            var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
+            bHtml += '<div class="p-row' + (pl.id === user.id ? ' me' : '') + '"><span>' + m + ' ' + pl.name + '</span><strong style="color:#FDE047;">' + pl.score + ' امتیاز</strong></div>';
+        }
+        document.getElementById('live-scoreboard').innerHTML = bHtml || '<div style="font-size:12px; color:#94A3B8;">اولین کلمه رو ثبت کن!</div>';
+
+        var allClaimed = CATEGORIES.every(function(c) { return slotsState[c.key] && slotsState[c.key].claimed; });
+        if (allClaimed || data.finishedAt) {
+            showRoundEndModal(data, bHtml);
+        }
+    }
+
+    function selectNextOpenCategory() {
+        for (var i = 0; i < CATEGORIES.length; i++) {
+            var k = CATEGORIES[i].key;
+            if (!slotsState[k] || !slotsState[k].claimed) {
+                selectedCatKey = k;
+                return;
+            }
+        }
+    }
+
+    function renderCategories() {
+        var box = document.getElementById('cats-list');
+        var html = '';
+        CATEGORIES.forEach(function(c) {
+            var st = slotsState[c.key] || { claimed: false, word: '', by: '' };
+            var isSel = (!st.claimed && selectedCatKey === c.key);
+            if (isSel) document.getElementById('active-cat-label').textContent = c.icon + ' ' + c.label;
+            var cls = 'cat-card' + (st.claimed ? ' claimed' : (isSel ? ' selected' : ''));
+            html += '<div class="' + cls + '" onclick="pickCategory(\'' + c.key + '\')">'
+                + '<div class="cat-left"><span class="cat-icon">' + c.icon + '</span><div><div class="cat-name">' + c.label + '</div>'
+                + '<div class="cat-status">' + (st.claimed ? 'قفل شد ✓' : (isSel ? 'در حال پاسخ دادن...' : 'برای پاسخ لمس کن')) + '</div></div></div>'
+                + '<div class="cat-right">' + (st.claimed ? ('<div class="claimed-word">' + st.word + '</div><div class="claimed-by">' + st.by + '</div>') : '<span style="font-size:11px; color:#FBBF24; font-weight:900;">+۲۰</span>') + '</div>'
+                + '</div>';
+        });
+        box.innerHTML = html;
+    }
+
+    function pickCategory(key) {
+        if (slotsState[key] && slotsState[key].claimed) return;
+        selectedCatKey = key;
+        renderCategories();
+        document.getElementById('word-input').focus();
+    }
+
+    function updateClockUI() {
+        var left = Math.max(0, Math.ceil((roundExpiresAt - Date.now()) / 1000));
+        var el = document.getElementById('timer-box');
+        el.textContent = left + 's';
+        el.style.color = left <= 15 ? '#F87171' : '#7DD3FC';
+        if (gameMode === 'solo' && left === 0 && document.getElementById('win-modal').classList.contains('hidden')) {
+            showRoundEndModal({ finishedAt: Date.now() }, '');
+        }
+    }
+
+    function showFeedback(msg, color) {
+        var el = document.getElementById('feedback-msg');
+        el.textContent = msg;
+        el.style.color = color;
+    }
+
+    async function submitCategoryWord() {
+        var inputEl = document.getElementById('word-input');
+        var raw = inputEl.value.trim();
+        if (!raw) return;
+
+        var st = slotsState[selectedCatKey];
+        if (st && st.claimed) {
+            selectNextOpenCategory();
+            renderCategories();
+            return;
+        }
+
+        var check = validateStandaloneWord(raw, currentLetter);
+        if (!check.ok) {
+            showFeedback(check.msg, '#F87171');
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            return;
+        }
+
+        var word = check.word;
+        // بررسی عدم تکرار همین کلمه در موضوعات دیگر همین دور
+        for (var i = 0; i < CATEGORIES.length; i++) {
+            var ck = CATEGORIES[i].key;
+            if (slotsState[ck] && slotsState[ck].claimed && slotsState[ck].word === word) {
+                showFeedback('⚠️ این کلمه در موضوع دیگری همین دور ثبت شده!', '#FBBF24');
+                return;
+            }
+        }
+
+        var remCount = CATEGORIES.filter(function(c) { return !slotsState[c.key] || !slotsState[c.key].claimed; }).length;
+        var earned = 20 + (remCount * 3);
+
+        if (gameMode === 'solo') {
+            slotsState[selectedCatKey] = { claimed: true, word: word, by: user.name };
+            myScore += earned;
+            inputEl.value = '';
+            showFeedback('✅ عالی! «' + word + '» ثبت شد (+' + earned + ' امتیاز)', '#34D399');
+            document.getElementById('score-val').textContent = myScore;
+            selectNextOpenCategory();
+            renderCategories();
+            if (remCount === 1) showRoundEndModal({ finishedAt: Date.now() }, '');
+            return;
+        }
+
+        try {
+            var path = getRoomPath();
+            var r = await fetch(path + '/slots/' + selectedCatKey + '.json');
+            var liveSlot = r.ok ? await r.json() : null;
+            if (liveSlot && liveSlot.claimed) {
+                showFeedback('⚡ «' + liveSlot.by + '» یک لحظه زودتر این موضوع را قفل کرد!', '#FBBF24');
+                syncRoom(false, false);
+                return;
+            }
+
+            myScore += earned;
+            inputEl.value = '';
+
+            if (gameMode === 'global' && window.ChalbaziScore) {
+                ChalbaziScore.addScore(earned, 'esm-famil', currentRoundId + '_' + selectedCatKey);
+            }
+
+            var catObj = CATEGORIES.filter(function(c) { return c.key === selectedCatKey; })[0];
+            await fetch(path + '/slots/' + selectedCatKey + '.json', {
+                method: 'PUT',
+                body: JSON.stringify({ claimed: true, word: word, by: user.name, ts: Date.now() })
+            });
+            await registerPlayer();
+            await fetch(path + '/lastEvent.json', {
+                method: 'PUT',
+                body: JSON.stringify({ text: '⚡ ' + user.name + ' در «' + catObj.label + '» کلمه «' + word + '» را ثبت کرد! (+' + earned + ')', ts: Date.now() })
+            });
+
+            if (remCount === 1) {
+                await fetch(path + '.json', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id })
+                });
+            }
+
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            showFeedback('🌟 عالی! «' + word + '» ثبت شد (+' + earned + ' امتیاز)', '#34D399');
+            syncRoom(false, false);
+        } catch (e) {
+            showFeedback('❌ خطا در ثبت روی سرور', '#F87171');
+        }
+    }
+
+    document.getElementById('word-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitCategoryWord();
+    });
+
+    function showRoundEndModal(data, boardHtml) {
+        var modal = document.getElementById('win-modal');
+        if (!modal.classList.contains('hidden')) return;
+        modal.classList.remove('hidden');
+
+        if (gameMode === 'solo') {
+            document.getElementById('win-title').textContent = 'امتیاز این دور: ' + myScore;
+            document.getElementById('final-board-wrap').classList.add('hidden');
+            document.getElementById('next-countdown').textContent = 'آماده حرف بعدی هستی؟';
+            document.getElementById('force-next-btn').classList.remove('hidden');
+            return;
+        }
+
+        document.getElementById('final-board-wrap').classList.remove('hidden');
+        document.getElementById('final-board').innerHTML = boardHtml;
+        var finishedAt = data.finishedAt || Date.now();
+        clearInterval(countdownTimer);
+        countdownTimer = setInterval(function() {
+            var left = Math.max(0, Math.ceil((finishedAt + 8000 - Date.now()) / 1000));
+            var cd = document.getElementById('next-countdown');
+            if (left > 0) {
+                cd.textContent = '⏳ دور بعدی با حرف جدید تا ' + left + ' ثانیه دیگر...';
+            } else {
+                cd.textContent = '🚀 در حال شروع دور جدید...';
+                clearInterval(countdownTimer);
+                document.getElementById('force-next-btn').classList.remove('hidden');
+                var delay = (data.finishedById === user.id) ? 300 : (1400 + Math.random() * 1400);
+                setTimeout(function() {
+                    if (!document.getElementById('win-modal').classList.contains('hidden')) createNextOnlineRound();
+                }, delay);
+            }
+        }, 500);
+    }
+
+    function shareResult() {
+        var targetUrl = (gameMode === 'friends' && activeRoomCode)
+            ? (BOT_MINIAPP_URL + '?startapp=esm_' + activeRoomCode)
+            : CHANNEL_URL;
+        var text = '🧠 من (' + user.name + ') در مسابقه سرعتی اسم‌فامیل @chalbazi امتیاز ' + myScore + ' گرفتم! 🔥\nبیا ببینیم سرعت دست تو چقدره 👇';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(targetUrl) + '&text=' + encodeURIComponent(text);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+        else window.open(url, '_blank');
+    }
+
+    (function checkAutoJoin() {
+        var room = getQueryParam('room');
+        if (!room && tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+            var sp = String(tg.initDataUnsafe.start_param);
+            if (sp.indexOf('esm_') === 0) room = sp.substring(4);
+        }
+        if (room) enterFriendsRoom(room.replace(/[^0-9]/g, ''), true);
+    })();
+</script>
+</body>
+</html>
