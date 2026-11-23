@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>جدول کلمات ۸×۸ | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="score-manager.js?v=1"></script>
+    <script src="score-manager.js?v=3"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Vazirmatn', sans-serif; }
         html { margin: 0; padding: 0; height: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #0B132B; }
         body { margin: 0; padding: 0 0 60px 0; min-height: 100vh; background: linear-gradient(160deg, #0B132B 0%, #1C2541 60%, #1B4332 100%); color: #fff; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
-        .header { width: 100%; max-width: 480px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.12); gap: 6px; }
-        .back-btn { background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 6px 11px; border-radius: 12px; font-size: 12px; font-weight: 700; }
-        .live-pill { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
+        .header { width: 100%; max-width: 480px; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.12); gap: 5px; }
+        .back-btn { background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 6px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .live-pill { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 4px 9px; border-radius: 12px; font-size: 11px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
         .live-dot { width: 8px; height: 8px; background: #10B981; border-radius: 50%; animation: pulse 1.4s infinite; }
         @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-        .badge { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 5px 11px; border-radius: 14px; font-weight: 900; font-size: 12px; }
+        .scores-pills { display: flex; gap: 5px; align-items: center; }
+        .badge { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 4px 9px; border-radius: 12px; font-weight: 900; font-size: 11px; white-space: nowrap; }
+        .badge.total { background: linear-gradient(135deg, #0284C7, #2563EB); }
         .container { width: 100%; max-width: 480px; padding: 10px 14px 24px; flex: 1; display: flex; flex-direction: column; align-items: center; }
 
         .friends-bar { width: 100%; background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(59,130,246,0.22)); border: 1px solid rgba(167,139,250,0.5); border-radius: 14px; padding: 8px 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 12px; }
@@ -41,9 +43,9 @@
         .flying-word-pill { position: fixed; z-index: 999; pointer-events: none; padding: 8px 20px; border-radius: 999px; font-size: 20px; font-weight: 900; color: #fff; white-space: nowrap; display: flex; align-items: center; gap: 8px; border: 2px solid rgba(255,255,255,0.85); text-shadow: 0 2px 6px rgba(0,0,0,0.35); box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 20px rgba(255,255,255,0.35); transition: transform 0.85s cubic-bezier(0.22,1,0.36,1), opacity 0.85s ease; }
         .flying-word-pts { background: rgba(0,0,0,0.28); padding: 2px 8px; border-radius: 10px; font-size: 13px; color: #FEF08A; }
         .jar-sparkle { position: fixed; z-index: 998; pointer-events: none; width: 8px; height: 8px; border-radius: 50%; transition: transform 0.45s ease-out, opacity 0.45s ease-out; }
-        .jar-words-grid { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; max-height: 220px; overflow-y: auto; padding: 10px 4px; margin: 10px 0 14px; }
+        .jar-words-grid { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; max-height: 230px; overflow-y: auto; padding: 10px 4px; margin: 10px 0 14px; }
         .jar-word-chip { padding: 5px 12px; border-radius: 12px; font-size: 13px; font-weight: 900; color: #fff; display: inline-flex; align-items: center; gap: 6px; }
-        .jar-word-chip span { background: rgba(0,0,0,0.25); padding: 1px 6px; border-radius: 8px; font-size: 11px; color: #FEF08A; }
+        .jar-word-chip span { background: rgba(0,0,0,0.28); padding: 1px 6px; border-radius: 8px; font-size: 11px; color: #FEF08A; }
         .grid-wrapper { width: 100%; max-width: 390px; aspect-ratio: 1 / 1; background: rgba(15,23,42,0.85); border: 2px solid rgba(255,255,255,0.2); border-radius: 18px; padding: 7px; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 5px; touch-action: none; box-shadow: 0 12px 28px rgba(0,0,0,0.45); }
         .cell { background: linear-gradient(145deg, #1E293B, #334155); border: 1.5px solid #475569; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 900; color: #F8FAFC; transition: transform 0.1s; }
         .cell.selected { background: linear-gradient(135deg, #F59E0B, #D97706); border-color: #FDE68A; color: #fff; transform: scale(1.08); z-index: 2; }
@@ -81,7 +83,10 @@
     <div class="header">
         <a href="index.html" class="back-btn" onclick="return goBackLobby(event)">🏠 لابی</a>
         <div class="live-pill"><span class="live-dot" id="live-dot"></span><span id="online-count">در حال اتصال...</span></div>
-        <div class="badge">امتیاز: <span id="score-val">0</span></div>
+        <div class="scores-pills">
+            <div class="badge" title="امتیاز همین دست">دست: <span id="score-val">0</span></div>
+            <div class="badge total" title="مجموع کل امتیازات ۸×۸ ذخیره در ابر">کل: <span id="total-score-val">0</span></div>
+        </div>
     </div>
 
     <div class="container">
@@ -105,7 +110,7 @@
 
         <div class="word-jar-row">
             <div class="current-word-bar" id="current-word">انگشت را روی حروف بکشید</div>
-            <button class="jar-widget" id="jar-widget" onclick="openJarModal()" title="کوزه کلمات عادی">
+            <button class="jar-widget" id="jar-widget" onclick="openJarModal()" title="کوزه دائمی کلمات عادی">
                 <svg class="jar-svg" viewBox="0 0 64 64" fill="none">
                     <defs>
                         <linearGradient id="jarBody" x1="14" y1="16" x2="50" y2="58" gradientUnits="userSpaceOnUse">
@@ -130,7 +135,7 @@
         <div class="feedback" id="feedback-msg"></div>
 
         <div class="stats-bar">
-            <span style="cursor:pointer;" onclick="openJarModal()">🏺 کوزه کلمات عادی</span>
+            <span style="cursor:pointer;" onclick="openJarModal()">🏺 کوزه ابری من (دائمی)</span>
             <div style="display:flex; gap:6px;">
                 <button class="btn-small hidden" id="solo-new-btn" onclick="startSoloPuzzle()">🔄 پازل جدید</button>
                 <button class="btn-small" onclick="openModeMenu()">⚙️ تغییر حالت</button>
@@ -149,7 +154,7 @@
 
     <div id="jar-modal" class="overlay hidden" onclick="if(event.target===this) closeJarModal()">
         <div class="card">
-            <div class="pill" style="background: linear-gradient(135deg, #0284C7, #8B5CF6);">🏺 کوزه کلمات عادی من</div>
+            <div class="pill" style="background: linear-gradient(135deg, #0284C7, #8B5CF6);">🏺 کلکسیون ابری کوزه من</div>
             <p id="jar-summary" style="font-size: 12px; color: #CBD5E1; margin: 4px 0 8px;"></p>
             <div class="jar-words-grid" id="jar-words-list"></div>
             <button class="btn-main btn-blue" onclick="closeJarModal()">بستن کوزه</button>
@@ -196,20 +201,11 @@
     </div>
 
     <script>
-        window.onerror = function(msg, src, line) {
-            var el = document.getElementById('dict-status');
-            if (el) {
-                el.style.color = '#F87171';
-                el.textContent = '❌ خطا (خط ' + line + '): ' + msg;
-            }
-        };
-    </script>
-
-    <script>
         var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
         var CHANNEL_URL = 'https://t.me/chalbazi';
         var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
         var CLEAN_DB = FIREBASE_DB_URL.replace(/\/+$/, '');
+        var USER_CLOUD_ROOT = CLEAN_DB + '/grid8UserProfiles';
 
         var BONUS_GRADIENTS = [
             'linear-gradient(135deg, #EC4899, #F97316)',
@@ -222,10 +218,7 @@
 
         function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
         function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-
-        function getQueryParam(name) {
-            try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; }
-        }
+        function getQueryParam(name) { try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; } }
 
         function goBackLobby(ev) {
             if (ev) ev.preventDefault();
@@ -261,6 +254,53 @@
             }
         }
 
+        // ==================== پروفایل دائمی ابری (کوزه + مجموع امتیاز ۸×۸) ====================
+        var cloudTotalGridScore = Number(safeGet('g8_cloud_total_' + user.id, '0')) || 0;
+        var persistentJarMap = {}; // { "درخت": 2, "ستاره": 1, ... }
+        try {
+            var cachedJar = JSON.parse(safeGet('g8_cloud_jar_' + user.id, '{}'));
+            if (cachedJar && typeof cachedJar === 'object') persistentJarMap = cachedJar;
+        } catch (e) {}
+
+        function getJarUniqueCount() { return Object.keys(persistentJarMap).length; }
+
+        function loadCloudUserProfile() {
+            fetch(USER_CLOUD_ROOT + '/' + user.id + '.json')
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(prof) {
+                    if (!prof) return;
+                    if (typeof prof.totalScore === 'number' && prof.totalScore > cloudTotalGridScore) {
+                        cloudTotalGridScore = prof.totalScore;
+                        safeSet('g8_cloud_total_' + user.id, String(cloudTotalGridScore));
+                    }
+                    if (prof.jar && typeof prof.jar === 'object') {
+                        Object.keys(prof.jar).forEach(function(w) {
+                            var cnt = Number(prof.jar[w]) || 1;
+                            persistentJarMap[w] = Math.max(persistentJarMap[w] || 0, cnt);
+                        });
+                        safeSet('g8_cloud_jar_' + user.id, JSON.stringify(persistentJarMap));
+                    }
+                    updateTargetsAndScoreUI();
+                }).catch(function() {});
+        }
+
+        function saveCloudUserProfile() {
+            safeSet('g8_cloud_total_' + user.id, String(cloudTotalGridScore));
+            safeSet('g8_cloud_jar_' + user.id, JSON.stringify(persistentJarMap));
+            fetch(USER_CLOUD_ROOT + '/' + user.id + '.json', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    name: user.name,
+                    totalScore: cloudTotalGridScore,
+                    jar: persistentJarMap,
+                    updatedAt: Date.now()
+                })
+            }).catch(function() {});
+        }
+
+        loadCloudUserProfile();
+
+        // ==================== دیکشنری دو لایه ====================
         function normalizeFa(str) {
             return String(str).trim().replace(/\s+/g, '')
                 .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
@@ -299,7 +339,7 @@
             var el = document.getElementById('dict-status');
             if (!el) return;
             el.style.color = '#34D399';
-            el.textContent = '📚 کلیدی: ' + KEY_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه | کوزه: ' + VALID_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه';
+            el.textContent = '📚 کلیدی: ' + KEY_WORDS_SET.size.toLocaleString('fa-IR') + ' واژه | کوزه ابری: ' + getJarUniqueCount().toLocaleString('fa-IR') + ' کلمه';
         }
         refreshDictBadge();
 
@@ -469,7 +509,7 @@
             }
 
             var playersInit = {};
-            playersInit[user.id] = { name: user.name, score: 0, bonusCount: 0, lastSeen: Date.now() };
+            playersInit[user.id] = { name: user.name, score: 0, bonusCount: getJarUniqueCount(), lastSeen: Date.now() };
 
             return {
                 puzzleId: 'p_' + Date.now(),
@@ -485,6 +525,7 @@
             };
         }
 
+        // ==================== مدیریت ۳ حالت بازی ====================
         var gameMode = 'global';
         var activeRoomCode = '';
         var currentPuzzleId = null;
@@ -492,7 +533,7 @@
         var gridLetters = [];
         var keyWordsArr = [];
         var clearedCells = [];
-        var foundBonusWords = new Set();
+        var roundBonusWords = new Set(); // کلمات عادی پیداشده فقط در همین پازل برای جلوگیری از تکرار در یک جدول
         var myScore = 0;
         var selectedPath = [];
         var isDragging = false;
@@ -509,7 +550,7 @@
         }
 
         function bonusStorageKey(puzzleId) {
-            return 'g8_bonus_' + user.id + '_' + puzzleId;
+            return 'g8_rbonus_' + user.id + '_' + puzzleId;
         }
 
         function stopAllTimers() {
@@ -685,7 +726,7 @@
             gridLetters = data.gridLetters;
             selectedPath = [];
             isDragging = false;
-            foundBonusWords = new Set();
+            roundBonusWords = new Set();
             myScore = 0;
 
             keyWordsArr = [];
@@ -717,7 +758,7 @@
             cellElements.push(cellDiv);
         }
 
-        function animateCommonWordToJar(word, points) {
+        function animateCommonWordToJar(word, points, repeatCount) {
             var wordBar = document.getElementById('current-word');
             var jarEl = document.getElementById('jar-widget');
             if (!wordBar || !jarEl) return;
@@ -741,7 +782,8 @@
             pill.style.top = startY + 'px';
             pill.style.transform = 'translate(-50%, -65%) scale(1.12)';
             pill.style.opacity = '1';
-            pill.innerHTML = '<span>✨ ' + word + '</span><span class="flying-word-pts">+' + points + '</span>';
+            var repBadge = repeatCount > 1 ? (' ×' + repeatCount) : '';
+            pill.innerHTML = '<span>✨ ' + word + repBadge + '</span><span class="flying-word-pts">+' + points + '</span>';
             document.body.appendChild(pill);
 
             setTimeout(function() {
@@ -791,21 +833,25 @@
         function openJarModal() {
             var listEl = document.getElementById('jar-words-list');
             var summaryEl = document.getElementById('jar-summary');
-            var wordsArr = Array.from(foundBonusWords);
-            var totalPts = 0;
-            for (var i = 0; i < wordsArr.length; i++) totalPts += wordsArr[i].length;
+            var wordsArr = Object.keys(persistentJarMap);
+            var totalFinds = 0;
+            for (var i = 0; i < wordsArr.length; i++) {
+                totalFinds += (Number(persistentJarMap[wordsArr[i]]) || 1);
+            }
 
             if (wordsArr.length > 0) {
-                summaryEl.innerHTML = 'تا الان <strong style="color:#FBBF24;">' + wordsArr.length + ' کلمه عادی</strong> با مجموع <strong style="color:#34D399;">+' + totalPts + ' امتیاز</strong> در کوزه جمع کردی!';
+                summaryEl.innerHTML = 'کلکسیون دائمی تو: <strong style="color:#FBBF24;">' + wordsArr.length.toLocaleString('fa-IR') + ' واژه یکتا</strong> (' + totalFinds.toLocaleString('fa-IR') + ' بار کشف در کل بازی‌ها)';
                 var html = '';
                 for (var j = wordsArr.length - 1; j >= 0; j--) {
                     var w = wordsArr[j];
+                    var cnt = Number(persistentJarMap[w]) || 1;
                     var bg = BONUS_GRADIENTS[(wordsArr.length - 1 - j) % BONUS_GRADIENTS.length];
-                    html += '<div class="jar-word-chip" style="background:' + bg + ';">' + w + '<span>+' + w.length + '</span></div>';
+                    var cntTag = cnt > 1 ? (' ×' + cnt) : '';
+                    html += '<div class="jar-word-chip" style="background:' + bg + ';">' + w + cntTag + '<span>+' + w.length + '</span></div>';
                 }
                 listEl.innerHTML = html;
             } else {
-                summaryEl.textContent = 'کوزه‌ات هنوز خالیه! هر کلمه عادی ۳ حرفی و بیشتر که پیدا کنی می‌افته اینجا.';
+                summaryEl.textContent = 'کوزه ابری تو هنوز خالیه! هر کلمه عادی ۳ حرفی و بیشتر که پیدا کنی برای همیشه اینجا ذخیره میشه.';
                 listEl.innerHTML = '<div style="font-size:12px; color:#64748B; padding:14px;">هنوز کلمه‌ای در کوزه نیست 🏺</div>';
             }
             document.getElementById('jar-modal').classList.remove('hidden');
@@ -833,7 +879,7 @@
                     body: JSON.stringify({
                         name: user.name,
                         score: myScore,
-                        bonusCount: foundBonusWords.size,
+                        bonusCount: getJarUniqueCount(),
                         lastSeen: Date.now()
                     })
                 });
@@ -905,9 +951,9 @@
                 document.getElementById('win-modal').classList.add('hidden');
                 document.getElementById('force-next-btn').classList.add('hidden');
 
-                var savedBonus = [];
-                try { savedBonus = JSON.parse(safeGet(bonusStorageKey(currentPuzzleId), '[]')); } catch (e) {}
-                foundBonusWords = new Set(savedBonus);
+                var savedRoundBonus = [];
+                try { savedRoundBonus = JSON.parse(safeGet(bonusStorageKey(currentPuzzleId), '[]')); } catch (e) {}
+                roundBonusWords = new Set(savedRoundBonus);
 
                 if (data.players && data.players[user.id]) {
                     myScore = data.players[user.id].score || 0;
@@ -1002,7 +1048,8 @@
 
         function updateTargetsAndScoreUI() {
             document.getElementById('score-val').textContent = myScore;
-            document.getElementById('bonus-count').textContent = foundBonusWords.size;
+            document.getElementById('total-score-val').textContent = cloudTotalGridScore.toLocaleString('fa-IR');
+            document.getElementById('bonus-count').textContent = getJarUniqueCount();
 
             var remaining = 0;
             for (var i = 0; i < keyWordsArr.length; i++) if (!keyWordsArr[i].found) remaining++;
@@ -1029,7 +1076,7 @@
             modal.classList.remove('hidden');
 
             if (gameMode === 'solo') {
-                document.getElementById('winner-summary').innerHTML = '🎉 پازل #' + currentPuzzleNumber + ' را با <strong style="color:#FBBF24;">' + myScore + ' امتیاز</strong> و ' + foundBonusWords.size + ' کلمه در کوزه کامل کردی!';
+                document.getElementById('winner-summary').innerHTML = '🎉 پازل #' + currentPuzzleNumber + ' را با <strong style="color:#FBBF24;">' + myScore + ' امتیاز</strong> کامل کردی!';
                 document.getElementById('next-countdown').textContent = 'آماده پازل بعدی هستی؟';
                 document.getElementById('force-next-btn').classList.remove('hidden');
                 return;
@@ -1062,6 +1109,7 @@
             }, 500);
         }
 
+        // ==================== منطق انتخاب حروف و بررسی کلمات ====================
         function areAdjacent(idx1, idx2) {
             var r1 = Math.floor(idx1 / 8), c1 = idx1 % 8;
             var r2 = Math.floor(idx2 / 8), c2 = idx2 % 8;
@@ -1147,6 +1195,8 @@
                     matchedKey.found = true;
                     matchedKey.foundBy = user.name;
                     myScore += earned;
+                    cloudTotalGridScore += earned;
+                    saveCloudUserProfile();
                     for (var p = 0; p < matchedKey.path.length; p++) {
                         var ci = matchedKey.path[p];
                         clearedCells[ci] = true;
@@ -1156,9 +1206,7 @@
                     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     showFeedback('🌟 عالی! «' + formedWord + '» (+' + earned + ' امتیاز = ' + formedWord.length + '×' + multiplier + ')', '#34D399');
                     updateTargetsAndScoreUI();
-                    if (multiplier === 1) {
-                        showRoundFinishedModal({}, [], '');
-                    }
+                    if (multiplier === 1) showRoundFinishedModal({}, [], '');
                     return;
                 }
 
@@ -1173,6 +1221,9 @@
                     }
 
                     myScore += earned;
+                    cloudTotalGridScore += earned;
+                    saveCloudUserProfile();
+
                     if (gameMode === 'global' && window.ChalbaziScore) {
                         ChalbaziScore.addScore(earned, 'word-grid', currentPuzzleId + '_kw_' + matchedKey.idx);
                     }
@@ -1204,22 +1255,30 @@
             }
 
             if (formedWord.length >= 3 && VALID_WORDS_SET.has(formedWord)) {
-                if (foundBonusWords.has(formedWord)) {
-                    showFeedback('⚠️ کلمه عادی «' + formedWord + '» قبلاً در کوزه افتاده است!', '#FBBF24');
+                if (roundBonusWords.has(formedWord)) {
+                    showFeedback('⚠️ کلمه عادی «' + formedWord + '» در همین جدول قبلاً به کوزه رفته است!', '#FBBF24');
                 } else {
-                    foundBonusWords.add(formedWord);
-                    safeSet(bonusStorageKey(currentPuzzleId), JSON.stringify(Array.from(foundBonusWords)));
+                    roundBonusWords.add(formedWord);
+                    safeSet(bonusStorageKey(currentPuzzleId), JSON.stringify(Array.from(roundBonusWords)));
+
+                    var newRepCount = (Number(persistentJarMap[formedWord]) || 0) + 1;
+                    persistentJarMap[formedWord] = newRepCount;
+
                     var bonusEarned = formedWord.length;
                     myScore += bonusEarned;
+                    cloudTotalGridScore += bonusEarned;
+                    saveCloudUserProfile();
 
                     if (gameMode === 'global' && window.ChalbaziScore) {
                         ChalbaziScore.addScore(bonusEarned, 'word-grid', currentPuzzleId + '_bw_' + formedWord);
                     }
 
                     if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-                    showFeedback('🏺 کلمه عادی «' + formedWord + '» رفت توی کوزه! (+' + bonusEarned + ' امتیاز)', '#38BDF8');
-                    animateCommonWordToJar(formedWord, bonusEarned);
+                    var repText = newRepCount > 1 ? (' (تکرار ×' + newRepCount + ')') : '';
+                    showFeedback('🏺 کلمه عادی «' + formedWord + '»' + repText + ' رفت توی کوزه! (+' + bonusEarned + ' امتیاز)', '#38BDF8');
+                    animateCommonWordToJar(formedWord, bonusEarned, newRepCount);
                     document.getElementById('score-val').textContent = myScore;
+                    document.getElementById('total-score-val').textContent = cloudTotalGridScore.toLocaleString('fa-IR');
                     registerPlayerInCurrentRoom();
                 }
             } else if (formedWord.length >= 2) {
@@ -1237,7 +1296,7 @@
             var rem = keyWordsArr.filter(function(k) { return !k.found; });
             if (rem.length === 0) return;
             if (myScore < 10) {
-                showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۰ امتیاز نیاز دارید!', '#FBBF24');
+                showFeedback('⚠️ برای گرفتن راهنما حداقل ۱۰ امتیاز در همین دست نیاز دارید!', '#FBBF24');
                 return;
             }
             myScore -= 10;
@@ -1253,9 +1312,7 @@
 
         function getCellFromPoint(x, y) {
             var target = document.elementFromPoint(x, y);
-            if (target && target.classList.contains('cell')) {
-                return Number(target.getAttribute('data-index'));
-            }
+            if (target && target.classList.contains('cell')) return Number(target.getAttribute('data-index'));
             return null;
         }
 
@@ -1285,7 +1342,7 @@
                 : CHANNEL_URL;
             var text = (gameMode === 'friends' && activeRoomCode)
                 ? ('🧩 من (' + user.name + ') توی اتاق دوستان #' + activeRoomCode + ' جدول ۸×۸ امتیاز ' + myScore + ' گرفتم! 🔥\nپازل بعدی همین الان بازه، بیاین رقابت کنیم 👇')
-                : ('🧩 من (' + user.name + ') در پازل #' + currentPuzzleNumber + ' جدول ۸×۸ کانال @chalbazi امتیاز ' + myScore + ' گرفتم و ' + foundBonusWords.size + ' کلمه توی کوزه جمع کردم! 🏺🔥\nبیا رقابت کنیم 👇');
+                : ('🧩 من (' + user.name + ') در پازل #' + currentPuzzleNumber + ' جدول ۸×۸ کانال @chalbazi امتیاز ' + myScore + ' گرفتم (مجموع کل: ' + cloudTotalGridScore + ') و ' + getJarUniqueCount() + ' واژه در کوزه ابری جمع کردم! 🏺🔥');
             var url = 'https://t.me/share/url?url=' + encodeURIComponent(targetUrl) + '&text=' + encodeURIComponent(text);
             if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
             else window.open(url, '_blank');
