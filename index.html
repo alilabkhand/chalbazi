@@ -51,11 +51,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.14);
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .user-info { display: flex; align-items: center; gap: 10px; }
 
         .avatar {
             width: 38px;
@@ -70,10 +66,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
 
-        .user-name {
-            font-weight: 900;
-            font-size: 14px;
-        }
+        .user-name { font-weight: 900; font-size: 14px; }
 
         .channel-badge {
             background: rgba(255, 255, 255, 0.18);
@@ -101,17 +94,8 @@
             line-height: 1.6;
         }
 
-        .stats-wrapper {
-            width: 100%;
-            max-width: 480px;
-            padding: 12px 14px 4px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 7px;
-        }
+        .stats-wrapper { width: 100%; max-width: 480px; padding: 12px 14px 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
 
         .stat-box {
             background: rgba(15, 23, 42, 0.55);
@@ -124,34 +108,11 @@
         }
 
         .stat-box:active { transform: scale(0.95); }
+        .stat-box.highlight { border-color: rgba(251, 191, 36, 0.55); background: rgba(245, 158, 11, 0.14); }
+        .stat-label { font-size: 10px; color: #BAE6FD; margin-bottom: 3px; font-weight: 700; }
+        .stat-val { font-size: 16px; font-weight: 900; color: #FDE047; line-height: 1.2; }
 
-        .stat-box.highlight {
-            border-color: rgba(251, 191, 36, 0.55);
-            background: rgba(245, 158, 11, 0.14);
-        }
-
-        .stat-label {
-            font-size: 10px;
-            color: #BAE6FD;
-            margin-bottom: 3px;
-            font-weight: 700;
-        }
-
-        .stat-val {
-            font-size: 16px;
-            font-weight: 900;
-            color: #FDE047;
-            line-height: 1.2;
-        }
-
-        .main-tabs {
-            width: 100%;
-            max-width: 480px;
-            padding: 10px 14px 6px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 7px;
-        }
+        .main-tabs { width: 100%; max-width: 480px; padding: 10px 14px 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 
         .main-tab-btn {
             position: relative;
@@ -191,16 +152,8 @@
             border: 2px solid #0F172A;
         }
 
-        .games-grid {
-            width: 100%;
-            max-width: 480px;
-            padding: 8px 14px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 11px;
-        }
+        .games-grid { width: 100%; max-width: 480px; padding: 8px 14px 20px; display: flex; flex-direction: column; gap: 11px; }
 
-        /* بنر اسپانسر بالای بازی‌ها */
         .sponsor-banner {
             background: linear-gradient(135deg, #451A03 0%, #92400E 55%, #B45309 100%);
             border: 1.5px solid #FBBF24;
@@ -215,27 +168,8 @@
         }
 
         .sponsor-banner:active { transform: scale(0.98); }
-
-        .sponsor-tag {
-            display: inline-block;
-            background: rgba(254, 240, 138, 0.22);
-            color: #FEF08A;
-            font-size: 9px;
-            font-weight: 900;
-            padding: 2px 7px;
-            border-radius: 8px;
-            margin-bottom: 3px;
-        }
-
-        .sponsor-cta {
-            background: linear-gradient(135deg, #FDE047, #F59E0B);
-            color: #1E1B4B;
-            padding: 7px 11px;
-            border-radius: 11px;
-            font-size: 11px;
-            font-weight: 900;
-            flex-shrink: 0;
-        }
+        .sponsor-tag { display: inline-block; background: rgba(254, 240, 138, 0.22); color: #FEF08A; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 8px; margin-bottom: 3px; }
+        .sponsor-cta { background: linear-gradient(135deg, #FDE047, #F59E0B); color: #1E1B4B; padding: 7px 11px; border-radius: 11px; font-size: 11px; font-weight: 900; flex-shrink: 0; }
 
         .game-card {
             background: #fff;
@@ -263,32 +197,18 @@
             flex-shrink: 0;
         }
 
-        .icon-football { background: linear-gradient(135deg, #DCFCE7, #BBF7D0); border: 2px solid #16A34A; }
-        .icon-race { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); border: 2px solid #EC4899; }
+        .icon-crypto { background: linear-gradient(135deg, #FEF3C7, #FDE68A); border: 2px solid #D97706; }
+        .icon-wordle { background: linear-gradient(135deg, #DCFCE7, #FEF08A); border: 2px solid #53A548; }
         .icon-grid { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); border: 2px solid #10B981; }
         .icon-word { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border: 2px solid #8B5CF6; }
+        .icon-football { background: linear-gradient(135deg, #DCFCE7, #BBF7D0); border: 2px solid #16A34A; }
+        .icon-race { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); border: 2px solid #EC4899; }
         .icon-giraffe { background: linear-gradient(135deg, #FFF8E1, #FFE082); border: 2px solid #FFB300; }
         .icon-math { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border: 2px solid #E53935; }
-        .icon-soon { background: #F5F5F5; border: 2px dashed #BDBDBD; }
 
-        .game-details {
-            flex: 1;
-            padding: 0 10px;
-        }
-
-        .game-title {
-            font-size: 14px;
-            font-weight: 900;
-            margin: 0 0 3px;
-            color: #1A237E;
-        }
-
-        .game-desc {
-            font-size: 11px;
-            color: #616161;
-            margin: 0;
-            line-height: 1.45;
-        }
+        .game-details { flex: 1; padding: 0 10px; }
+        .game-title { font-size: 14px; font-weight: 900; margin: 0 0 3px; color: #1A237E; }
+        .game-desc { font-size: 11px; color: #616161; margin: 0; line-height: 1.45; }
 
         .play-btn {
             background: linear-gradient(135deg, #00C853, #009624);
@@ -301,28 +221,7 @@
             flex-shrink: 0;
         }
 
-        .game-card.disabled {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .soon-badge {
-            background: #EEEEEE;
-            color: #757575;
-            padding: 7px 10px;
-            border-radius: 11px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .panel-section {
-            width: 100%;
-            max-width: 480px;
-            padding: 8px 14px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .panel-section { width: 100%; max-width: 480px; padding: 8px 14px 24px; display: flex; flex-direction: column; gap: 12px; }
 
         .panel-card {
             background: rgba(15, 23, 42, 0.78);
@@ -332,26 +231,10 @@
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
         }
 
-        .section-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+        .section-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .section-heading h3 { margin: 0; font-size: 14px; font-weight: 900; color: #FDE047; }
 
-        .section-heading h3 {
-            margin: 0;
-            font-size: 14px;
-            font-weight: 900;
-            color: #FDE047;
-        }
-
-        /* کارت ماموریت‌های اسپانسری */
-        .task-list {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-        }
+        .task-list { display: flex; flex-direction: column; gap: 9px; }
 
         .task-item {
             background: rgba(30, 41, 59, 0.85);
@@ -363,112 +246,25 @@
             gap: 10px;
         }
 
-        .task-item.done {
-            opacity: 0.72;
-            border-color: rgba(16, 185, 129, 0.35);
-        }
+        .task-item.done { opacity: 0.72; border-color: rgba(16, 185, 129, 0.35); }
+        .task-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(56, 189, 248, 0.16); border: 1px solid rgba(56, 189, 248, 0.35); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .task-body { flex: 1; min-width: 0; }
+        .task-title { font-size: 13px; font-weight: 900; color: #F8FAFC; margin-bottom: 2px; }
+        .task-desc { font-size: 11px; color: #94A3B8; line-height: 1.4; }
+        .task-reward { display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 900; color: #FDE047; }
 
-        .task-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            background: rgba(56, 189, 248, 0.16);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .task-body {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .task-title {
-            font-size: 13px;
-            font-weight: 900;
-            color: #F8FAFC;
-            margin-bottom: 2px;
-        }
-
-        .task-desc {
-            font-size: 11px;
-            color: #94A3B8;
-            line-height: 1.4;
-        }
-
-        .task-reward {
-            display: inline-block;
-            margin-top: 4px;
-            font-size: 11px;
-            font-weight: 900;
-            color: #FDE047;
-        }
-
-        .task-btn {
-            border: none;
-            border-radius: 11px;
-            padding: 8px 11px;
-            font-size: 11px;
-            font-weight: 900;
-            cursor: pointer;
-            color: #fff;
-            flex-shrink: 0;
-            min-width: 82px;
-            text-align: center;
-        }
-
+        .task-btn { border: none; border-radius: 11px; padding: 8px 11px; font-size: 11px; font-weight: 900; cursor: pointer; color: #fff; flex-shrink: 0; min-width: 82px; text-align: center; }
         .task-btn.go { background: linear-gradient(135deg, #0284C7, #38BDF8); }
         .task-btn.wait { background: #475569; cursor: wait; }
         .task-btn.claim { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
         .task-btn.done { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.4); cursor: default; }
 
-        .period-tabs {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin-bottom: 12px;
-        }
+        .period-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+        .period-btn { border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.07); color: #CBD5E1; border-radius: 11px; padding: 7px 4px; font-size: 12px; font-weight: 900; cursor: pointer; }
+        .period-btn.active { background: linear-gradient(135deg, #0284C7, #38BDF8); border-color: #BAE6FD; color: #fff; }
 
-        .period-btn {
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(255, 255, 255, 0.07);
-            color: #CBD5E1;
-            border-radius: 11px;
-            padding: 7px 4px;
-            font-size: 12px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-        .period-btn.active {
-            background: linear-gradient(135deg, #0284C7, #38BDF8);
-            border-color: #BAE6FD;
-            color: #fff;
-        }
-
-        .lb-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            color: #94A3B8;
-            margin-bottom: 10px;
-            padding: 0 2px;
-        }
-
-        .refresh-btn {
-            background: rgba(255, 255, 255, 0.12);
-            border: none;
-            color: #E2E8F0;
-            border-radius: 8px;
-            padding: 4px 9px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
+        .lb-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #94A3B8; margin-bottom: 10px; padding: 0 2px; }
+        .refresh-btn { background: rgba(255, 255, 255, 0.12); border: none; color: #E2E8F0; border-radius: 8px; padding: 4px 9px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
         .my-rank-banner {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(14, 165, 233, 0.22));
@@ -482,168 +278,43 @@
             font-size: 12px;
         }
 
-        .lb-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .lb-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            padding: 9px 12px;
-            font-size: 13px;
-        }
-
+        .lb-list { display: flex; flex-direction: column; gap: 6px; }
+        .lb-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 9px 12px; font-size: 13px; }
         .lb-row.top1 { background: linear-gradient(135deg, rgba(245, 158, 11, 0.24), rgba(217, 119, 6, 0.12)); border-color: rgba(251, 191, 36, 0.45); }
         .lb-row.top2 { background: rgba(148, 163, 184, 0.16); border-color: rgba(203, 213, 225, 0.35); }
         .lb-row.top3 { background: rgba(180, 83, 9, 0.2); border-color: rgba(251, 146, 60, 0.35); }
         .lb-row.me { box-shadow: inset 0 0 0 1.5px #38BDF8; }
-
         .lb-rank { font-weight: 900; min-width: 28px; text-align: center; margin-left: 8px; }
         .lb-name { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lb-score { font-weight: 900; color: #FDE047; margin-right: 8px; white-space: nowrap; }
 
-        .action-btn {
-            width: 100%;
-            margin-top: 10px;
-            border: none;
-            border-radius: 13px;
-            padding: 12px;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 900;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
+        .action-btn { width: 100%; margin-top: 10px; border: none; border-radius: 13px; padding: 12px; color: #fff; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .action-btn:active { transform: scale(0.97); }
         .btn-blue { background: linear-gradient(135deg, #0288D1, #38BDF8); }
         .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
         .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
-        .btn-red { background: rgba(239, 68, 68, 0.22); border: 1px solid rgba(239, 68, 68, 0.5); color: #FCA5A5; }
         .btn-ghost { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); }
 
-        .ref-hero {
-            text-align: center;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.24), rgba(236, 72, 153, 0.2));
-            border: 1px solid rgba(192, 132, 252, 0.45);
-            border-radius: 16px;
-            padding: 14px 12px;
-            margin-bottom: 12px;
-        }
-
+        .ref-hero { text-align: center; background: linear-gradient(135deg, rgba(139, 92, 246, 0.24), rgba(236, 72, 153, 0.2)); border: 1px solid rgba(192, 132, 252, 0.45); border-radius: 16px; padding: 14px 12px; margin-bottom: 12px; }
         .ref-hero h2 { margin: 0 0 6px; font-size: 15px; color: #FDE047; }
         .ref-hero p { margin: 0; font-size: 12px; color: #E2E8F0; line-height: 1.7; }
-
         .ref-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .ref-stat-card { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; text-align: center; }
         .ref-stat-num { font-size: 20px; font-weight: 900; color: #34D399; }
         .ref-stat-lbl { font-size: 11px; color: #94A3B8; margin-top: 2px; }
-
-        .ref-link-box {
-            background: #0B1224;
-            border: 1px dashed rgba(56, 189, 248, 0.5);
-            border-radius: 12px;
-            padding: 9px 10px;
-            font-size: 11px;
-            color: #7DD3FC;
-            direction: ltr;
-            text-align: center;
-            word-break: break-all;
-            user-select: text;
-            -webkit-user-select: text;
-        }
-
+        .ref-link-box { background: #0B1224; border: 1px dashed rgba(56, 189, 248, 0.5); border-radius: 12px; padding: 9px 10px; font-size: 11px; color: #7DD3FC; direction: ltr; text-align: center; word-break: break-all; user-select: text; -webkit-user-select: text; }
         .ref-feedback { min-height: 18px; font-size: 11px; font-weight: 700; text-align: center; margin-top: 6px; color: #34D399; }
         .ref-list-title { font-size: 12px; font-weight: 900; color: #FBBF24; margin: 14px 0 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* مودال مدیریت اسپانسرها */
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(2, 6, 23, 0.88);
-            backdrop-filter: blur(6px);
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px;
-            overflow-y: auto;
-        }
-
-        .admin-card {
-            width: 100%;
-            max-width: 420px;
-            max-height: 90vh;
-            overflow-y: auto;
-            background: #1E293B;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 22px;
-            padding: 18px;
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
-        }
-
-        .admin-box {
-            background: rgba(15, 23, 42, 0.72);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .admin-box h4 {
-            margin: 0 0 8px;
-            font-size: 13px;
-            color: #FDE047;
-        }
-
-        .f-input {
-            width: 100%;
-            background: #0F172A;
-            border: 1.5px solid #475569;
-            border-radius: 10px;
-            padding: 9px 10px;
-            color: #fff;
-            font-size: 13px;
-            margin-bottom: 8px;
-            outline: none;
-        }
-
+        .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.88); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 14px; overflow-y: auto; }
+        .admin-card { width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; background: #1E293B; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 22px; padding: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6); }
+        .admin-box { background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+        .admin-box h4 { margin: 0 0 8px; font-size: 13px; color: #FDE047; }
+        .f-input { width: 100%; background: #0F172A; border: 1.5px solid #475569; border-radius: 10px; padding: 9px 10px; color: #fff; font-size: 13px; margin-bottom: 8px; outline: none; }
         .f-input:focus { border-color: #38BDF8; }
         .f-row { display: flex; gap: 6px; }
-
-        .admin-task-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 8px 10px;
-            margin-bottom: 6px;
-            font-size: 11px;
-        }
-
-        .del-mini-btn {
-            background: rgba(239, 68, 68, 0.25);
-            border: 1px solid #EF4444;
-            color: #FCA5A5;
-            border-radius: 8px;
-            padding: 4px 8px;
-            font-size: 11px;
-            font-weight: 900;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
+        .admin-task-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font-size: 11px; }
+        .del-mini-btn { background: rgba(239, 68, 68, 0.25); border: 1px solid #EF4444; color: #FCA5A5; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer; flex-shrink: 0; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -662,7 +333,6 @@
 
     <div id="welcome-toast" class="welcome-toast hidden"></div>
 
-    <!-- نوار مجموع امتیازات شخصی -->
     <div class="stats-wrapper">
         <div class="stats-grid">
             <div class="stat-box" onclick="jumpToLeaderboard('daily')">
@@ -684,7 +354,6 @@
         </div>
     </div>
 
-    <!-- ۳ تب اصلی لابی -->
     <div class="main-tabs">
         <button id="tab-games" class="main-tab-btn active" onclick="switchMainTab('games')">🎮 بازی‌ها</button>
         <button id="tab-leaderboard" class="main-tab-btn" onclick="switchMainTab('leaderboard')">🏆 لیدربورد</button>
@@ -694,7 +363,7 @@
         </button>
     </div>
 
-    <!-- بخش ۱: لیست بازی‌ها + بنر اسپانسر -->
+    <!-- بخش ۱: لیست کامل بازی‌ها -->
     <div id="section-games" class="games-grid">
         <div id="sponsor-banner-slot" class="sponsor-banner hidden" onclick="handleSponsorBannerClick()">
             <div style="flex:1; min-width:0;">
@@ -704,30 +373,39 @@
             </div>
             <div id="sb-btn" class="sponsor-cta">مشاهده ↗</div>
         </div>
-        <!-- بازی جدید: رمزنامه ادبی (کریپتوگرام فارسی) -->
-        <a href="cryptogram-fa.html?v=1" class="game-card" onclick="return openGame(this, event)">
-            <div class="game-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); border: 2px solid #D97706;">📜</div>
+
+        <a href="cryptogram-fa.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-crypto">📜</div>
             <div class="game-details">
-                <h2 class="game-title">رمزنامه ادبی (کریپتوگرام)</h2>
-                <p class="game-desc">ابیات و جملات ماندگار حافظ، سعدی، مولوی، فردوسی، خیام و بیهقی را رمزگشایی کن!</p>
+                <h2 class="game-title">رمزنامه ادبی زنده (۲۰۵ مرحله)</h2>
+                <p class="game-desc">رقابت زنده همگانی و گروه دوستان برای رمزگشایی شاهکارهای ادب ایران!</p>
             </div>
             <div class="play-btn">بازی کن ▶</div>
         </a>
-<!-- بازی جدید: کلمه‌چین ۵ حرفی (وردل فارسی) -->
-        <a href="wordle-fa.html?v=1" class="game-card" onclick="return openGame(this, event)">
-            <div class="game-icon" style="background: linear-gradient(135deg, #DCFCE7, #FEF08A); border: 2px solid #53A548;">🟩</div>
+
+        <a href="wordle-fa.html?v=2" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-wordle">🟩</div>
             <div class="game-details">
-                <h2 class="game-title">کلمه‌چین ۵ حرفی (وردل فارسی)</h2>
-                <p class="game-desc">در ۶ تلاش کلمه ۵ حرفی مخفی رو حدس بزن و رکورد برد پیاپی ثبت کن!</p>
+                <h2 class="game-title">کلمه‌چین ۵ حرفی (روزانه و دوئل)</h2>
+                <p class="game-desc">کیبورد هوشمند ۲۱ حرفی، چالش کلمه امروز کانال و دوئل با دوستان در گروه!</p>
             </div>
             <div class="play-btn">بازی کن ▶</div>
         </a>
-      
-        <a href="word-grid.html?v=8" class="game-card" onclick="return openGame(this, event)">
+
+        <a href="word-grid.html?v=9" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-grid">🧩</div>
             <div class="game-details">
                 <h2 class="game-title">جدول کلمات ۸×۸ (همگانی و دوستان)</h2>
-                <p class="game-desc">رقابت زنده کانال، اتاق اختصاصی با دوستان در گروه یا حالت انفرادی!</p>
+                <p class="game-desc">پازل زنده کانال، اتاق اختصاصی گروه و کوزه ابری دائمی!</p>
+            </div>
+            <div class="play-btn">بازی کن ▶</div>
+        </a>
+
+        <a href="esm-famil.html?v=3" class="game-card" onclick="return openGame(this, event)">
+            <div class="game-icon icon-word">🧠</div>
+            <div class="game-details">
+                <h2 class="game-title">حدس کلمه سرعتی (همگانی و گروهی)</h2>
+                <p class="game-desc">رقابت سرعتی روی ۵ موضوع با واژگان مفرد و مستقل؛ هم همگانی هم اتاق دوستان!</p>
             </div>
             <div class="play-btn">بازی کن ▶</div>
         </a>
@@ -750,15 +428,6 @@
             <div class="play-btn">بازی کن ▶</div>
         </a>
 
-        <a href="esm-famil.html?v=2" class="game-card" onclick="return openGame(this, event)">
-            <div class="game-icon icon-word">🧠</div>
-            <div class="game-details">
-                <h2 class="game-title">حدس کلمه سرعتی (آنلاین)</h2>
-                <p class="game-desc">اسم، شهر، کشور و... رو حدس بزن! هم تک‌نفره هم رقابت هم‌زمان.</p>
-            </div>
-            <div class="play-btn">بازی کن ▶</div>
-        </a>
-
         <a href="giraffe.html?v=2" class="game-card" onclick="return openGame(this, event)">
             <div class="game-icon icon-giraffe">🦒</div>
             <div class="game-details">
@@ -776,18 +445,9 @@
             </div>
             <div class="play-btn">بازی کن ▶</div>
         </a>
-
-        <div class="game-card disabled">
-            <div class="game-icon icon-soon">🎲</div>
-            <div class="game-details">
-                <h2 class="game-title" style="color:#757575;">بازی بعدی در راه است...</h2>
-                <p class="game-desc">به‌زودی چالش جدید به مجموعه اضافه می‌شود.</p>
-            </div>
-            <div class="soon-badge">به‌زودی</div>
-        </div>
     </div>
 
-    <!-- بخش ۲: لیدربورد روزانه / هفتگی / ماهانه / کلی -->
+    <!-- بخش ۲: لیدربورد -->
     <div id="section-leaderboard" class="panel-section hidden">
         <div class="panel-card">
             <div class="period-tabs">
@@ -815,9 +475,8 @@
         </div>
     </div>
 
-    <!-- بخش ۳: ماموریت‌های اسپانسری + دعوت دوستان -->
+    <!-- بخش ۳: ماموریت‌های اسپانسری و دعوت دوستان -->
     <div id="section-invite" class="panel-section hidden">
-        <!-- کارت الف: ماموریت‌های اسپانسری -->
         <div class="panel-card">
             <div class="section-heading">
                 <h3>🎯 ماموریت‌های ویژه (امتیاز رایگان)</h3>
@@ -829,7 +488,6 @@
             </div>
         </div>
 
-        <!-- کارت ب: دعوت دوستان (Referral) -->
         <div class="panel-card">
             <div class="ref-hero">
                 <h2>👥 دوستات رو بیار، امتیاز رایگان بگیر!</h2>
@@ -887,7 +545,6 @@
             </div>
 
             <div id="sp-admin-body" class="hidden">
-                <!-- بخش ۱: افزودن ماموریت اسپانسری -->
                 <div class="admin-box">
                     <h4>➕ افزودن ماموریت اسپانسری جدید</h4>
                     <input type="text" id="new-task-title" class="f-input" placeholder="عنوان (مثلاً: عضویت در کانال X)">
@@ -900,22 +557,20 @@
                     <button class="action-btn btn-green" style="margin-top:2px;" onclick="adminAddTask()">ثبت و انتشار ماموریت ✓</button>
                 </div>
 
-                <!-- بخش ۲: لیست ماموریت‌ها و آمار انجام -->
                 <div class="admin-box">
                     <h4>📊 ماموریت‌های فعلی و گزارش اسپانسر</h4>
                     <div id="admin-tasks-list" style="font-size:11px; color:#94A3B8;">در حال دریافت...</div>
                 </div>
 
-                <!-- بخش ۳: تنظیم بنر بالای بازی‌ها -->
                 <div class="admin-box">
                     <h4>📢 بنر تبلیغاتی بالای صفحه بازی‌ها</h4>
                     <label style="display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:8px; cursor:pointer;">
                         <input type="checkbox" id="ban-active">
                         <span>بنر اسپانسر فعال باشد (<span id="ban-clicks-stat" style="color:#34D399;">0 کلیک</span>)</span>
                     </label>
-                    <input type="text" id="ban-title" class="f-input" placeholder="تیتر بنر (مثلاً: حراج بزرگ فروشگاه X)">
+                    <input type="text" id="ban-title" class="f-input" placeholder="تیتر بنر">
                     <input type="text" id="ban-desc" class="f-input" placeholder="زیرتیتر کوتاه">
-                    <input type="text" id="ban-url" class="f-input" placeholder="لینک مقصد (https://t.me/... یا سایت)" dir="ltr">
+                    <input type="text" id="ban-url" class="f-input" placeholder="لینک مقصد" dir="ltr">
                     <input type="text" id="ban-btn" class="f-input" value="مشاهده ↗" placeholder="متن دکمه">
                     <button class="action-btn btn-blue" style="margin-top:2px;" onclick="adminSaveBanner()">💾 ذخیره تنظیمات بنر</button>
                 </div>
@@ -933,14 +588,10 @@
         var currentPeriod = 'daily';
         var cachedStats = { daily: 0, weekly: 0, monthly: 0, all: 0 };
         var sponsorCache = { banner: null, tasks: [], claimedMap: {} };
-        var taskStepState = {}; // { taskId: { phase: 'waiting'|'ready', secs: 5 } }
+        var taskStepState = {};
 
         if (tg) {
-            try {
-                tg.ready();
-                tg.expand();
-                if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-            } catch (e) {}
+            try { tg.ready(); tg.expand(); if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
         }
 
         function esc(str) {
@@ -955,14 +606,8 @@
             if (!url) return;
             var fullUrl = /^https?:\/\//i.test(url) ? url : ('https://' + url);
             if (tg) {
-                if (fullUrl.indexOf('https://t.me/') === 0 && tg.openTelegramLink) {
-                    tg.openTelegramLink(fullUrl);
-                    return;
-                }
-                if (tg.openLink) {
-                    tg.openLink(fullUrl);
-                    return;
-                }
+                if (fullUrl.indexOf('https://t.me/') === 0 && tg.openTelegramLink) { tg.openTelegramLink(fullUrl); return; }
+                if (tg.openLink) { tg.openLink(fullUrl); return; }
             }
             window.open(fullUrl, '_blank');
         }
@@ -981,7 +626,18 @@
             el.classList.remove('hidden');
         }
 
-        // مسیریاب هوشمند startapp: اتاق دوستان جدول ۸×۸ (grid_) و دعوت دوستان (ref_)
+        function redirectWithUser(destUrl) {
+            var dest = destUrl;
+            if (currentUser.isTelegram && currentUser.rawId) {
+                dest += (dest.indexOf('?') === -1 ? '?' : '&')
+                    + 'tg_uid=' + encodeURIComponent(currentUser.rawId)
+                    + '&tg_name=' + encodeURIComponent(currentUser.name);
+            }
+            if (window.location.hash) dest += window.location.hash;
+            window.location.replace(dest);
+        }
+
+        // مسیریاب یکپارچه startapp برای هر ۴ بازی گروهی + دعوت دوستان
         (function routeDeepLink() {
             if (getQueryParam('from') === 'game') return;
             var startParam = '';
@@ -997,18 +653,23 @@
             try { handled = sessionStorage.getItem('cb_handled_sp') || ''; } catch (e) {}
             if (handled === startParam) return;
 
-            if (startParam.indexOf('grid_') === 0) {
-                var code = startParam.substring(5).replace(/[^0-9a-zA-Z]/g, '');
-                if (code) {
-                    try { sessionStorage.setItem('cb_handled_sp', startParam); } catch (e) {}
-                    var dest = 'word-grid.html?v=8&room=' + encodeURIComponent(code);
-                    if (currentUser.isTelegram && currentUser.rawId) {
-                        dest += '&tg_uid=' + encodeURIComponent(currentUser.rawId) + '&tg_name=' + encodeURIComponent(currentUser.name);
+            var roomRoutes = [
+                { prefix: 'grid_', file: 'word-grid.html?v=9&room=' },
+                { prefix: 'crypto_', file: 'cryptogram-fa.html?v=2&room=' },
+                { prefix: 'wordle_', file: 'wordle-fa.html?v=2&room=' },
+                { prefix: 'esm_', file: 'esm-famil.html?v=3&room=' }
+            ];
+
+            for (var i = 0; i < roomRoutes.length; i++) {
+                var rt = roomRoutes[i];
+                if (startParam.indexOf(rt.prefix) === 0) {
+                    var code = startParam.substring(rt.prefix.length).replace(/[^0-9a-zA-Z]/g, '');
+                    if (code) {
+                        try { sessionStorage.setItem('cb_handled_sp', startParam); } catch (e) {}
+                        redirectWithUser(rt.file + encodeURIComponent(code));
                     }
-                    if (window.location.hash) dest += window.location.hash;
-                    window.location.replace(dest);
+                    return;
                 }
-                return;
             }
 
             if (startParam.indexOf('ref_') === 0 && window.ChalbaziScore) {
@@ -1036,9 +697,7 @@
         }
 
         function vibrate() {
-            if (tg && tg.HapticFeedback) {
-                try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
-            }
+            if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {} }
         }
 
         function openGame(linkEl, ev) {
@@ -1064,10 +723,7 @@
                 document.getElementById('section-' + t).classList.toggle('hidden', !active);
             }
             if (tabName === 'leaderboard') loadPeriodBoard(currentPeriod);
-            if (tabName === 'invite') {
-                loadSponsorData();
-                loadReferralTab();
-            }
+            if (tabName === 'invite') { loadSponsorData(); loadReferralTab(); }
         }
 
         function jumpToLeaderboard(period) {
@@ -1129,7 +785,6 @@
             });
         }
 
-        // ==================== ماموریت‌های اسپانسری و بنر ====================
         function loadSponsorData() {
             if (!window.ChalbaziScore) return;
             ChalbaziScore.getSponsorData().then(function(data) {
@@ -1191,25 +846,17 @@
                 var st = taskStepState[t.id];
                 var btnHtml = '';
 
-                if (isClaimed) {
-                    btnHtml = '<button class="task-btn done" disabled>✓ انجام شد</button>';
-                } else if (st && st.phase === 'waiting') {
-                    btnHtml = '<button class="task-btn wait" disabled>⏳ ' + st.secs + ' ثانیه</button>';
-                } else if (st && st.phase === 'ready') {
-                    btnHtml = '<button class="task-btn claim" onclick="claimTaskReward(\'' + t.id + '\')">🎁 دریافت</button>';
-                } else {
-                    btnHtml = '<button class="task-btn go" onclick="startSponsorTask(\'' + t.id + '\')">انجام ↗</button>';
-                }
+                if (isClaimed) btnHtml = '<button class="task-btn done" disabled>✓ انجام شد</button>';
+                else if (st && st.phase === 'waiting') btnHtml = '<button class="task-btn wait" disabled>⏳ ' + st.secs + ' ثانیه</button>';
+                else if (st && st.phase === 'ready') btnHtml = '<button class="task-btn claim" onclick="claimTaskReward(\'' + t.id + '\')">🎁 دریافت</button>';
+                else btnHtml = '<button class="task-btn go" onclick="startSponsorTask(\'' + t.id + '\')">انجام ↗</button>';
 
                 html += '<div class="task-item' + (isClaimed ? ' done' : '') + '">'
                     + '<div class="task-icon">' + esc(t.icon) + '</div>'
-                    + '<div class="task-body">'
-                    + '<div class="task-title">' + esc(t.title) + '</div>'
+                    + '<div class="task-body"><div class="task-title">' + esc(t.title) + '</div>'
                     + (t.desc ? '<div class="task-desc">' + esc(t.desc) + '</div>' : '')
-                    + '<div class="task-reward">⭐ +' + t.reward.toLocaleString('fa-IR') + ' امتیاز</div>'
-                    + '</div>'
-                    + btnHtml
-                    + '</div>';
+                    + '<div class="task-reward">⭐ +' + t.reward.toLocaleString('fa-IR') + ' امتیاز</div></div>'
+                    + btnHtml + '</div>';
             }
             listEl.innerHTML = html;
         }
@@ -1221,7 +868,6 @@
                 if (sponsorCache.tasks[i].id === taskId) { task = sponsorCache.tasks[i]; break; }
             }
             if (!task) return;
-
             openExternalUrl(task.url);
 
             taskStepState[taskId] = { phase: 'waiting', secs: 5 };
@@ -1269,7 +915,6 @@
             });
         }
 
-        // ==================== پنل مخفی مدیریت اسپانسرها ====================
         var adminTapCount = 0;
         var adminTapTimer = null;
 
@@ -1290,9 +935,7 @@
             loadSponsorData();
         }
 
-        function closeSponsorAdmin() {
-            document.getElementById('sponsor-admin-modal').classList.add('hidden');
-        }
+        function closeSponsorAdmin() { document.getElementById('sponsor-admin-modal').classList.add('hidden'); }
 
         function unlockSponsorAdmin() {
             var pin = document.getElementById('sp-admin-pin').value.trim();
@@ -1315,16 +958,12 @@
                 for (var i = 0; i < tasks.length; i++) {
                     var t = tasks[i];
                     html += '<div class="admin-task-row">'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<strong>' + esc(t.icon) + ' ' + esc(t.title) + '</strong> (+' + t.reward + ')<br>'
-                        + '<span style="color:#34D399;">📊 انجام‌شده: ' + t.claimsCount + ' نفر</span>'
-                        + '</div>'
-                        + '<button class="del-mini-btn" onclick="adminDeleteTask(\'' + t.id + '\')">حذف 🗑</button>'
-                        + '</div>';
+                        + '<div style="flex:1; min-width:0;"><strong>' + esc(t.icon) + ' ' + esc(t.title) + '</strong> (+' + t.reward + ')<br>'
+                        + '<span style="color:#34D399;">📊 انجام‌شده: ' + t.claimsCount + ' نفر</span></div>'
+                        + '<button class="del-mini-btn" onclick="adminDeleteTask(\'' + t.id + '\')">حذف 🗑</button></div>';
                 }
                 listEl.innerHTML = html;
             }
-
             var b = sponsorCache.banner;
             if (b) {
                 document.getElementById('ban-active').checked = !!b.active;
@@ -1348,11 +987,7 @@
             var url = document.getElementById('new-task-url').value.trim();
             var reward = document.getElementById('new-task-reward').value;
             var icon = document.getElementById('new-task-icon').value.trim() || '📢';
-
-            if (!title || !url) {
-                setAdminMsg('⚠️ عنوان و لینک ماموریت الزامی است!', '#FBBF24');
-                return;
-            }
+            if (!title || !url) { setAdminMsg('⚠️ عنوان و لینک ماموریت الزامی است!', '#FBBF24'); return; }
             setAdminMsg('⏳ در حال ثبت...', '#38BDF8');
             ChalbaziScore.saveSponsorTask({ title: title, desc: desc, url: url, reward: reward, icon: icon, active: true })
                 .then(function(ok) {
@@ -1362,9 +997,7 @@
                         document.getElementById('new-task-url').value = '';
                         setAdminMsg('✅ ماموریت جدید منتشر شد!', '#34D399');
                         loadSponsorData();
-                    } else {
-                        setAdminMsg('❌ خطا در ذخیره ماموریت', '#F87171');
-                    }
+                    } else setAdminMsg('❌ خطا در ذخیره ماموریت', '#F87171');
                 });
         }
 
@@ -1372,10 +1005,7 @@
             if (!confirm('این ماموریت حذف شود؟')) return;
             setAdminMsg('⏳ در حال حذف...', '#38BDF8');
             ChalbaziScore.deleteSponsorTask(taskId).then(function(ok) {
-                if (ok) {
-                    setAdminMsg('✅ ماموریت حذف شد.', '#34D399');
-                    loadSponsorData();
-                }
+                if (ok) { setAdminMsg('✅ ماموریت حذف شد.', '#34D399'); loadSponsorData(); }
             });
         }
 
@@ -1386,24 +1016,15 @@
             var url = document.getElementById('ban-url').value.trim();
             var btnText = document.getElementById('ban-btn').value.trim() || 'مشاهده ↗';
             var oldClicks = (sponsorCache.banner && sponsorCache.banner.clicks) ? sponsorCache.banner.clicks : 0;
-
-            if (active && (!title || !url)) {
-                setAdminMsg('⚠️ برای فعال کردن بنر، تیتر و لینک الزامی است!', '#FBBF24');
-                return;
-            }
+            if (active && (!title || !url)) { setAdminMsg('⚠️ برای فعال کردن بنر، تیتر و لینک الزامی است!', '#FBBF24'); return; }
             setAdminMsg('⏳ در حال ذخیره بنر...', '#38BDF8');
             ChalbaziScore.saveSponsorBanner({ active: active, title: title, desc: desc, url: url, btnText: btnText, clicks: oldClicks })
                 .then(function(ok) {
-                    if (ok) {
-                        setAdminMsg('✅ تنظیمات بنر ذخیره شد!', '#34D399');
-                        loadSponsorData();
-                    } else {
-                        setAdminMsg('❌ خطا در ذخیره بنر', '#F87171');
-                    }
+                    if (ok) { setAdminMsg('✅ تنظیمات بنر ذخیره شد!', '#34D399'); loadSponsorData(); }
+                    else setAdminMsg('❌ خطا در ذخیره بنر', '#F87171');
                 });
         }
 
-        // ==================== دعوت دوستان (Referral) ====================
         function loadReferralTab() {
             if (!window.ChalbaziScore) return;
             var listEl = document.getElementById('ref-invited-list');
@@ -1412,20 +1033,14 @@
             ChalbaziScore.getReferralInfo().then(function(info) {
                 document.getElementById('ref-count-val').textContent = info.count.toLocaleString('fa-IR');
                 document.getElementById('ref-earned-val').textContent = '+' + info.totalEarned.toLocaleString('fa-IR');
-
                 if (!info.invitedList || info.invitedList.length === 0) {
                     listEl.innerHTML = '<div style="text-align:center; font-size:12px; color:#94A3B8; padding:14px;">هنوز کسی با لینک تو وارد نشده؛ همین الان لینکت رو بفرست! 🚀</div>';
                     return;
                 }
-
                 var html = '';
                 for (var i = 0; i < info.invitedList.length; i++) {
                     var f = info.invitedList[i];
-                    html += '<div class="lb-row">'
-                        + '<span class="lb-rank">' + (i + 1) + '.</span>'
-                        + '<span class="lb-name">' + esc(f.name) + '</span>'
-                        + '<span class="lb-score" style="color:#34D399;">+۵۰</span>'
-                        + '</div>';
+                    html += '<div class="lb-row"><span class="lb-rank">' + (i + 1) + '.</span><span class="lb-name">' + esc(f.name) + '</span><span class="lb-score" style="color:#34D399;">+۵۰</span></div>';
                 }
                 listEl.innerHTML = html;
             });
@@ -1433,7 +1048,7 @@
 
         function shareInviteLink() {
             vibrate();
-            var text = '🎮 بیا تو شهربازی @chalbazi با هم رقابت کنیم! (جدول کلمات ۸×۸، سوپر فوتبال، شکار کلمات و...)\n🎁 با لینک من وارد شو تا همین الان ۲۵ امتیاز هدیه بگیری 👇';
+            var text = '🎮 بیا تو شهربازی @chalbazi با هم رقابت کنیم! (رمزنامه ادبی، کلمه‌چین ۵ حرفی، جدول ۸×۸، اسم‌فامیل و...)\n🎁 با لینک من وارد شو تا همین الان ۲۵ امتیاز هدیه بگیری 👇';
             var url = 'https://t.me/share/url?url=' + encodeURIComponent(myInviteLink) + '&text=' + encodeURIComponent(text);
             if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
             else window.open(url, '_blank');
@@ -1446,19 +1061,11 @@
                 navigator.clipboard.writeText(myInviteLink).then(function() {
                     fb.textContent = '✅ لینک دعوت اختصاصی تو کپی شد!';
                     setTimeout(function() { fb.textContent = ''; }, 2500);
-                }).catch(function() {
-                    fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.';
-                });
-            } else {
-                fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.';
-            }
+                }).catch(function() { fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.'; });
+            } else { fb.textContent = 'لینک بالا را لمس کرده و دستی کپی کن.'; }
         }
 
-        function refreshAllStats() {
-            vibrate();
-            loadMySummary();
-            loadPeriodBoard(currentPeriod);
-        }
+        function refreshAllStats() { vibrate(); loadMySummary(); loadPeriodBoard(currentPeriod); }
 
         function shareMyStats() {
             var shareUrl = currentUser.isTelegram ? myInviteLink : CHANNEL_URL;
@@ -1473,7 +1080,6 @@
             else window.open(url, '_blank');
         }
 
-        // شروع اولیه
         loadMySummary();
         loadSponsorData();
     </script>
