@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>رمزنامه ادبی (کریپتوگرام) | @chalbazi</title>
+    <title>رمزنامه ادبی زنده | @chalbazi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="score-manager.js?v=3"></script>
+    <script src="cryptogram-db.js?v=1"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;700;900&display=swap');
 
@@ -40,14 +41,14 @@
             position: relative;
         }
 
-        /* نوار سفید بالای صفحه شبیه نمونه */
+        /* نوار بالایی */
         .top-bar {
             background: #FFFFFF;
-            padding: 8px 10px 10px;
+            padding: 7px 9px 9px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 6px;
+            gap: 5px;
             border-bottom: 2px solid #EAE0D8;
             box-shadow: 0 3px 10px rgba(92, 74, 74, 0.06);
             flex-shrink: 0;
@@ -57,12 +58,12 @@
         .top-side {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .icon-circle {
-            width: 34px;
-            height: 34px;
+            width: 33px;
+            height: 33px;
             border-radius: 50%;
             background: #F4EFEA;
             border: 1px solid #E5DBD3;
@@ -71,7 +72,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 900;
             cursor: pointer;
             flex-shrink: 0;
@@ -90,15 +91,14 @@
         }
 
         .score-coin {
-            width: 24px;
-            height: 24px;
+            width: 23px;
+            height: 23px;
             border-radius: 50%;
             background: linear-gradient(135deg, #FBBF24, #D97706);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
-            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.35);
+            font-size: 12px;
         }
 
         .score-stack {
@@ -115,13 +115,12 @@
         }
 
         .mult-pill {
-            background: #C79EA0;
+            background: #16A34A;
             color: #FFFFFF;
             font-size: 9px;
             font-weight: 900;
             padding: 1px 6px;
             border-radius: 6px;
-            direction: ltr;
             margin-top: 1px;
         }
 
@@ -141,7 +140,7 @@
 
         .mistakes-dots {
             display: flex;
-            gap: 6px;
+            gap: 5px;
         }
 
         .m-dot {
@@ -166,37 +165,80 @@
             transform: scale(1.1);
         }
 
-        /* نوار اطلاعات مرحله و شاعر/نویسنده */
-        .stage-strip {
+        /* نوار وضعیت زنده و اتاق دوستان */
+        .status-strip {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 7px 14px 3px;
+            padding: 6px 10px 4px;
+            gap: 6px;
             font-size: 11px;
-            color: #7E6E6E;
             flex-shrink: 0;
         }
 
-        .author-pill {
-            background: #EBE2DA;
-            color: #5C4949;
-            padding: 3px 10px;
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #E8F5E9;
+            border: 1px solid #A5D6A7;
+            color: #2E7D32;
+            padding: 3px 9px;
             border-radius: 999px;
             font-weight: 900;
-            font-size: 11px;
         }
 
-        /* صفحه اصلی کدگذاری کریپتوگرام */
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22C55E;
+            animation: pulseDot 1.3s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.75); }
+        }
+
+        .invite-mini-btn {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .ticker-bar {
+            margin: 0 10px 4px;
+            background: #EFE7E0;
+            border: 1px solid #E2D6CC;
+            border-radius: 10px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #5D4A4A;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+        }
+
+        /* صفحه اصلی معما */
         .puzzle-area {
             flex: 1;
             min-height: 0;
             overflow-y: auto;
-            padding: 10px 14px 66px;
+            padding: 8px 12px 58px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 14px;
+            gap: 13px;
             position: relative;
         }
 
@@ -206,8 +248,8 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: flex-end;
-            column-gap: 16px;
-            row-gap: 14px;
+            column-gap: 15px;
+            row-gap: 12px;
             direction: rtl;
         }
 
@@ -234,7 +276,7 @@
         }
 
         .cell-slot.same-num {
-            background: rgba(56, 210, 0, 0.16);
+            background: rgba(56, 210, 0, 0.17);
         }
 
         .cell-slot.active {
@@ -249,12 +291,12 @@
         }
 
         .cell-slot.pop-in .cell-char {
-            animation: popChar 0.22s ease;
+            animation: popChar 0.25s ease;
         }
 
         @keyframes popChar {
-            0% { transform: scale(0.5); opacity: 0.4; }
-            70% { transform: scale(1.2); }
+            0% { transform: scale(0.4); opacity: 0.3; }
+            70% { transform: scale(1.22); }
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -266,11 +308,11 @@
         }
 
         .cell-char {
-            height: 24px;
+            height: 23px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
             color: #4B3A3A;
             line-height: 1;
@@ -310,20 +352,20 @@
         }
 
         .punct-slot {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 900;
             color: #6B5B5B;
-            padding-bottom: 14px;
+            padding-bottom: 13px;
             margin: 0 1px;
             line-height: 1;
         }
 
-        /* دکمه‌های شناور بالای کیبورد (راهنما + تغییر مرحله) */
+        /* دکمه شناور راهنما بالای کیبورد */
         .floating-bar {
             position: absolute;
             left: 12px;
             right: 12px;
-            bottom: 162px;
+            bottom: 160px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
@@ -335,16 +377,15 @@
             pointer-events: auto;
             border: none;
             border-radius: 15px;
-            padding: 8px 13px;
+            padding: 7px 12px;
             color: #FFFFFF;
             font-weight: 900;
-            font-size: 12px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             gap: 5px;
             cursor: pointer;
-            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
-            transition: transform 0.08s;
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
         }
 
         .float-btn:active { transform: scale(0.94); }
@@ -360,16 +401,20 @@
             opacity: 0.75;
         }
 
-        .skip-fab {
+        .mode-fab {
             background: #FFFFFF;
             color: #6E5D5D;
             border: 1px solid #DFD4CC;
             border-bottom: 3px solid #CFC2B8;
-            font-size: 11px;
-            padding: 7px 11px;
         }
 
-        /* کیبورد روشن شبیه نمونه */
+        /* کیبورد روشن + پوشش یخ‌زدگی ۵ ثانیه‌ای + حالت تماشاچی */
+        .keyboard-wrapper {
+            position: relative;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
         .keyboard-tray {
             direction: ltr;
             background: #D8CFCF;
@@ -378,8 +423,6 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            flex-shrink: 0;
-            z-index: 10;
         }
 
         .kb-row {
@@ -433,7 +476,39 @@
             font-size: 14px;
         }
 
-        /* پیام شناور کوتاه */
+        /* لایه یخ‌زدگی ۵ ثانیه‌ای کیبورد */
+        .freeze-cover {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(186, 230, 253, 0.92), rgba(125, 211, 252, 0.95));
+            backdrop-filter: blur(3px);
+            border-top: 2px solid #0284C7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 25;
+            color: #0C4A6E;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* لایه تماشاچی بعد از ۳ خطا */
+        .spectator-cover {
+            position: absolute;
+            inset: 0;
+            background: rgba(63, 63, 70, 0.96);
+            border-top: 2px solid #EF4444;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 12px 16px;
+        }
+
         .toast {
             position: fixed;
             top: 66px;
@@ -448,7 +523,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.18s, transform 0.18s;
-            z-index: 90;
+            z-index: 95;
             white-space: nowrap;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
         }
@@ -462,7 +537,7 @@
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(42, 33, 33, 0.72);
+            background: rgba(42, 33, 33, 0.78);
             backdrop-filter: blur(5px);
             z-index: 120;
             display: flex;
@@ -473,7 +548,7 @@
 
         .modal-card {
             width: 100%;
-            max-width: 380px;
+            max-width: 385px;
             background: #FFFFFF;
             color: #4A3F3F;
             border-radius: 24px;
@@ -495,6 +570,37 @@
             margin-bottom: 8px;
         }
 
+        .friends-box {
+            background: #FAF5F0;
+            border: 1.5px solid #E5D7CC;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 8px 0 10px;
+        }
+
+        .join-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .code-input {
+            flex: 1;
+            background: #FFFFFF;
+            border: 1.5px solid #C4B5FD;
+            border-radius: 12px;
+            padding: 9px 10px;
+            color: #4A3F3F;
+            font-size: 14px;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 3px;
+            outline: none;
+            direction: ltr;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
         .revealed-quote-box {
             background: #FAF5F0;
             border: 1.5px solid #E8DDD5;
@@ -508,27 +614,15 @@
         }
 
         .revealed-author {
-            font-size: 11px;
-            font-weight: 700;
-            color: #8B6F6F;
-            margin-top: 6px;
+            display: inline-block;
+            background: #EFE4DB;
+            color: #6B4F4F;
+            padding: 3px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            margin-top: 8px;
         }
-
-        .modal-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin: 10px 0 14px;
-        }
-
-        .m-stat {
-            background: #F6F1EC;
-            border-radius: 12px;
-            padding: 8px 4px;
-        }
-
-        .m-stat-val { font-size: 17px; font-weight: 900; color: #16A34A; }
-        .m-stat-lbl { font-size: 10px; color: #8A7A7A; margin-top: 2px; }
 
         .btn-main {
             width: 100%;
@@ -544,10 +638,12 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            text-decoration: none;
         }
 
         .btn-main:active { transform: scale(0.97); }
         .btn-green { background: linear-gradient(135deg, #22C55E, #16A34A); }
+        .btn-purple { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
         .btn-blue { background: linear-gradient(135deg, #0284C7, #38BDF8); }
         .btn-soft { background: #EFE7E1; color: #5C4949; }
 
@@ -556,7 +652,7 @@
             border: 1px solid #EAE0D8;
             border-radius: 14px;
             padding: 8px 10px;
-            max-height: 240px;
+            max-height: 200px;
             overflow-y: auto;
             margin: 10px 0 12px;
             text-align: right;
@@ -572,7 +668,7 @@
         }
 
         .lb-row:last-child { border-bottom: none; }
-        .lb-row.me { background: rgba(34, 197, 94, 0.14); border-radius: 8px; }
+        .lb-row.me { background: rgba(34, 197, 94, 0.16); border-radius: 8px; }
 
         .rules-box {
             text-align: right;
@@ -599,7 +695,7 @@
                 <div class="score-coin">⭐</div>
                 <div class="score-stack">
                     <span class="score-num" id="score-val">0</span>
-                    <span class="mult-pill" id="mult-val">×1.0</span>
+                    <span class="mult-pill" id="mult-val">+20</span>
                 </div>
             </div>
         </div>
@@ -620,71 +716,88 @@
         </div>
     </div>
 
-    <!-- نوار شماره مرحله و نام شاعر/اثر -->
-    <div class="stage-strip">
-        <span class="author-pill" id="author-label">📜 در حال بارگذاری...</span>
-        <span>مرحله <strong id="stage-num">1</strong> از <strong id="stage-total">48</strong></span>
+    <!-- نوار وضعیت آنلاین و اتاق دوستان -->
+    <div class="status-strip">
+        <span class="live-badge"><span class="live-dot"></span><span id="online-status">در حال اتصال...</span></span>
+        <span id="progress-status" style="font-weight:900; color:#6E5D5D;">معمای ناشناس • 0/205</span>
+        <button id="invite-group-btn" class="invite-mini-btn hidden" onclick="inviteFriendsToGroup()">📤 دعوت گروه</button>
     </div>
+
+    <!-- نوار رویداد زنده -->
+    <div class="ticker-bar" id="live-ticker">📜 رمزنامه ادبی زنده @chalbazi</div>
 
     <!-- صفحه معمای کریپتوگرام -->
     <div class="puzzle-area" id="puzzle-area"></div>
 
     <!-- دکمه‌های شناور بالای کیبورد -->
     <div class="floating-bar">
-        <button type="button" class="float-btn skip-fab" onclick="skipStage()">🔀 مرحله بعد</button>
+        <button type="button" class="float-btn mode-fab" onclick="openModeMenu()">⚙️ تغییر حالت</button>
         <button type="button" class="float-btn hint-fab" id="hint-fab" onclick="useHint()">
             <span>💡 راهنما</span>
-            <span id="hint-count-pill" style="background:rgba(255,255,255,0.25); padding:1px 7px; border-radius:8px;">3</span>
+            <span id="hint-count-pill" style="background:rgba(255,255,255,0.25); padding:1px 7px; border-radius:8px;">2</span>
         </button>
     </div>
 
-    <!-- کیبورد ۳۲ حرفی فارسی + کلیدهای حرکت -->
-    <div class="keyboard-tray" id="keyboard-tray"></div>
+    <!-- کیبورد + پوشش یخ‌زدگی ۵ ثانیه‌ای + حالت تماشاچی -->
+    <div class="keyboard-wrapper">
+        <div class="keyboard-tray" id="keyboard-tray"></div>
+
+        <div id="freeze-cover" class="freeze-cover hidden">
+            <div style="font-size:20px; font-weight:900;">❄️ کیبورد یخ زد!</div>
+            <div style="font-size:12px; font-weight:700; margin-top:3px;">اشتباه زدی! تا <strong id="freeze-secs" style="font-size:16px;">5</strong> ثانیه دیگر صبر کن...</div>
+        </div>
+
+        <div id="spectator-cover" class="spectator-cover hidden">
+            <div style="font-size:15px; font-weight:900; color:#FCA5A5;">🚫 ۳ اشتباه شما در این معما پر شد!</div>
+            <div style="font-size:11px; color:#E4E4E7; margin-top:4px;">تا پایان این جمله <strong>تماشاچی زنده</strong> هستید؛ با شروع معمای بعدی دوباره برمی‌گردید.</div>
+        </div>
+    </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- مودال پیروزی در مرحله -->
+<!-- منوی انتخاب حالت (فقط آنلاین: همگانی یا دوستان در گروه) -->
+<div id="mode-modal" class="overlay">
+    <div class="modal-card">
+        <div class="pill">@chalbazi</div>
+        <h2 style="margin: 2px 0 6px; font-size: 19px;">📜 رمزنامه ادبی زنده</h2>
+        <p style="font-size: 12px; color: #7E6E6E; margin: 0 0 12px; line-height: 1.7;">
+            ابیات و نثرهای کمتر شنیده‌شده از بزرگان ادب ایران (نام شاعر تا پایان معما مخفی است!)
+        </p>
+
+        <button class="btn-main btn-green" onclick="enterGlobalMode()">🌐 مسابقه زنده همگانی (کل کانال)</button>
+        <div style="font-size: 10px; color: #8A7A7A; margin: -4px 0 10px;">امتیاز این بخش در لیدربورد روزانه/هفتگی/ماهانه ربات ثبت می‌شود</div>
+
+        <div class="friends-box">
+            <button id="create-room-btn" class="btn-main btn-purple" style="margin-bottom:4px;" onclick="createFriendsRoom()">👥 بازی با دوستان (ارسال به گروه)</button>
+            <div style="font-size: 11px; color: #6E5D5D; margin-bottom: 6px;">بدون انتظار شروع میشه و پیام دعوت به اسم خودت در گروه ارسال میشه</div>
+            <div class="join-row">
+                <input type="text" id="join-code-input" class="code-input" maxlength="6" inputmode="numeric" placeholder="کد ۴ رقمی اتاق...">
+                <button class="btn-main btn-blue" style="width:auto; padding:9px 16px; margin:0;" onclick="joinFriendsByInput()">ورود</button>
+            </div>
+            <div id="join-err" style="font-size:11px; color:#EF4444; min-height:16px; margin-top:4px; font-weight:700;"></div>
+        </div>
+
+        <a href="index.html" class="btn-main btn-soft" style="margin-bottom:0;" onclick="return goBackLobby(event)">🏠 بازگشت به لابی</a>
+    </div>
+</div>
+
+<!-- مودال پایان معما (کشف کامل جمله و نمایش نام شاعر) -->
 <div id="win-modal" class="overlay hidden">
     <div class="modal-card">
-        <div class="pill">🎉 رمزگشایی شد!</div>
-        <h2 style="margin: 4px 0; font-size: 18px;">آفرین! بیت و جمله را کشف کردی</h2>
+        <div class="pill">🎉 معما رمزگشایی شد!</div>
+        <h2 id="win-headline" style="margin: 4px 0; font-size: 17px;">شاهکار ادبی کشف شد</h2>
 
         <div class="revealed-quote-box">
             <div id="win-quote-text"></div>
             <div class="revealed-author" id="win-quote-author"></div>
         </div>
 
-        <div class="modal-stats">
-            <div class="m-stat">
-                <div class="m-stat-val" id="win-earned">+0</div>
-                <div class="m-stat-lbl">امتیاز مرحله</div>
-            </div>
-            <div class="m-stat">
-                <div class="m-stat-val" style="color:#0284C7;" id="win-solved-count">0</div>
-                <div class="m-stat-lbl">کل مراحل حل‌شده</div>
-            </div>
-            <div class="m-stat">
-                <div class="m-stat-val" style="color:#D97706;" id="win-mistakes-txt">0/3</div>
-                <div class="m-stat-lbl">اشتباهات</div>
-            </div>
-        </div>
+        <div class="lb-list" id="round-players-board" style="max-height: 150px;"></div>
 
-        <button class="btn-main btn-green" onclick="loadNextStage()">▶ مرحله بعدی</button>
-        <button class="btn-main btn-blue" onclick="shareSolvedQuote()">📤 اشتراک‌گذاری در @chalbazi</button>
-        <button class="btn-main btn-soft" style="margin-bottom:0;" onclick="openLeaderboard()">🏆 جدول استادان رمزنامه</button>
-    </div>
-</div>
-
-<!-- مودال ۳ اشتباه (باخت مرحله) -->
-<div id="lose-modal" class="overlay hidden">
-    <div class="modal-card">
-        <div class="pill" style="background: linear-gradient(135deg, #EF4444, #DC2626);">❌ ۳ اشتباه پر شد!</div>
-        <h2 style="margin: 6px 0; font-size: 18px;">این بار نشد؛ دوباره امتحان کن!</h2>
-        <p style="font-size: 12px; color: #7E6E6E; margin: 4px 0 14px;">می‌تونی همین مرحله رو از نو رمزگشایی کنی یا بری سراغ بیت بعدی.</p>
-
-        <button class="btn-main btn-green" onclick="retryCurrentStage()">🔄 تلاش مجدد همین مرحله</button>
-        <button class="btn-main btn-soft" style="margin-bottom:0;" onclick="loadNextStage()">🔀 رفتن به مرحله بعدی</button>
+        <div id="next-countdown" style="font-size: 13px; font-weight: 900; color: #D97706; margin-bottom: 10px;">⏳ انتخاب معمای بعدی تا ۱۰ ثانیه دیگر...</div>
+        <button class="btn-main btn-blue" onclick="shareSolvedQuote()">📤 اشتراک‌گذاری این اثر در @chalbazi</button>
+        <button id="force-next-btn" class="btn-main btn-green hidden" onclick="createNextRound()">▶ رفتن به معمای بعدی</button>
     </div>
 </div>
 
@@ -692,7 +805,7 @@
 <div id="lb-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('lb-modal')">
     <div class="modal-card">
         <div class="pill">🏆 جدول استادان رمزنامه ادبی</div>
-        <p style="font-size: 11px; color: #8A7A7A; margin: 0 0 6px;">رتبه‌بندی بر اساس تعداد مراحل حل‌شده و مجموع امتیاز</p>
+        <p style="font-size: 11px; color: #8A7A7A; margin: 0 0 6px;">رتبه‌بندی بر اساس مجموع امتیاز رمزگشایی در رقابت زنده</p>
         <div class="lb-list" id="lb-list">در حال دریافت...</div>
         <button class="btn-main btn-soft" style="margin-bottom:0;" onclick="closeModal('lb-modal')">بستن</button>
     </div>
@@ -701,26 +814,34 @@
 <!-- مودال راهنما -->
 <div id="help-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('help-modal')">
     <div class="modal-card">
-        <div class="pill" style="background: linear-gradient(135deg, #0284C7, #38BDF8);">📖 روش بازی رمزنامه ادبی</div>
+        <div class="pill" style="background: linear-gradient(135deg, #0284C7, #38BDF8);">📖 قوانین رمزنامه زنده</div>
         <div class="rules-box">
-            🔹 یک بیت یا جمله معروف از بزرگان ادب ایران به شکل <strong>عددی رمزگذاری</strong> شده است.<br>
-            🔹 هر <strong>عدد یکسان</strong> در کل متن، نماینده یک <strong>حرف یکسان</strong> است.<br>
-            🔹 روی هر خانه خالی (هایلایت سبز) بزن و حرف درستش را از کیبورد انتخاب کن.<br>
-            🔹 کلید <strong>«ا»</strong> هم برای «ا» و هم برای «آ» کار می‌کند.<br>
-            🔹 با حدس‌های درست پیاپی، <strong>ضریب امتیازت تا ×۳</strong> بالا می‌رود؛ مراقب باش بیش از <strong>۳ اشتباه</strong> نکنی!<br>
-            🔹 در هر مرحله <strong>۳ راهنمای رایگان 💡</strong> داری.
+            🔹 یک بیت یا نثر کمتر شنیده‌شده از بزرگان ادب ایران به شکل <strong>عددی رمزگذاری</strong> شده و نام شاعر تا پایان مخفی است.<br>
+            🔹 هر کس زودتر رمز یک عدد را بشکند، <strong>تمام خانه‌های هم‌عدد آن حرف</strong> برای همه باز می‌شود و امتیاز بالاتر می‌گیرد.<br>
+            🔹 <strong>قانون اشتباه:</strong> هر اشتباه <strong>۵ امتیاز</strong> کم می‌کند و کیبوردت را <strong>۵ ثانیه یخ می‌زند ❄️</strong>؛ بعد از <strong>۳ اشتباه</strong> تا پایان همین معما تماشاچی می‌شوی.<br>
+            🔹 تا وقتی معمای فعلی حل نشود، معمای بعدی باز نمی‌شود و پس از حل شدن، یک اثر تصادفی و تکراری‌نشده از <strong>۲۰۵ مرحله</strong> می‌آید.
         </div>
-        <button class="btn-main btn-green" style="margin-bottom:0;" onclick="closeModal('help-modal')">فهمیدم، بزن بریم ✓</button>
+        <button class="btn-main btn-green" style="margin-bottom:0;" onclick="closeModal('help-modal')">فهمیدم ✓</button>
     </div>
 </div>
 
 <script>
     var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
     var CHANNEL_URL = 'https://t.me/chalbazi';
-    var CRYPTO_BOARD_PATH = FIREBASE_DB_URL.replace(/\/+$/, '') + '/cryptogramFaBoard';
+    var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
+    var CLEAN_DB = FIREBASE_DB_URL.replace(/\/+$/, '');
+    var CRYPTO_BOARD_PATH = CLEAN_DB + '/cryptogramFaBoard';
+
+    var FALLBACK_QUOTES = [
+        { id: 1, author: 'سعدی • گلستان', text: 'باران که در لطافت طبعش خلاف نیست / در باغ لاله روید و در شوره بوم خس' }
+    ];
+    var QUOTES_BANK = (typeof CRYPTOGRAM_QUOTES !== 'undefined' && Array.isArray(CRYPTOGRAM_QUOTES) && CRYPTOGRAM_QUOTES.length > 0)
+        ? CRYPTOGRAM_QUOTES
+        : FALLBACK_QUOTES;
 
     function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
     function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function getQueryParam(name) { try { return new URLSearchParams(window.location.search).get(name) || ''; } catch (e) { return ''; } }
 
     function goBackLobby(ev) {
         if (ev) ev.preventDefault();
@@ -748,89 +869,17 @@
         user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
     }
 
-    // ==================== گنجینه ۴۸ شاهکار ادب فارسی ====================
-    var QUOTES = [
-        // سعدی
-        { id: 1, author: 'سعدی • گلستان', text: 'بنی آدم اعضای یکدیگرند / که در آفرینش ز یک گوهرند' },
-        { id: 2, author: 'سعدی • گلستان', text: 'چو عضوی به درد آورد روزگار / دگر عضوها را نماند قرار' },
-        { id: 3, author: 'سعدی • گلستان', text: 'مشک آن است که خود ببوید، نه آن که عطار بگوید.' },
-        { id: 4, author: 'سعدی • گلستان', text: 'توانگری به هنر است نه به مال، و بزرگی به عقل است نه به سال.' },
-        { id: 5, author: 'سعدی • گلستان', text: 'کمال همنشین در من اثر کرد / وگرنه من همان خاکم که هستم' },
-        { id: 6, author: 'سعدی • گلستان', text: 'زبان در دهان ای خردمند چیست / کلید در گنج صاحب هنر' },
-        { id: 7, author: 'سعدی • غزلیات', text: 'سعدیا مرد نکونام نمیرد هرگز / مرده آن است که نامش به نکویی نبرند' },
-        { id: 8, author: 'سعدی • بوستان', text: 'به راه بادیه رفتن به از نشستن باطل / که گر مراد نیابم به قدر وسع بکوشم' },
-
-        // حافظ
-        { id: 9, author: 'حافظ • دیوان حافظ', text: 'درخت دوستی بنشان که کام دل به بار آرد / نهال دشمنی برکن که رنج بیشمار آرد' },
-        { id: 10, author: 'حافظ • دیوان حافظ', text: 'آسایش دو گیتی تفسیر این دو حرف است / با دوستان مروت با دشمنان مدارا' },
-        { id: 11, author: 'حافظ • دیوان حافظ', text: 'شب تاریک و بیم موج و گردابی چنین هایل / کجا دانند حال ما سبکباران ساحل‌ها' },
-        { id: 12, author: 'حافظ • دیوان حافظ', text: 'دور گردون گر دو روزی بر مراد ما نرفت / دائما یکسان نباشد حال دوران غم مخور' },
-        { id: 13, author: 'حافظ • دیوان حافظ', text: 'یوسف گمگشته بازآید به کنعان غم مخور / کلبه احزان شود روزی گلستان غم مخور' },
-        { id: 14, author: 'حافظ • دیوان حافظ', text: 'هرگز نمیرد آن که دلش زنده شد به عشق / ثبت است بر جریده عالم دوام ما' },
-        { id: 15, author: 'حافظ • دیوان حافظ', text: 'عیب رندان مکن ای زاهد پاکیزه سرشت / که گناه دگران بر تو نخواهند نوشت' },
-        { id: 16, author: 'حافظ • دیوان حافظ', text: 'دلا بسوز که سوز تو کارها بکند / نیاز نیم شبی دفع صد بلا بکند' },
-
-        // مولوی
-        { id: 17, author: 'مولوی • مثنوی معنوی', text: 'بشنو از نی چون حکایت می‌کند / از جدایی‌ها شکایت می‌کند' },
-        { id: 18, author: 'مولوی • مثنوی معنوی', text: 'ای برادر تو همان اندیشه‌ای / مابقی تو استخوان و ریشه‌ای' },
-        { id: 19, author: 'مولوی • مثنوی معنوی', text: 'هر کسی کاو دور ماند از اصل خویش / باز جوید روزگار وصل خویش' },
-        { id: 20, author: 'مولوی • مثنوی معنوی', text: 'از محبت تلخ‌ها شیرین شود / از محبت مس‌ها زرین شود' },
-        { id: 21, author: 'مولوی • مثنوی معنوی', text: 'کار پاکان را قیاس از خود مگیر / گر چه ماند در نبشتن شیر و شیر' },
-        { id: 22, author: 'مولوی • دیوان شمس', text: 'خنک آن قماربازی که بباخت هر چه بودش / بنماند هیچش الا هوس قمار دیگر' },
-        { id: 23, author: 'مولوی • دیوان شمس', text: 'دوش دیوانه شدم عشق مرا دید و بگفت / آمدم نعره مزن جامه مدر هیچ مگو' },
-
-        // فردوسی
-        { id: 24, author: 'فردوسی • شاهنامه', text: 'توانا بود هر که دانا بود / ز دانش دل پیر برنا بود' },
-        { id: 25, author: 'فردوسی • شاهنامه', text: 'چو ایران نباشد تن من مباد / بدین بوم و بر زنده یک تن مباد' },
-        { id: 26, author: 'فردوسی • شاهنامه', text: 'بسی رنج بردم در این سال سی / عجم زنده کردم بدین پارسی' },
-        { id: 27, author: 'فردوسی • شاهنامه', text: 'به نام خداوند جان و خرد / کزین برتر اندیشه برنگذرد' },
-        { id: 28, author: 'فردوسی • شاهنامه', text: 'میازار موری که دانه‌کش است / که جان دارد و جان شیرین خوش است' },
-        { id: 29, author: 'فردوسی • شاهنامه', text: 'جهان یادگار است و ما رفتنی / به گیتی نماند به جز مردمی' },
-        { id: 30, author: 'فردوسی • شاهنامه', text: 'چو فردا برآید بلند آفتاب / من و گرز و میدان و افراسیاب' },
-
-        // خیام
-        { id: 31, author: 'خیام • رباعیات', text: 'این قافله عمر عجب می‌گذرد / دریاب دمی که با طرب می‌گذرد' },
-        { id: 32, author: 'خیام • رباعیات', text: 'در کارگه کوزه‌گری رفتم دوش / دیدم دو هزار کوزه گویا و خموش' },
-        { id: 33, author: 'خیام • رباعیات', text: 'اسرار ازل را نه تو دانی و نه من / وین حرف معما نه تو خوانی و نه من' },
-        { id: 34, author: 'خیام • رباعیات', text: 'خیام اگر ز باده مستی خوش باش / با ماه‌رخی اگر نشستی خوش باش' },
-        { id: 35, author: 'خیام • رباعیات', text: 'ابر آمد و باز بر سر سبزه گریست / بی‌باده گلرنگ نمی‌باید زیست' },
-
-        // تاریخ بیهقی
-        { id: 36, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'احمق مردا که دل در این جهان بندد، که نعمتی بدهد و زشت بازستاند.' },
-        { id: 37, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'هیچ خبر نیست که به خواندن نیرزد، اگر خواننده به چشم خرد بنگرد.' },
-        { id: 38, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'چون تقدیر بگردد، تدبیر خردمندان را هیچ اثر نماند.' },
-        { id: 39, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'سخن نیکو آن است که به هنگام گفته شود و خرد آن را گواهی دهد.' },
-
-        // دیگر شاهکارهای ادب ایران
-        { id: 40, author: 'عطار نیشابوری', text: 'تو پای به راه درنه و هیچ مپرس / خود راه بگویدت که چون باید رفت' },
-        { id: 41, author: 'نظامی گنجوی • خسرو و شیرین', text: 'در نومیدی بسی امید است / پایان شب سیه سپید است' },
-        { id: 42, author: 'نظامی گنجوی • لیلی و مجنون', text: 'کم گوی و گزیده گوی چون در / تا ز اندک تو جهان شود پر' },
-        { id: 43, author: 'رودکی سمرقندی', text: 'بوی جوی مولیان آید همی / یاد یار مهربان آید همی' },
-        { id: 44, author: 'رودکی سمرقندی', text: 'زمانه پندی آزادوار داد مرا / زمانه را چو نکو بنگری همه پند است' },
-        { id: 45, author: 'ناصر خسرو', text: 'بر خویش بلرزید و برآورد خروشی / گفتا ز که نالیم که از ماست که بر ماست' },
-        { id: 46, author: 'پروین اعتصامی', text: 'محتسب مستی به ره دید و گریبانش گرفت / مست گفت ای دوست این پیراهن است افسار نیست' },
-        { id: 47, author: 'سهراب سپهری', text: 'چشم‌ها را باید شست، جور دیگر باید دید.' },
-        { id: 48, author: 'نصرالله منشی • کلیله و دمنه', text: 'هیچ گنجی بهتر از هنر نیست و هیچ هنری بزرگ‌تر از ادب نیست.' }
-    ];
-
-    document.getElementById('stage-total').textContent = QUOTES.length;
-
-    // ==================== افکت صوتی سبک (Web Audio) ====================
+    // ==================== افکت‌های صوتی ====================
     var audioCtx = null;
     var soundEnabled = safeGet('cg_sound', '1') !== '0';
-
-    function updateSoundIcon() {
-        document.getElementById('sound-btn').textContent = soundEnabled ? '🔊' : '🔇';
-    }
+    function updateSoundIcon() { document.getElementById('sound-btn').textContent = soundEnabled ? '🔊' : '🔇'; }
     updateSoundIcon();
-
     function toggleSound() {
         soundEnabled = !soundEnabled;
         safeSet('cg_sound', soundEnabled ? '1' : '0');
         updateSoundIcon();
         if (soundEnabled) playSfx('tap');
     }
-
     function beep(f1, f2, dur, type, vol, delay) {
         if (!soundEnabled) return;
         try {
@@ -854,24 +903,20 @@
             osc.stop(t0 + dur + 0.01);
         } catch (e) {}
     }
-
     function playSfx(kind) {
         if (kind === 'tap') beep(560, 480, 0.04, 'triangle', 0.04);
-        else if (kind === 'ok') { beep(640, 880, 0.09, 'sine', 0.07); }
-        else if (kind === 'err') { beep(210, 130, 0.16, 'sawtooth', 0.07); }
-        else if (kind === 'hint') { beep(760, 1120, 0.14, 'sine', 0.08); }
+        else if (kind === 'ok') beep(660, 920, 0.1, 'sine', 0.08);
+        else if (kind === 'err') beep(200, 120, 0.2, 'sawtooth', 0.08);
+        else if (kind === 'hint') beep(760, 1120, 0.14, 'sine', 0.08);
         else if (kind === 'win') {
             beep(523, 523, 0.09, 'triangle', 0.09, 0);
             beep(659, 659, 0.09, 'triangle', 0.09, 0.1);
             beep(784, 784, 0.09, 'triangle', 0.09, 0.2);
             beep(1046, 1046, 0.28, 'triangle', 0.12, 0.31);
-        } else if (kind === 'lose') {
-            beep(320, 220, 0.16, 'sawtooth', 0.07, 0);
-            beep(220, 140, 0.25, 'sawtooth', 0.07, 0.18);
         }
     }
 
-    // ==================== نرمال‌سازی حروف فارسی ====================
+    // ==================== نرمال‌سازی و کیبورد فارسی ====================
     function normalizeKey(ch) {
         if (ch === 'آ' || ch === 'أ' || ch === 'إ') return 'ا';
         if (ch === 'ي' || ch === 'ئ') return 'ی';
@@ -882,11 +927,9 @@
     }
 
     function isPersianLetter(ch) {
-        var nk = normalizeKey(ch);
-        return /^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]$/.test(nk);
+        return /^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]$/.test(normalizeKey(ch));
     }
 
-    // ==================== ساخت کیبورد ۳۲ حرفی فارسی ====================
     var KB_ROWS = [
         ['ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج'],
         ['ش','س','ی','ب','ل','ا','ت','ن','م','ک','گ'],
@@ -895,7 +938,6 @@
 
     var keyBtns = {};
     var kbTray = document.getElementById('keyboard-tray');
-
     for (var r = 0; r < KB_ROWS.length; r++) {
         var rowDiv = document.createElement('div');
         rowDiv.className = 'kb-row';
@@ -906,12 +948,10 @@
             if (k === 'NAV_NEXT') {
                 btn.className = 'key-btn nav-key';
                 btn.textContent = '⇤';
-                btn.title = 'خانه خالی بعدی';
                 btn.addEventListener('click', function() { playSfx('tap'); moveSelection(1); });
             } else if (k === 'NAV_PREV') {
                 btn.className = 'key-btn nav-key';
                 btn.textContent = '⇥';
-                btn.title = 'خانه خالی قبلی';
                 btn.addEventListener('click', function() { playSfx('tap'); moveSelection(-1); });
             } else {
                 btn.className = 'key-btn';
@@ -926,23 +966,42 @@
         kbTray.appendChild(rowDiv);
     }
 
-    // ==================== وضعیت بازی و ذخیره‌سازی ====================
-    function storeKey(s) { return 'cg_' + user.id + '_' + s; }
-
-    var solvedIds = [];
-    try { solvedIds = JSON.parse(safeGet(storeKey('solved'), '[]')); } catch (e) { solvedIds = []; }
-    if (!Array.isArray(solvedIds)) solvedIds = [];
-
-    var totalScore = Number(safeGet(storeKey('score'), '0')) || 0;
-    var currentStageIndex = 0;
+    // ==================== وضعیت اتاق زنده ====================
+    var gameMode = 'global'; // 'global' | 'friends'
+    var activeRoomCode = '';
+    var currentRoundId = null;
     var currentQuote = null;
-    var cells = []; // [{ id, displayChar, keyChar, cipherNum, solved, el, charEl }]
+    var solvedHistoryIds = [];
+    var cipherMap = {}; // { keyChar: cipherNum }
+    var reverseCipher = {}; // { cipherNum: keyChar }
+    var revealedKeys = {}; // { cipherNum: { char, by } }
+    var initialCells = []; // خانه‌های از پیش بازشده در شروع دست
+    var cells = [];
     var activeCellIdx = -1;
-    var mistakes = 0;
-    var hintsLeft = 3;
-    var stageScore = 0;
-    var multiplier = 1.0;
-    var stageOver = false;
+    var myScore = 0;
+    var myMistakes = 0;
+    var hintsLeft = 2;
+    var freezeUntil = 0;
+    var freezeTimer = null;
+    var syncTimer = null;
+    var heartbeatTimer = null;
+    var countdownTimer = null;
+    var isCreatingNext = false;
+    var isSubmittingGuess = false;
+
+    function getRoomPath() {
+        if (gameMode === 'friends' && activeRoomCode) {
+            return CLEAN_DB + '/cryptogramRooms/' + activeRoomCode;
+        }
+        return CLEAN_DB + '/cryptogramLive';
+    }
+
+    function stopAllTimers() {
+        clearInterval(syncTimer);
+        clearInterval(heartbeatTimer);
+        clearInterval(countdownTimer);
+        clearInterval(freezeTimer);
+    }
 
     var toastTimer = null;
     function showToast(msg) {
@@ -950,64 +1009,330 @@
         el.textContent = msg;
         el.classList.add('show');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+        toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2200);
     }
 
-    function pickInitialStageIndex() {
-        for (var i = 0; i < QUOTES.length; i++) {
-            if (solvedIds.indexOf(QUOTES[i].id) === -1) return i;
+    function openModeMenu() {
+        stopAllTimers();
+        document.getElementById('join-err').textContent = '';
+        document.getElementById('win-modal').classList.add('hidden');
+        document.getElementById('mode-modal').classList.remove('hidden');
+    }
+
+    function pickRandomUnsolvedQuote(solvedIdsArr) {
+        var usedSet = new Set(Array.isArray(solvedIdsArr) ? solvedIdsArr : []);
+        var remaining = QUOTES_BANK.filter(function(q) { return !usedSet.has(q.id); });
+        if (remaining.length === 0) {
+            // همه ۲۰۵ مرحله تمام شده؛ چرخه جدید شروع می‌شود
+            remaining = QUOTES_BANK.slice();
+            solvedIdsArr = [];
         }
-        return Math.floor(Math.random() * QUOTES.length);
+        var chosen = remaining[Math.floor(Math.random() * remaining.length)];
+        return { quote: chosen, updatedSolved: solvedIdsArr };
     }
 
-    function updateTopHUD() {
-        document.getElementById('score-val').textContent = (totalScore + stageScore).toLocaleString('fa-IR');
-        document.getElementById('mult-val').textContent = '×' + multiplier.toFixed(1);
-        for (var i = 0; i < 3; i++) {
-            document.getElementById('mdot-' + i).classList.toggle('used', i < mistakes);
-        }
-        document.getElementById('hint-count-pill').textContent = hintsLeft;
-        document.getElementById('hint-fab').classList.toggle('empty', hintsLeft <= 0);
-    }
+    function buildRoundPayload(solvedIdsArr, startText) {
+        var pick = pickRandomUnsolvedQuote(solvedIdsArr);
+        var q = pick.quote;
+        var cleanText = q.text.replace(/\u200c/g, '');
 
-    function startStage(index) {
-        closeModal('win-modal');
-        closeModal('lose-modal');
-
-        currentStageIndex = ((index % QUOTES.length) + QUOTES.length) % QUOTES.length;
-        currentQuote = QUOTES[currentStageIndex];
-        mistakes = 0;
-        hintsLeft = 3;
-        stageScore = 0;
-        multiplier = 1.0;
-        stageOver = false;
-        cells = [];
-        activeCellIdx = -1;
-
-        document.getElementById('author-label').textContent = '📜 ' + currentQuote.author;
-        document.getElementById('stage-num').textContent = currentStageIndex + 1;
-
-        // ۱. ساخت نقشه اعداد رمزی یکتا (۱ تا ۳۲ تصادفی) برای حروف این جمله
         var uniqueKeys = [];
-        var cleanText = currentQuote.text.replace(/\u200c/g, '');
+        var letterPositions = [];
         for (var i = 0; i < cleanText.length; i++) {
             var ch = cleanText[i];
             if (isPersianLetter(ch)) {
                 var nk = normalizeKey(ch);
                 if (uniqueKeys.indexOf(nk) === -1) uniqueKeys.push(nk);
+                letterPositions.push({ pos: letterPositions.length, keyChar: nk });
             }
         }
-        var numPool = [];
-        for (var n = 1; n <= 32; n++) numPool.push(n);
-        numPool.sort(function() { return Math.random() - 0.5; });
-        var cipherMap = {};
+
+        var nums = [];
+        for (var n = 1; n <= 32; n++) nums.push(n);
+        nums.sort(function() { return Math.random() - 0.5; });
+        var cMap = {};
         for (var u = 0; u < uniqueKeys.length; u++) {
-            cipherMap[uniqueKeys[u]] = numPool[u];
+            cMap[uniqueKeys[u]] = nums[u];
         }
 
-        // ۲. رندر کردن خطوط و کلمات در صفحه
+        // حدود ۲۵٪ خانه‌ها به عنوان سرنخ اولیه باز می‌شوند (بدون اینکه کل یک حرف لو برود)
+        var targetReveal = Math.max(3, Math.round(letterPositions.length * 0.25));
+        var shuffled = letterPositions.slice().sort(function() { return Math.random() - 0.5; });
+        var totalByKey = {};
+        var revByKey = {};
+        for (var a = 0; a < letterPositions.length; a++) {
+            var k = letterPositions[a].keyChar;
+            totalByKey[k] = (totalByKey[k] || 0) + 1;
+        }
+        var initCells = [];
+        for (var b = 0; b < shuffled.length && initCells.length < targetReveal; b++) {
+            var item = shuffled[b];
+            if (totalByKey[item.keyChar] > 1 && (revByKey[item.keyChar] || 0) >= totalByKey[item.keyChar] - 1) continue;
+            initCells.push(item.pos);
+            revByKey[item.keyChar] = (revByKey[item.keyChar] || 0) + 1;
+        }
+
+        var initPlayers = {};
+        initPlayers[user.id] = { name: user.name, score: 0, mistakes: 0, lastSeen: Date.now() };
+
+        return {
+            roundId: 'cg_' + Date.now(),
+            quoteId: q.id,
+            solvedIds: pick.updatedSolved,
+            cipherMap: cMap,
+            initialCells: initCells,
+            revealedKeys: {},
+            finishedAt: 0,
+            finishedById: '',
+            lastEvent: { text: startText || '📜 معمای ادبی جدید شروع شد! نام شاعر تا پایان مخفی است 🔍', ts: Date.now() },
+            players: initPlayers
+        };
+    }
+
+    async function enterGlobalMode() {
+        stopAllTimers();
+        gameMode = 'global';
+        activeRoomCode = '';
+        currentRoundId = null;
+        document.getElementById('invite-group-btn').classList.add('hidden');
+        document.getElementById('mode-modal').classList.add('hidden');
+        await syncRoom(true, true);
+        syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
+        heartbeatTimer = setInterval(sendHeartbeat, 10000);
+    }
+
+    async function createFriendsRoom() {
+        var btn = document.getElementById('create-room-btn');
+        var oldTxt = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ در حال ساخت اتاق...';
+        document.getElementById('join-err').textContent = '';
+
+        try {
+            var code = String(Math.floor(1000 + Math.random() * 9000));
+            stopAllTimers();
+            gameMode = 'friends';
+            activeRoomCode = code;
+            currentRoundId = null;
+
+            var payload = buildRoundPayload([], '👥 ' + user.name + ' اتاق رمزنامه #' + code + ' رو ساخت! رقابت شروع شد 🔥');
+            await fetch(getRoomPath() + '.json', {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('invite-group-btn').classList.remove('hidden');
+            document.getElementById('mode-modal').classList.add('hidden');
+            applyRoomState(payload, true);
+
+            syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
+            heartbeatTimer = setInterval(sendHeartbeat, 10000);
+
+            inviteFriendsToGroup();
+        } catch (e) {
+            document.getElementById('join-err').textContent = '❌ خطا در ساخت اتاق؛ اتصال اینترنت را بررسی کنید.';
+        }
+        btn.disabled = false;
+        btn.textContent = oldTxt;
+    }
+
+    async function joinFriendsByInput() {
+        var code = document.getElementById('join-code-input').value.trim().replace(/[^0-9a-zA-Z]/g, '');
+        var errEl = document.getElementById('join-err');
+        if (code.length < 3) {
+            errEl.textContent = '⚠️ کد ۴ رقمی اتاق را وارد کنید.';
+            return;
+        }
+        errEl.textContent = '⏳ در حال بررسی اتاق...';
+        try {
+            var res = await fetch(CLEAN_DB + '/cryptogramRooms/' + code + '.json');
+            var data = res.ok ? await res.json() : null;
+            if (!data || !data.quoteId) {
+                errEl.textContent = '❌ اتاقی با کد #' + code + ' پیدا نشد!';
+                return;
+            }
+            errEl.textContent = '';
+            await enterFriendsRoom(code, false);
+        } catch (e) {
+            errEl.textContent = '❌ خطا در اتصال به سرور';
+        }
+    }
+
+    async function enterFriendsRoom(code, autoCreate) {
+        stopAllTimers();
+        gameMode = 'friends';
+        activeRoomCode = String(code);
+        currentRoundId = null;
+        document.getElementById('invite-group-btn').classList.remove('hidden');
+        document.getElementById('mode-modal').classList.add('hidden');
+
+        await syncRoom(true, autoCreate);
+        syncTimer = setInterval(function() { syncRoom(false, false); }, 1500);
+        heartbeatTimer = setInterval(sendHeartbeat, 10000);
+    }
+
+    function inviteFriendsToGroup() {
+        if (!activeRoomCode) return;
+        var link = BOT_MINIAPP_URL + '?startapp=crypto_' + activeRoomCode;
+        var text = '📜 ' + user.name + ' چالش «رمزنامه ادبی» رو شروع کرد!\nبدون انتظار بیاین تو اتاق و زودتر از بقیه رمز بیت رو بشکنید 👇\n(کد اتاق: ' + activeRoomCode + ')';
+        var shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
+        else window.open(shareUrl, '_blank');
+    }
+
+    async function sendHeartbeat() {
+        if (!currentRoundId) return;
+        try {
+            await fetch(getRoomPath() + '/players/' + user.id + '/lastSeen.json', {
+                method: 'PUT',
+                body: JSON.stringify(Date.now())
+            });
+        } catch (e) {}
+    }
+
+    async function registerOrUpdateMyPlayer() {
+        try {
+            await fetch(getRoomPath() + '/players/' + user.id + '.json', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    name: user.name,
+                    score: myScore,
+                    mistakes: myMistakes,
+                    lastSeen: Date.now()
+                })
+            });
+        } catch (e) {}
+    }
+
+    async function createNextRound() {
+        if (isCreatingNext) return;
+        isCreatingNext = true;
+        try {
+            var path = getRoomPath();
+            var res = await fetch(path + '.json');
+            var cur = res.ok ? await res.json() : null;
+            if (cur && cur.roundId !== currentRoundId && !cur.finishedAt) {
+                applyRoomState(cur, false);
+                isCreatingNext = false;
+                return;
+            }
+            var nextSolved = Array.isArray(cur && cur.solvedIds) ? cur.solvedIds.slice() : solvedHistoryIds.slice();
+            if (cur && cur.quoteId && nextSolved.indexOf(cur.quoteId) === -1) {
+                nextSolved.push(cur.quoteId);
+            }
+            var prefix = gameMode === 'friends' ? ('👥 اتاق #' + activeRoomCode + ' — ') : '📜 ';
+            var nextPayload = buildRoundPayload(nextSolved, prefix + 'معمای جدید شروع شد! کی رمز رو می‌شکنه؟');
+            await fetch(path + '.json', {
+                method: 'PUT',
+                body: JSON.stringify(nextPayload)
+            });
+            applyRoomState(nextPayload, false);
+        } catch (e) {}
+        isCreatingNext = false;
+    }
+
+    async function syncRoom(isInitial, autoCreate) {
+        try {
+            var path = getRoomPath();
+            var res = await fetch(path + '.json');
+            if (!res.ok) return;
+            var data = await res.json();
+            if (!data || !data.quoteId || !data.cipherMap) {
+                if (autoCreate) await createNextRound();
+                return;
+            }
+            if (data.finishedAt && (Date.now() - data.finishedAt > 20000)) {
+                currentRoundId = data.roundId;
+                await createNextRound();
+                return;
+            }
+            applyRoomState(data, isInitial);
+        } catch (e) {}
+    }
+
+    function applyRoomState(data, isInitial) {
+        var isNewRound = (data.roundId !== currentRoundId);
+
+        if (isNewRound) {
+            currentRoundId = data.roundId;
+            solvedHistoryIds = Array.isArray(data.solvedIds) ? data.solvedIds : [];
+            cipherMap = data.cipherMap || {};
+            reverseCipher = {};
+            Object.keys(cipherMap).forEach(function(k) { reverseCipher[cipherMap[k]] = k; });
+            initialCells = Array.isArray(data.initialCells) ? data.initialCells : [];
+            hintsLeft = 2;
+            clearInterval(countdownTimer);
+            clearInterval(freezeTimer);
+            freezeUntil = 0;
+            document.getElementById('freeze-cover').classList.add('hidden');
+            document.getElementById('win-modal').classList.add('hidden');
+            document.getElementById('force-next-btn').classList.add('hidden');
+
+            currentQuote = null;
+            for (var q = 0; q < QUOTES_BANK.length; q++) {
+                if (QUOTES_BANK[q].id === data.quoteId) { currentQuote = QUOTES_BANK[q]; break; }
+            }
+            if (!currentQuote) currentQuote = QUOTES_BANK[0];
+
+            if (data.players && data.players[user.id]) {
+                myScore = data.players[user.id].score || 0;
+                myMistakes = data.players[user.id].mistakes || 0;
+            } else {
+                myScore = 0;
+                myMistakes = 0;
+                registerOrUpdateMyPlayer();
+            }
+
+            renderPuzzleDOM();
+            selectFirstEmptyCell();
+        } else {
+            if (isInitial && (!data.players || !data.players[user.id])) {
+                registerOrUpdateMyPlayer();
+            }
+            if (data.players && data.players[user.id]) {
+                myScore = Math.max(myScore, data.players[user.id].score || 0);
+                myMistakes = Math.max(myMistakes, data.players[user.id].mistakes || 0);
+            }
+        }
+
+        // اعمال حروف کشف‌شده زنده از سرور
+        revealedKeys = data.revealedKeys || {};
+        var newlySolvedAny = false;
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            var wasSolved = cell.solved;
+            var isInit = initialCells.indexOf(cell.id) !== -1;
+            var isRev = !!revealedKeys[cell.cipherNum];
+            if ((isInit || isRev) && !wasSolved) {
+                cell.solved = true;
+                cell.charEl.textContent = cell.displayChar;
+                cell.el.classList.add('solved-cell', 'pop-in');
+                cell.el.classList.remove('active', 'same-num');
+                newlySolvedAny = true;
+            }
+        }
+
+        if (newlySolvedAny && (activeCellIdx < 0 || (cells[activeCellIdx] && cells[activeCellIdx].solved))) {
+            selectFirstEmptyCell();
+        } else if (activeCellIdx >= 0 && cells[activeCellIdx] && !cells[activeCellIdx].solved) {
+            selectCell(activeCellIdx);
+        }
+
+        refreshKeyboardStates();
+        updateHUD(data);
+
+        // بررسی اتمام کامل معما
+        var allSolved = cells.length > 0 && cells.every(function(c) { return c.solved; });
+        if (allSolved || data.finishedAt) {
+            showRoundWinModal(data);
+        }
+    }
+
+    function renderPuzzleDOM() {
+        cells = [];
         var area = document.getElementById('puzzle-area');
         area.innerHTML = '';
+        var cleanText = currentQuote.text.replace(/\u200c/g, '');
         var lines = cleanText.split('/');
 
         for (var l = 0; l < lines.length; l++) {
@@ -1015,8 +1340,8 @@
             if (!lineStr) continue;
             var lineDiv = document.createElement('div');
             lineDiv.className = 'quote-line';
-
             var words = lineStr.split(/\s+/);
+
             for (var w = 0; w < words.length; w++) {
                 var word = words[w];
                 var wordDiv = document.createElement('div');
@@ -1025,8 +1350,9 @@
                 for (var ci = 0; ci < word.length; ci++) {
                     var c = word[ci];
                     if (isPersianLetter(c)) {
-                        var nk2 = normalizeKey(c);
-                        var cellIndex = cells.length;
+                        var nk = normalizeKey(c);
+                        var cNum = cipherMap[nk];
+                        var cellIdx = cells.length;
 
                         var slot = document.createElement('div');
                         slot.className = 'cell-slot';
@@ -1036,7 +1362,7 @@
                         ul.className = 'cell-underline';
                         var numEl = document.createElement('div');
                         numEl.className = 'cell-num';
-                        numEl.textContent = cipherMap[nk2];
+                        numEl.textContent = cNum;
 
                         slot.appendChild(charEl);
                         slot.appendChild(ul);
@@ -1044,19 +1370,19 @@
 
                         (function(idx) {
                             slot.addEventListener('click', function() {
-                                if (!cells[idx].solved && !stageOver) {
+                                if (!cells[idx].solved && myMistakes < 3) {
                                     playSfx('tap');
                                     selectCell(idx);
                                 }
                             });
-                        })(cellIndex);
+                        })(cellIdx);
 
                         wordDiv.appendChild(slot);
                         cells.push({
-                            id: cellIndex,
+                            id: cellIdx,
                             displayChar: c,
-                            keyChar: nk2,
-                            cipherNum: cipherMap[nk2],
+                            keyChar: nk,
+                            cipherNum: cNum,
                             solved: false,
                             el: slot,
                             charEl: charEl
@@ -1072,46 +1398,44 @@
             }
             area.appendChild(lineDiv);
         }
-
-        // ۳. آشکارسازی هوشمند حدود ۳۵٪ خانه‌ها به عنوان سرنخ اولیه
-        var revealTarget = Math.max(4, Math.round(cells.length * 0.35));
-        var indices = [];
-        for (var k = 0; k < cells.length; k++) indices.push(k);
-        indices.sort(function() { return Math.random() - 0.5; });
-
-        var countByKey = {};
-        var revealedByKey = {};
-        for (var m = 0; m < cells.length; m++) {
-            countByKey[cells[m].keyChar] = (countByKey[cells[m].keyChar] || 0) + 1;
-        }
-
-        var revealedCount = 0;
-        for (var idxPos = 0; idxPos < indices.length && revealedCount < revealTarget; idxPos++) {
-            var ci2 = indices[idxPos];
-            var kc = cells[ci2].keyChar;
-            // سعی می‌کنیم همه تکرارهای یک حرف از اول لو نروند مگر تک‌تکرارها گاهی
-            if (countByKey[kc] > 1 && (revealedByKey[kc] || 0) >= countByKey[kc] - 1) continue;
-            markCellSolved(ci2, false);
-            revealedByKey[kc] = (revealedByKey[kc] || 0) + 1;
-            revealedCount++;
-        }
-
-        // اگر همچنان همه حل نشده‌اند، اولین خانه خالی را انتخاب کن
-        selectFirstEmptyCell();
-        refreshKeyboardStates();
-        updateTopHUD();
     }
 
-    function markCellSolved(idx, animate) {
-        var cell = cells[idx];
-        cell.solved = true;
-        cell.charEl.textContent = cell.displayChar;
-        cell.el.classList.add('solved-cell');
-        cell.el.classList.remove('active', 'same-num');
-        if (animate) {
-            cell.el.classList.remove('pop-in');
-            void cell.el.offsetWidth;
-            cell.el.classList.add('pop-in');
+    function getRemainingCipherKeysCount() {
+        var remNums = new Set();
+        for (var i = 0; i < cells.length; i++) {
+            if (!cells[i].solved) remNums.add(cells[i].cipherNum);
+        }
+        return remNums.size;
+    }
+
+    function updateHUD(data) {
+        document.getElementById('score-val').textContent = myScore.toLocaleString('fa-IR');
+        var remKeys = getRemainingCipherKeysCount();
+        document.getElementById('mult-val').textContent = '+' + Math.max(2, remKeys * 2);
+
+        for (var i = 0; i < 3; i++) {
+            document.getElementById('mdot-' + i).classList.toggle('used', i < myMistakes);
+        }
+
+        document.getElementById('hint-count-pill').textContent = hintsLeft;
+        document.getElementById('hint-fab').classList.toggle('empty', hintsLeft <= 0 || myMistakes >= 3);
+
+        // بررسی حالت تماشاچی بعد از ۳ اشتباه
+        document.getElementById('spectator-cover').classList.toggle('hidden', myMistakes < 3);
+
+        var playersObj = (data && data.players) ? data.players : {};
+        var now = Date.now();
+        var onlineCount = 0;
+        Object.keys(playersObj).forEach(function(pid) {
+            if (playersObj[pid] && now - (playersObj[pid].lastSeen || 0) < 35000) onlineCount++;
+        });
+        if (onlineCount < 1) onlineCount = 1;
+
+        document.getElementById('online-status').textContent = (gameMode === 'friends' ? ('اتاق ' + activeRoomCode + ' | ') : 'زنده | ') + onlineCount + ' نفر';
+        document.getElementById('progress-status').textContent = 'معمای ناشناس • ' + solvedHistoryIds.length + '/' + QUOTES_BANK.length;
+
+        if (data && data.lastEvent && data.lastEvent.text) {
+            document.getElementById('live-ticker').textContent = data.lastEvent.text;
         }
     }
 
@@ -1120,7 +1444,7 @@
         var targetNum = (idx >= 0 && cells[idx]) ? cells[idx].cipherNum : -1;
         for (var i = 0; i < cells.length; i++) {
             cells[i].el.classList.remove('active', 'same-num');
-            if (i === activeCellIdx) {
+            if (i === activeCellIdx && !cells[i].solved) {
                 cells[i].el.classList.add('active');
             } else if (!cells[i].solved && targetNum !== -1 && cells[i].cipherNum === targetNum) {
                 cells[i].el.classList.add('same-num');
@@ -1143,7 +1467,7 @@
     }
 
     function moveSelection(step) {
-        if (stageOver || cells.length === 0) return;
+        if (cells.length === 0 || myMistakes >= 3) return;
         var start = activeCellIdx < 0 ? 0 : activeCellIdx;
         for (var i = 1; i <= cells.length; i++) {
             var next = (start + i * step + cells.length) % cells.length;
@@ -1155,81 +1479,155 @@
     }
 
     function refreshKeyboardStates() {
-        var stats = {}; // { keyChar: { total, solved } }
+        var stats = {};
         for (var i = 0; i < cells.length; i++) {
             var kc = cells[i].keyChar;
             if (!stats[kc]) stats[kc] = { total: 0, solved: 0 };
             stats[kc].total++;
             if (cells[i].solved) stats[kc].solved++;
         }
-
         Object.keys(keyBtns).forEach(function(k) {
             var btn = keyBtns[k];
             btn.classList.remove('discovered', 'completed');
             var st = stats[k];
             if (st) {
-                if (st.solved >= st.total) {
-                    btn.classList.add('completed');
-                } else if (st.solved > 0) {
-                    btn.classList.add('discovered');
-                }
+                if (st.solved >= st.total) btn.classList.add('completed');
+                else if (st.solved > 0) btn.classList.add('discovered');
             }
         });
     }
 
-    function handleKeyPress(letter) {
-        if (stageOver) return;
+    function triggerFiveSecFreeze() {
+        freezeUntil = Date.now() + 5000;
+        var cover = document.getElementById('freeze-cover');
+        var secEl = document.getElementById('freeze-secs');
+        cover.classList.remove('hidden');
+        secEl.textContent = '5';
+
+        clearInterval(freezeTimer);
+        freezeTimer = setInterval(function() {
+            var left = Math.ceil((freezeUntil - Date.now()) / 1000);
+            if (left <= 0) {
+                clearInterval(freezeTimer);
+                freezeUntil = 0;
+                cover.classList.add('hidden');
+            } else {
+                secEl.textContent = String(left);
+            }
+        }, 250);
+    }
+
+    async function handleKeyPress(letter) {
+        if (isSubmittingGuess) return;
+        if (myMistakes >= 3) {
+            showToast('۳ اشتباه شما پر شده؛ منتظر معمای بعدی بمانید.');
+            return;
+        }
+        if (Date.now() < freezeUntil) return;
+
         if (activeCellIdx < 0 || cells[activeCellIdx].solved) {
             if (!selectFirstEmptyCell()) return;
         }
 
         var cell = cells[activeCellIdx];
+
+        // بررسی درستی حرف انتخاب‌شده
         if (letter === cell.keyChar) {
-            // حدس درست!
-            markCellSolved(activeCellIdx, true);
-            var gain = Math.round(5 * multiplier);
-            stageScore += gain;
-            multiplier = Math.min(3.0, Math.round((multiplier + 0.2) * 10) / 10);
-            playSfx('ok');
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            isSubmittingGuess = true;
+            var targetCipher = cell.cipherNum;
+            var remBefore = getRemainingCipherKeysCount();
+            var isLastKey = (remBefore === 1);
+            var earned = Math.max(2, remBefore * 2) + (isLastKey ? 25 : 0);
 
-            refreshKeyboardStates();
-            updateTopHUD();
+            try {
+                var path = getRoomPath();
+                var chkRes = await fetch(path + '/revealedKeys/' + targetCipher + '.json');
+                var already = chkRes.ok ? await chkRes.json() : null;
+                if (already && already.char) {
+                    showToast('⚡ «' + (already.by || 'بازیکنی') + '» یک لحظه زودتر این رمز را شکست!');
+                    isSubmittingGuess = false;
+                    syncRoom(false, false);
+                    return;
+                }
 
-            if (isPuzzleCompleted()) {
-                handleStageWin();
-            } else {
-                moveSelection(1);
+                // باز کردن فوری همه خانه‌های هم‌عدد در صفحه بازیکن
+                for (var i = 0; i < cells.length; i++) {
+                    if (cells[i].cipherNum === targetCipher) {
+                        cells[i].solved = true;
+                        cells[i].charEl.textContent = cells[i].displayChar;
+                        cells[i].el.classList.add('solved-cell', 'pop-in');
+                        cells[i].el.classList.remove('active', 'same-num');
+                    }
+                }
+                myScore += earned;
+                playSfx('ok');
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                showToast('🌟 آفرین! حرف «' + letter + '» باز شد (+' + earned + ' امتیاز)');
+
+                refreshKeyboardStates();
+                selectFirstEmptyCell();
+
+                if (gameMode === 'global' && window.ChalbaziScore) {
+                    ChalbaziScore.addScore(earned, 'cryptogram-fa', currentRoundId + '_c_' + targetCipher);
+                }
+
+                await fetch(path + '/revealedKeys/' + targetCipher + '.json', {
+                    method: 'PUT',
+                    body: JSON.stringify({ char: letter, by: user.name, ts: Date.now() })
+                });
+                await registerOrUpdateMyPlayer();
+                await fetch(path + '/lastEvent.json', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        text: '🌟 ' + user.name + ' رمز عدد ' + targetCipher + ' («' + letter + '») را شکست! (+' + earned + ')',
+                        ts: Date.now()
+                    })
+                });
+
+                if (isLastKey) {
+                    var nextSolved = solvedHistoryIds.slice();
+                    if (nextSolved.indexOf(currentQuote.id) === -1) nextSolved.push(currentQuote.id);
+                    await fetch(path + '.json', {
+                        method: 'PATCH',
+                        body: JSON.stringify({ finishedAt: Date.now(), finishedById: user.id, solvedIds: nextSolved })
+                    });
+                }
+
+                syncRoom(false, false);
+            } catch (e) {
+                showToast('❌ خطا در ثبت روی سرور');
             }
+            isSubmittingGuess = false;
         } else {
-            // حدس اشتباه
-            mistakes++;
-            multiplier = 1.0;
+            // اشتباه: کسر ۵ امتیاز + ۵ ثانیه یخ زدن کیبورد (و در اشتباه سوم حالت تماشاچی)
+            myMistakes++;
+            myScore = Math.max(0, myScore - 5);
+
             cell.el.classList.remove('wrong-flash');
             void cell.el.offsetWidth;
             cell.el.classList.add('wrong-flash');
-            setTimeout(function() { cell.el.classList.remove('wrong-flash'); }, 350);
+            setTimeout(function() { cell.el.classList.remove('wrong-flash'); }, 360);
 
             playSfx('err');
             if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            updateTopHUD();
+            registerOrUpdateMyPlayer();
 
-            if (mistakes >= 3) {
-                stageOver = true;
-                playSfx('lose');
-                setTimeout(function() {
-                    document.getElementById('lose-modal').classList.remove('hidden');
-                }, 420);
+            if (myMistakes >= 3) {
+                document.getElementById('spectator-cover').classList.remove('hidden');
+                showToast('🚫 ۳ اشتباه پر شد! تا معمای بعدی تماشاچی هستید.');
             } else {
-                showToast('اشتباه بود! (' + (3 - mistakes) + ' فرصت باقی‌مانده)');
+                triggerFiveSecFreeze();
+                showToast('❌ اشتباه! -۵ امتیاز و ۵ ثانیه یخ‌زدگی (' + (3 - myMistakes) + ' فرصت باقی‌مانده)');
             }
+            updateHUD(null);
         }
     }
 
-    function useHint() {
-        if (stageOver) return;
+    async function useHint() {
+        if (myMistakes >= 3 || isSubmittingGuess) return;
+        if (Date.now() < freezeUntil) return;
         if (hintsLeft <= 0) {
-            showToast('راهنمای این مرحله تمام شد!');
+            showToast('راهنمای شما در این معما تمام شده است!');
             return;
         }
         if (activeCellIdx < 0 || cells[activeCellIdx].solved) {
@@ -1237,96 +1635,85 @@
         }
 
         hintsLeft--;
-        var cell = cells[activeCellIdx];
-        markCellSolved(activeCellIdx, true);
+        var targetLetter = cells[activeCellIdx].keyChar;
         playSfx('hint');
-        if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-        refreshKeyboardStates();
-        updateTopHUD();
-
-        if (isPuzzleCompleted()) {
-            handleStageWin();
-        } else {
-            moveSelection(1);
-        }
+        await handleKeyPress(targetLetter);
     }
 
-    function isPuzzleCompleted() {
-        for (var i = 0; i < cells.length; i++) {
-            if (!cells[i].solved) return false;
-        }
-        return true;
-    }
-
-    function handleStageWin() {
-        stageOver = true;
-        selectCell(-1);
+    function showRoundWinModal(data) {
+        var modal = document.getElementById('win-modal');
+        if (!modal.classList.contains('hidden')) return;
+        modal.classList.remove('hidden');
         playSfx('win');
-        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
-        var isFirstTime = (solvedIds.indexOf(currentQuote.id) === -1);
-        var clearBonus = mistakes === 0 ? 50 : (mistakes === 1 ? 30 : 15);
-        var earned = Math.min(220, stageScore + clearBonus);
-        if (!isFirstTime) earned = Math.round(earned * 0.4); // امتیاز کمتر در تکرار مرحله قبلاً حل‌شده
-
-        totalScore += earned;
-        if (isFirstTime) solvedIds.push(currentQuote.id);
-
-        safeSet(storeKey('score'), String(totalScore));
-        safeSet(storeKey('solved'), JSON.stringify(solvedIds));
-        updateTopHUD();
-
-        if (window.ChalbaziScore) {
-            ChalbaziScore.addScore(earned, 'cryptogram-fa', 'cg_' + currentQuote.id + '_' + Date.now());
-        }
-
-        // ثبت در جدول اختصاصی رمزنامه
-        fetch(CRYPTO_BOARD_PATH + '/' + user.id + '.json', {
-            method: 'PUT',
-            body: JSON.stringify({
-                name: user.name,
-                solvedCount: solvedIds.length,
-                totalScore: totalScore,
-                updatedAt: Date.now()
-            })
-        }).catch(function() {});
 
         document.getElementById('win-quote-text').innerHTML = currentQuote.text.replace(/\s*\/\s*/g, '<br>');
-        document.getElementById('win-quote-author').textContent = '— ' + currentQuote.author;
-        document.getElementById('win-earned').textContent = '+' + earned;
-        document.getElementById('win-solved-count').textContent = solvedIds.length + '/' + QUOTES.length;
-        document.getElementById('win-mistakes-txt').textContent = mistakes + '/3';
+        document.getElementById('win-quote-author').textContent = '✍️ ' + currentQuote.author;
 
-        setTimeout(function() {
-            document.getElementById('win-modal').classList.remove('hidden');
-        }, 450);
-    }
-
-    function retryCurrentStage() {
-        startStage(currentStageIndex);
-    }
-
-    function loadNextStage() {
-        for (var i = 1; i <= QUOTES.length; i++) {
-            var nextIdx = (currentStageIndex + i) % QUOTES.length;
-            if (solvedIds.indexOf(QUOTES[nextIdx].id) === -1) {
-                startStage(nextIdx);
-                return;
+        var playersObj = data.players || {};
+        var list = [];
+        Object.keys(playersObj).forEach(function(pid) {
+            if (playersObj[pid]) {
+                list.push({ id: pid, name: playersObj[pid].name || 'بازیکن', score: playersObj[pid].score || 0 });
             }
-        }
-        startStage(currentStageIndex + 1);
-    }
+        });
+        list.sort(function(a, b) { return b.score - a.score; });
 
-    function skipStage() {
-        playSfx('tap');
-        startStage(currentStageIndex + 1);
+        var bHtml = '';
+        for (var i = 0; i < Math.min(10, list.length); i++) {
+            var p = list[i];
+            var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
+            var cls = p.id === user.id ? 'lb-row me' : 'lb-row';
+            bHtml += '<div class="' + cls + '"><span>' + m + ' ' + p.name + '</span><strong style="color:#16A34A;">' + p.score + ' امتیاز</strong></div>';
+        }
+        document.getElementById('round-players-board').innerHTML = bHtml || '<div style="font-size:12px;">معما کامل شد!</div>';
+
+        // ثبت در جدول اختصاصی رمزنامه
+        if (myScore > 0) {
+            fetch(CRYPTO_BOARD_PATH + '/' + user.id + '.json')
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(old) {
+                    var prevTotal = (old && old.totalScore) ? old.totalScore : 0;
+                    var prevRounds = (old && old.roundsPlayed) ? old.roundsPlayed : 0;
+                    return fetch(CRYPTO_BOARD_PATH + '/' + user.id + '.json', {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            name: user.name,
+                            totalScore: prevTotal + myScore,
+                            roundsPlayed: prevRounds + 1,
+                            updatedAt: Date.now()
+                        })
+                    });
+                }).catch(function() {});
+        }
+
+        var finishedAt = data.finishedAt || Date.now();
+        clearInterval(countdownTimer);
+        countdownTimer = setInterval(function() {
+            var left = Math.max(0, Math.ceil((finishedAt + 10000 - Date.now()) / 1000));
+            var cd = document.getElementById('next-countdown');
+            if (left > 0) {
+                cd.textContent = '⏳ معمای بعدی تا ' + left + ' ثانیه دیگر باز می‌شود...';
+            } else {
+                cd.textContent = '🚀 در حال آوردن معمای تصادفی جدید...';
+                clearInterval(countdownTimer);
+                document.getElementById('force-next-btn').classList.remove('hidden');
+                var delay = (data.finishedById === user.id) ? 300 : (1600 + Math.random() * 1400);
+                setTimeout(function() {
+                    if (!document.getElementById('win-modal').classList.contains('hidden')) {
+                        createNextRound();
+                    }
+                }, delay);
+            }
+        }, 500);
     }
 
     function shareSolvedQuote() {
         var cleanQ = currentQuote.text.replace(/\s*\/\s*/g, '\n');
-        var text = '📜 رمزنامه ادبی @chalbazi\nمن این شاهکار از «' + currentQuote.author + '» رو رمزگشایی کردم:\n\n«' + cleanQ + '»\n\n🏆 مراحل حل‌شده من: ' + solvedIds.length + ' از ' + QUOTES.length + '\nبیا ببینیم تو چند تاش رو می‌تونی کشف کنی 👇';
-        var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+        var targetUrl = (gameMode === 'friends' && activeRoomCode)
+            ? (BOT_MINIAPP_URL + '?startapp=crypto_' + activeRoomCode)
+            : CHANNEL_URL;
+        var text = '📜 رمزنامه ادبی @chalbazi\nاین شاهکار از «' + currentQuote.author + '» رو رمزگشایی کردیم:\n\n«' + cleanQ + '»\n\nبیا معمای بعدی رو زودتر از بقیه بشکن 👇';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(targetUrl) + '&text=' + encodeURIComponent(text);
         if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
         else window.open(url, '_blank');
     }
@@ -1340,62 +1727,57 @@
             .then(function(r) { return r.ok ? r.json() : null; })
             .then(function(data) {
                 if (!data) {
-                    listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#8A7A7A;">هنوز کسی مرحله‌ای حل نکرده؛ اولین نفر باش! 🏆</div>';
+                    listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#8A7A7A;">هنوز امتیازی ثبت نشده؛ اولین نفر باش! 🏆</div>';
                     return;
                 }
                 var arr = [];
                 Object.keys(data).forEach(function(id) {
                     var item = data[id];
-                    if (item && (item.solvedCount > 0 || item.totalScore > 0)) {
-                        arr.push({
-                            id: id,
-                            name: item.name || 'بازیکن',
-                            solved: item.solvedCount || 0,
-                            score: item.totalScore || 0
-                        });
+                    if (item && item.totalScore > 0) {
+                        arr.push({ id: id, name: item.name || 'بازیکن', score: item.totalScore || 0, rounds: item.roundsPlayed || 0 });
                     }
                 });
-                arr.sort(function(a, b) {
-                    if (b.solved !== a.solved) return b.solved - a.solved;
-                    return b.score - a.score;
-                });
+                arr.sort(function(a, b) { return b.score - a.score; });
                 if (arr.length === 0) {
                     listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#8A7A7A;">هنوز رکوردی ثبت نشده!</div>';
                     return;
                 }
                 var html = '';
-                var lim = Math.min(20, arr.length);
-                for (var i = 0; i < lim; i++) {
+                for (var i = 0; i < Math.min(20, arr.length); i++) {
                     var p = arr[i];
                     var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
                     var cls = p.id === user.id ? 'lb-row me' : 'lb-row';
                     html += '<div class="' + cls + '">'
                         + '<span><strong>' + m + ' ' + p.name + '</strong></span>'
-                        + '<span style="color:#16A34A; font-weight:900;">📜 ' + p.solved + ' مرحله <small style="color:#8A7A7A;">(' + p.score + ')</small></span>'
+                        + '<strong style="color:#16A34A;">' + p.score.toLocaleString('fa-IR') + ' امتیاز</strong>'
                         + '</div>';
                 }
                 listEl.innerHTML = html;
             })
             .catch(function() {
-                listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#EF4444;">❌ خطا در اتصال به سرور</div>';
+                listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#EF4444;">❌ خطا در اتصال</div>';
             });
     }
 
     function openHelp() { document.getElementById('help-modal').classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // پشتیبانی از کیبورد فیزیکی
     window.addEventListener('keydown', function(e) {
-        if (stageOver) return;
+        if (myMistakes >= 3 || Date.now() < freezeUntil) return;
         if (e.key === 'ArrowLeft') { moveSelection(1); return; }
         if (e.key === 'ArrowRight') { moveSelection(-1); return; }
         var nk = normalizeKey(e.key);
-        if (nk.length === 1 && keyBtns[nk]) {
-            handleKeyPress(nk);
-        }
+        if (nk.length === 1 && keyBtns[nk]) handleKeyPress(nk);
     });
 
-    startStage(pickInitialStageIndex());
+    (function checkAutoJoin() {
+        var room = getQueryParam('room');
+        if (!room && tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+            var sp = String(tg.initDataUnsafe.start_param);
+            if (sp.indexOf('crypto_') === 0) room = sp.substring(7);
+        }
+        if (room) enterFriendsRoom(room.replace(/[^0-9a-zA-Z]/g, ''), true);
+    })();
 </script>
 </body>
 </html>
