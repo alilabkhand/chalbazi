@@ -583,7 +583,7 @@
     <script>
         var CHANNEL_URL = 'https://t.me/chalbazi';
         var BOT_MINIAPP_URL = 'https://t.me/Chalbazibot/chalbazi';
-        var SPONSOR_ADMIN_PIN = '6025';
+        var ADMIN_TG_IDS = ['140427210'];
         var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
         var currentPeriod = 'daily';
         var cachedStats = { daily: 0, weekly: 0, monthly: 0, all: 0 };
@@ -915,39 +915,35 @@
             });
         }
 
-        var adminTapCount = 0;
-        var adminTapTimer = null;
+       var adminTapCount = 0;
+     var adminTapTimer = null;
 
-        function handleAdminTap() {
-            adminTapCount++;
-            clearTimeout(adminTapTimer);
-            if (adminTapCount >= 5) {
-                adminTapCount = 0;
-                openSponsorAdmin();
-            } else {
-                adminTapTimer = setTimeout(function() { adminTapCount = 0; }, 2200);
-            }
-        }
+     function isAdminUser() {
+         return !!(currentUser && currentUser.isTelegram && ADMIN_TG_IDS.indexOf(String(currentUser.rawId)) !== -1);
+     }
 
-        function openSponsorAdmin() {
-            document.getElementById('sponsor-admin-modal').classList.remove('hidden');
-            document.getElementById('sp-admin-msg').textContent = '';
-            loadSponsorData();
-        }
+     function handleAdminTap() {
+         if (!isAdminUser()) return;
+         adminTapCount++;
+         clearTimeout(adminTapTimer);
+         if (adminTapCount >= 5) {
+             adminTapCount = 0;
+             openSponsorAdmin();
+         } else {
+             adminTapTimer = setTimeout(function() { adminTapCount = 0; }, 2200);
+         }
+     }
 
-        function closeSponsorAdmin() { document.getElementById('sponsor-admin-modal').classList.add('hidden'); }
+     function openSponsorAdmin() {
+         if (!isAdminUser()) return;
+         document.getElementById('sp-admin-lock').classList.add('hidden');
+         document.getElementById('sp-admin-body').classList.remove('hidden');
+         document.getElementById('sponsor-admin-modal').classList.remove('hidden');
+         document.getElementById('sp-admin-msg').textContent = '';
+         loadSponsorData();
+     }
 
-        function unlockSponsorAdmin() {
-            var pin = document.getElementById('sp-admin-pin').value.trim();
-            if (pin === SPONSOR_ADMIN_PIN) {
-                document.getElementById('sp-admin-lock').classList.add('hidden');
-                document.getElementById('sp-admin-body').classList.remove('hidden');
-                renderAdminSponsorPanel();
-            } else {
-                alert('رمز مدیر اشتباه است!');
-            }
-        }
-
+     function closeSponsorAdmin() { document.getElementById('sponsor-admin-modal').classList.add('hidden'); }
         function renderAdminSponsorPanel() {
             var listEl = document.getElementById('admin-tasks-list');
             var tasks = sponsorCache.tasks || [];
