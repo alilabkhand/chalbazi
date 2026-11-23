@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>رمزنامه ادبی (کریپتوگرام) | @chalbazi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="score-manager.js?v=3"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            background: #F6F1EC;
+            color: #4A3F3F;
+            touch-action: manipulation;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            background: #F6F1EC;
+            position: relative;
+        }
+
+        /* نوار سفید بالای صفحه شبیه نمونه */
+        .top-bar {
+            background: #FFFFFF;
+            padding: 8px 10px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            border-bottom: 2px solid #EAE0D8;
+            box-shadow: 0 3px 10px rgba(92, 74, 74, 0.06);
+            flex-shrink: 0;
+            z-index: 5;
+        }
+
+        .top-side {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #F4EFEA;
+            border: 1px solid #E5DBD3;
+            color: #6E5D5D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .icon-circle:active { transform: scale(0.92); }
+
+        .score-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #FAF6F2;
+            border: 1px solid #E8DDD5;
+            border-radius: 12px;
+            padding: 3px 8px 3px 6px;
+        }
+
+        .score-coin {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FBBF24, #D97706);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.35);
+        }
+
+        .score-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.1;
+        }
+
+        .score-num {
+            font-size: 13px;
+            font-weight: 900;
+            color: #7C5A5A;
+        }
+
+        .mult-pill {
+            background: #C79EA0;
+            color: #FFFFFF;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 1px 6px;
+            border-radius: 6px;
+            direction: ltr;
+            margin-top: 1px;
+        }
+
+        .mistakes-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.2;
+        }
+
+        .mistakes-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            color: #9E8F8F;
+            margin-bottom: 3px;
+        }
+
+        .mistakes-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .m-dot {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            border: 2px solid #C6B9B9;
+            background: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 900;
+            color: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .m-dot.used {
+            border-color: #EF4444;
+            background: #EF4444;
+            color: #FFFFFF;
+            transform: scale(1.1);
+        }
+
+        /* نوار اطلاعات مرحله و شاعر/نویسنده */
+        .stage-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 14px 3px;
+            font-size: 11px;
+            color: #7E6E6E;
+            flex-shrink: 0;
+        }
+
+        .author-pill {
+            background: #EBE2DA;
+            color: #5C4949;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 900;
+            font-size: 11px;
+        }
+
+        /* صفحه اصلی کدگذاری کریپتوگرام */
+        .puzzle-area {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 10px 14px 66px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+        }
+
+        .quote-line {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+            column-gap: 16px;
+            row-gap: 14px;
+            direction: rtl;
+        }
+
+        .word-group {
+            display: inline-flex;
+            align-items: flex-end;
+            gap: 3px;
+            direction: rtl;
+        }
+
+        .cell-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 24px;
+            padding: 2px 1px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.14s ease, transform 0.1s ease;
+        }
+
+        .cell-slot.solved-cell {
+            cursor: default;
+        }
+
+        .cell-slot.same-num {
+            background: rgba(56, 210, 0, 0.16);
+        }
+
+        .cell-slot.active {
+            background: #38D200;
+            box-shadow: 0 3px 10px rgba(56, 210, 0, 0.35);
+            transform: scale(1.06);
+        }
+
+        .cell-slot.wrong-flash {
+            background: #EF4444 !important;
+            animation: shakeCell 0.32s ease;
+        }
+
+        .cell-slot.pop-in .cell-char {
+            animation: popChar 0.22s ease;
+        }
+
+        @keyframes popChar {
+            0% { transform: scale(0.5); opacity: 0.4; }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shakeCell {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-3px); }
+        }
+
+        .cell-char {
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 900;
+            color: #4B3A3A;
+            line-height: 1;
+        }
+
+        .cell-slot.active .cell-char,
+        .cell-slot.wrong-flash .cell-char {
+            color: #FFFFFF;
+        }
+
+        .cell-underline {
+            width: 19px;
+            height: 1.5px;
+            background: #B5A7A7;
+            margin: 1px 0 3px;
+            border-radius: 2px;
+        }
+
+        .cell-slot.active .cell-underline,
+        .cell-slot.wrong-flash .cell-underline {
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .cell-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8E7F7F;
+            line-height: 1;
+            direction: ltr;
+            height: 12px;
+        }
+
+        .cell-slot.active .cell-num,
+        .cell-slot.wrong-flash .cell-num {
+            color: #FFFFFF;
+            font-weight: 900;
+        }
+
+        .punct-slot {
+            font-size: 18px;
+            font-weight: 900;
+            color: #6B5B5B;
+            padding-bottom: 14px;
+            margin: 0 1px;
+            line-height: 1;
+        }
+
+        /* دکمه‌های شناور بالای کیبورد (راهنما + تغییر مرحله) */
+        .floating-bar {
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 162px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .float-btn {
+            pointer-events: auto;
+            border: none;
+            border-radius: 15px;
+            padding: 8px 13px;
+            color: #FFFFFF;
+            font-weight: 900;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+            transition: transform 0.08s;
+        }
+
+        .float-btn:active { transform: scale(0.94); }
+
+        .hint-fab {
+            background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+            border-bottom: 3px solid #0369A1;
+        }
+
+        .hint-fab.empty {
+            background: #A8A29E;
+            border-bottom-color: #78716C;
+            opacity: 0.75;
+        }
+
+        .skip-fab {
+            background: #FFFFFF;
+            color: #6E5D5D;
+            border: 1px solid #DFD4CC;
+            border-bottom: 3px solid #CFC2B8;
+            font-size: 11px;
+            padding: 7px 11px;
+        }
+
+        /* کیبورد روشن شبیه نمونه */
+        .keyboard-tray {
+            direction: ltr;
+            background: #D8CFCF;
+            border-top: 2px solid #C8BDBD;
+            padding: 8px 4px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .kb-row {
+            display: flex;
+            justify-content: center;
+            gap: 3px;
+            width: 100%;
+        }
+
+        .key-btn {
+            flex: 1;
+            height: 43px;
+            border: none;
+            border-radius: 8px;
+            background: #FFFFFF;
+            color: #5A4949;
+            font-size: 16px;
+            font-weight: 900;
+            box-shadow: 0 2px 0 #B8ACAC;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: transform 0.05s, opacity 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .key-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #B8ACAC;
+        }
+
+        .key-btn.discovered {
+            color: #2EA44F;
+            background: #F2FDF5;
+            box-shadow: 0 2px 0 #9CD8AC;
+        }
+
+        .key-btn.completed {
+            background: #CBC2C2;
+            color: #9C9191;
+            box-shadow: none;
+            opacity: 0.55;
+            pointer-events: none;
+        }
+
+        .key-btn.nav-key {
+            flex: 1.25;
+            background: #F4EFEA;
+            color: #6D5B5B;
+            font-size: 14px;
+        }
+
+        /* پیام شناور کوتاه */
+        .toast {
+            position: fixed;
+            top: 66px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background: #4A3F3F;
+            color: #FFFFFF;
+            padding: 7px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s, transform 0.18s;
+            z-index: 90;
+            white-space: nowrap;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* مودال‌ها */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(42, 33, 33, 0.72);
+            backdrop-filter: blur(5px);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 380px;
+            background: #FFFFFF;
+            color: #4A3F3F;
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+            max-height: 90dvh;
+            overflow-y: auto;
+        }
+
+        .pill {
+            display: inline-block;
+            background: linear-gradient(135deg, #22C55E, #16A34A);
+            color: #FFFFFF;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .revealed-quote-box {
+            background: #FAF5F0;
+            border: 1.5px solid #E8DDD5;
+            border-radius: 16px;
+            padding: 14px 12px;
+            margin: 10px 0 12px;
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 2;
+            color: #3D2E2E;
+        }
+
+        .revealed-author {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8B6F6F;
+            margin-top: 6px;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0 14px;
+        }
+
+        .m-stat {
+            background: #F6F1EC;
+            border-radius: 12px;
+            padding: 8px 4px;
+        }
+
+        .m-stat-val { font-size: 17px; font-weight: 900; color: #16A34A; }
+        .m-stat-lbl { font-size: 10px; color: #8A7A7A; margin-top: 2px; }
+
+        .btn-main {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-main:active { transform: scale(0.97); }
+        .btn-green { background: linear-gradient(135deg, #22C55E, #16A34A); }
+        .btn-blue { background: linear-gradient(135deg, #0284C7, #38BDF8); }
+        .btn-soft { background: #EFE7E1; color: #5C4949; }
+
+        .lb-list {
+            background: #FAF6F2;
+            border: 1px solid #EAE0D8;
+            border-radius: 14px;
+            padding: 8px 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            margin: 10px 0 12px;
+            text-align: right;
+        }
+
+        .lb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 6px;
+            border-bottom: 1px solid #ECE4DC;
+            font-size: 12px;
+        }
+
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row.me { background: rgba(34, 197, 94, 0.14); border-radius: 8px; }
+
+        .rules-box {
+            text-align: right;
+            font-size: 12px;
+            color: #5C4B4B;
+            line-height: 1.85;
+            background: #FAF5F0;
+            border-radius: 14px;
+            padding: 12px;
+            margin: 10px 0 14px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <!-- نوار بالایی -->
+    <div class="top-bar">
+        <div class="top-side">
+            <a href="index.html" class="icon-circle" onclick="return goBackLobby(event)" title="بازگشت به لابی">›</a>
+            <div class="score-badge">
+                <div class="score-coin">⭐</div>
+                <div class="score-stack">
+                    <span class="score-num" id="score-val">0</span>
+                    <span class="mult-pill" id="mult-val">×1.0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mistakes-box">
+            <div class="mistakes-lbl">اشتباهات</div>
+            <div class="mistakes-dots">
+                <div class="m-dot" id="mdot-0">✕</div>
+                <div class="m-dot" id="mdot-1">✕</div>
+                <div class="m-dot" id="mdot-2">✕</div>
+            </div>
+        </div>
+
+        <div class="top-side">
+            <button class="icon-circle" onclick="openLeaderboard()" title="جدول برترین‌ها">🏆</button>
+            <button class="icon-circle" id="sound-btn" onclick="toggleSound()" title="صدا">🔊</button>
+            <button class="icon-circle" onclick="openHelp()" title="راهنما">؟</button>
+        </div>
+    </div>
+
+    <!-- نوار شماره مرحله و نام شاعر/اثر -->
+    <div class="stage-strip">
+        <span class="author-pill" id="author-label">📜 در حال بارگذاری...</span>
+        <span>مرحله <strong id="stage-num">1</strong> از <strong id="stage-total">48</strong></span>
+    </div>
+
+    <!-- صفحه معمای کریپتوگرام -->
+    <div class="puzzle-area" id="puzzle-area"></div>
+
+    <!-- دکمه‌های شناور بالای کیبورد -->
+    <div class="floating-bar">
+        <button type="button" class="float-btn skip-fab" onclick="skipStage()">🔀 مرحله بعد</button>
+        <button type="button" class="float-btn hint-fab" id="hint-fab" onclick="useHint()">
+            <span>💡 راهنما</span>
+            <span id="hint-count-pill" style="background:rgba(255,255,255,0.25); padding:1px 7px; border-radius:8px;">3</span>
+        </button>
+    </div>
+
+    <!-- کیبورد ۳۲ حرفی فارسی + کلیدهای حرکت -->
+    <div class="keyboard-tray" id="keyboard-tray"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- مودال پیروزی در مرحله -->
+<div id="win-modal" class="overlay hidden">
+    <div class="modal-card">
+        <div class="pill">🎉 رمزگشایی شد!</div>
+        <h2 style="margin: 4px 0; font-size: 18px;">آفرین! بیت و جمله را کشف کردی</h2>
+
+        <div class="revealed-quote-box">
+            <div id="win-quote-text"></div>
+            <div class="revealed-author" id="win-quote-author"></div>
+        </div>
+
+        <div class="modal-stats">
+            <div class="m-stat">
+                <div class="m-stat-val" id="win-earned">+0</div>
+                <div class="m-stat-lbl">امتیاز مرحله</div>
+            </div>
+            <div class="m-stat">
+                <div class="m-stat-val" style="color:#0284C7;" id="win-solved-count">0</div>
+                <div class="m-stat-lbl">کل مراحل حل‌شده</div>
+            </div>
+            <div class="m-stat">
+                <div class="m-stat-val" style="color:#D97706;" id="win-mistakes-txt">0/3</div>
+                <div class="m-stat-lbl">اشتباهات</div>
+            </div>
+        </div>
+
+        <button class="btn-main btn-green" onclick="loadNextStage()">▶ مرحله بعدی</button>
+        <button class="btn-main btn-blue" onclick="shareSolvedQuote()">📤 اشتراک‌گذاری در @chalbazi</button>
+        <button class="btn-main btn-soft" style="margin-bottom:0;" onclick="openLeaderboard()">🏆 جدول استادان رمزنامه</button>
+    </div>
+</div>
+
+<!-- مودال ۳ اشتباه (باخت مرحله) -->
+<div id="lose-modal" class="overlay hidden">
+    <div class="modal-card">
+        <div class="pill" style="background: linear-gradient(135deg, #EF4444, #DC2626);">❌ ۳ اشتباه پر شد!</div>
+        <h2 style="margin: 6px 0; font-size: 18px;">این بار نشد؛ دوباره امتحان کن!</h2>
+        <p style="font-size: 12px; color: #7E6E6E; margin: 4px 0 14px;">می‌تونی همین مرحله رو از نو رمزگشایی کنی یا بری سراغ بیت بعدی.</p>
+
+        <button class="btn-main btn-green" onclick="retryCurrentStage()">🔄 تلاش مجدد همین مرحله</button>
+        <button class="btn-main btn-soft" style="margin-bottom:0;" onclick="loadNextStage()">🔀 رفتن به مرحله بعدی</button>
+    </div>
+</div>
+
+<!-- مودال جدول برترین‌ها -->
+<div id="lb-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('lb-modal')">
+    <div class="modal-card">
+        <div class="pill">🏆 جدول استادان رمزنامه ادبی</div>
+        <p style="font-size: 11px; color: #8A7A7A; margin: 0 0 6px;">رتبه‌بندی بر اساس تعداد مراحل حل‌شده و مجموع امتیاز</p>
+        <div class="lb-list" id="lb-list">در حال دریافت...</div>
+        <button class="btn-main btn-soft" style="margin-bottom:0;" onclick="closeModal('lb-modal')">بستن</button>
+    </div>
+</div>
+
+<!-- مودال راهنما -->
+<div id="help-modal" class="overlay hidden" onclick="if(event.target===this) closeModal('help-modal')">
+    <div class="modal-card">
+        <div class="pill" style="background: linear-gradient(135deg, #0284C7, #38BDF8);">📖 روش بازی رمزنامه ادبی</div>
+        <div class="rules-box">
+            🔹 یک بیت یا جمله معروف از بزرگان ادب ایران به شکل <strong>عددی رمزگذاری</strong> شده است.<br>
+            🔹 هر <strong>عدد یکسان</strong> در کل متن، نماینده یک <strong>حرف یکسان</strong> است.<br>
+            🔹 روی هر خانه خالی (هایلایت سبز) بزن و حرف درستش را از کیبورد انتخاب کن.<br>
+            🔹 کلید <strong>«ا»</strong> هم برای «ا» و هم برای «آ» کار می‌کند.<br>
+            🔹 با حدس‌های درست پیاپی، <strong>ضریب امتیازت تا ×۳</strong> بالا می‌رود؛ مراقب باش بیش از <strong>۳ اشتباه</strong> نکنی!<br>
+            🔹 در هر مرحله <strong>۳ راهنمای رایگان 💡</strong> داری.
+        </div>
+        <button class="btn-main btn-green" style="margin-bottom:0;" onclick="closeModal('help-modal')">فهمیدم، بزن بریم ✓</button>
+    </div>
+</div>
+
+<script>
+    var FIREBASE_DB_URL = 'https://chalbazi-word-default-rtdb.firebaseio.com';
+    var CHANNEL_URL = 'https://t.me/chalbazi';
+    var CRYPTO_BOARD_PATH = FIREBASE_DB_URL.replace(/\/+$/, '') + '/cryptogramFaBoard';
+
+    function safeGet(k, fb) { try { return localStorage.getItem(k) || fb; } catch (e) { return fb; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+    function goBackLobby(ev) {
+        if (ev) ev.preventDefault();
+        window.location.href = 'index.html?from=game' + (window.location.hash || '');
+        return false;
+    }
+
+    var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg) {
+        try {
+            tg.ready();
+            tg.expand();
+            if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+        } catch (e) {}
+    }
+
+    var user = { id: 'u_guest', name: 'بازیکن چالبازی' };
+    if (window.ChalbaziScore) {
+        var csU = ChalbaziScore.getUser();
+        user.id = csU.id;
+        user.name = csU.name;
+    } else if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+        var tu = tg.initDataUnsafe.user;
+        user.id = 'tg_' + tu.id;
+        user.name = [tu.first_name, tu.last_name].filter(Boolean).join(' ') || ('کاربر ' + tu.id);
+    }
+
+    // ==================== گنجینه ۴۸ شاهکار ادب فارسی ====================
+    var QUOTES = [
+        // سعدی
+        { id: 1, author: 'سعدی • گلستان', text: 'بنی آدم اعضای یکدیگرند / که در آفرینش ز یک گوهرند' },
+        { id: 2, author: 'سعدی • گلستان', text: 'چو عضوی به درد آورد روزگار / دگر عضوها را نماند قرار' },
+        { id: 3, author: 'سعدی • گلستان', text: 'مشک آن است که خود ببوید، نه آن که عطار بگوید.' },
+        { id: 4, author: 'سعدی • گلستان', text: 'توانگری به هنر است نه به مال، و بزرگی به عقل است نه به سال.' },
+        { id: 5, author: 'سعدی • گلستان', text: 'کمال همنشین در من اثر کرد / وگرنه من همان خاکم که هستم' },
+        { id: 6, author: 'سعدی • گلستان', text: 'زبان در دهان ای خردمند چیست / کلید در گنج صاحب هنر' },
+        { id: 7, author: 'سعدی • غزلیات', text: 'سعدیا مرد نکونام نمیرد هرگز / مرده آن است که نامش به نکویی نبرند' },
+        { id: 8, author: 'سعدی • بوستان', text: 'به راه بادیه رفتن به از نشستن باطل / که گر مراد نیابم به قدر وسع بکوشم' },
+
+        // حافظ
+        { id: 9, author: 'حافظ • دیوان حافظ', text: 'درخت دوستی بنشان که کام دل به بار آرد / نهال دشمنی برکن که رنج بیشمار آرد' },
+        { id: 10, author: 'حافظ • دیوان حافظ', text: 'آسایش دو گیتی تفسیر این دو حرف است / با دوستان مروت با دشمنان مدارا' },
+        { id: 11, author: 'حافظ • دیوان حافظ', text: 'شب تاریک و بیم موج و گردابی چنین هایل / کجا دانند حال ما سبکباران ساحل‌ها' },
+        { id: 12, author: 'حافظ • دیوان حافظ', text: 'دور گردون گر دو روزی بر مراد ما نرفت / دائما یکسان نباشد حال دوران غم مخور' },
+        { id: 13, author: 'حافظ • دیوان حافظ', text: 'یوسف گمگشته بازآید به کنعان غم مخور / کلبه احزان شود روزی گلستان غم مخور' },
+        { id: 14, author: 'حافظ • دیوان حافظ', text: 'هرگز نمیرد آن که دلش زنده شد به عشق / ثبت است بر جریده عالم دوام ما' },
+        { id: 15, author: 'حافظ • دیوان حافظ', text: 'عیب رندان مکن ای زاهد پاکیزه سرشت / که گناه دگران بر تو نخواهند نوشت' },
+        { id: 16, author: 'حافظ • دیوان حافظ', text: 'دلا بسوز که سوز تو کارها بکند / نیاز نیم شبی دفع صد بلا بکند' },
+
+        // مولوی
+        { id: 17, author: 'مولوی • مثنوی معنوی', text: 'بشنو از نی چون حکایت می‌کند / از جدایی‌ها شکایت می‌کند' },
+        { id: 18, author: 'مولوی • مثنوی معنوی', text: 'ای برادر تو همان اندیشه‌ای / مابقی تو استخوان و ریشه‌ای' },
+        { id: 19, author: 'مولوی • مثنوی معنوی', text: 'هر کسی کاو دور ماند از اصل خویش / باز جوید روزگار وصل خویش' },
+        { id: 20, author: 'مولوی • مثنوی معنوی', text: 'از محبت تلخ‌ها شیرین شود / از محبت مس‌ها زرین شود' },
+        { id: 21, author: 'مولوی • مثنوی معنوی', text: 'کار پاکان را قیاس از خود مگیر / گر چه ماند در نبشتن شیر و شیر' },
+        { id: 22, author: 'مولوی • دیوان شمس', text: 'خنک آن قماربازی که بباخت هر چه بودش / بنماند هیچش الا هوس قمار دیگر' },
+        { id: 23, author: 'مولوی • دیوان شمس', text: 'دوش دیوانه شدم عشق مرا دید و بگفت / آمدم نعره مزن جامه مدر هیچ مگو' },
+
+        // فردوسی
+        { id: 24, author: 'فردوسی • شاهنامه', text: 'توانا بود هر که دانا بود / ز دانش دل پیر برنا بود' },
+        { id: 25, author: 'فردوسی • شاهنامه', text: 'چو ایران نباشد تن من مباد / بدین بوم و بر زنده یک تن مباد' },
+        { id: 26, author: 'فردوسی • شاهنامه', text: 'بسی رنج بردم در این سال سی / عجم زنده کردم بدین پارسی' },
+        { id: 27, author: 'فردوسی • شاهنامه', text: 'به نام خداوند جان و خرد / کزین برتر اندیشه برنگذرد' },
+        { id: 28, author: 'فردوسی • شاهنامه', text: 'میازار موری که دانه‌کش است / که جان دارد و جان شیرین خوش است' },
+        { id: 29, author: 'فردوسی • شاهنامه', text: 'جهان یادگار است و ما رفتنی / به گیتی نماند به جز مردمی' },
+        { id: 30, author: 'فردوسی • شاهنامه', text: 'چو فردا برآید بلند آفتاب / من و گرز و میدان و افراسیاب' },
+
+        // خیام
+        { id: 31, author: 'خیام • رباعیات', text: 'این قافله عمر عجب می‌گذرد / دریاب دمی که با طرب می‌گذرد' },
+        { id: 32, author: 'خیام • رباعیات', text: 'در کارگه کوزه‌گری رفتم دوش / دیدم دو هزار کوزه گویا و خموش' },
+        { id: 33, author: 'خیام • رباعیات', text: 'اسرار ازل را نه تو دانی و نه من / وین حرف معما نه تو خوانی و نه من' },
+        { id: 34, author: 'خیام • رباعیات', text: 'خیام اگر ز باده مستی خوش باش / با ماه‌رخی اگر نشستی خوش باش' },
+        { id: 35, author: 'خیام • رباعیات', text: 'ابر آمد و باز بر سر سبزه گریست / بی‌باده گلرنگ نمی‌باید زیست' },
+
+        // تاریخ بیهقی
+        { id: 36, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'احمق مردا که دل در این جهان بندد، که نعمتی بدهد و زشت بازستاند.' },
+        { id: 37, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'هیچ خبر نیست که به خواندن نیرزد، اگر خواننده به چشم خرد بنگرد.' },
+        { id: 38, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'چون تقدیر بگردد، تدبیر خردمندان را هیچ اثر نماند.' },
+        { id: 39, author: 'ابوالفضل بیهقی • تاریخ بیهقی', text: 'سخن نیکو آن است که به هنگام گفته شود و خرد آن را گواهی دهد.' },
+
+        // دیگر شاهکارهای ادب ایران
+        { id: 40, author: 'عطار نیشابوری', text: 'تو پای به راه درنه و هیچ مپرس / خود راه بگویدت که چون باید رفت' },
+        { id: 41, author: 'نظامی گنجوی • خسرو و شیرین', text: 'در نومیدی بسی امید است / پایان شب سیه سپید است' },
+        { id: 42, author: 'نظامی گنجوی • لیلی و مجنون', text: 'کم گوی و گزیده گوی چون در / تا ز اندک تو جهان شود پر' },
+        { id: 43, author: 'رودکی سمرقندی', text: 'بوی جوی مولیان آید همی / یاد یار مهربان آید همی' },
+        { id: 44, author: 'رودکی سمرقندی', text: 'زمانه پندی آزادوار داد مرا / زمانه را چو نکو بنگری همه پند است' },
+        { id: 45, author: 'ناصر خسرو', text: 'بر خویش بلرزید و برآورد خروشی / گفتا ز که نالیم که از ماست که بر ماست' },
+        { id: 46, author: 'پروین اعتصامی', text: 'محتسب مستی به ره دید و گریبانش گرفت / مست گفت ای دوست این پیراهن است افسار نیست' },
+        { id: 47, author: 'سهراب سپهری', text: 'چشم‌ها را باید شست، جور دیگر باید دید.' },
+        { id: 48, author: 'نصرالله منشی • کلیله و دمنه', text: 'هیچ گنجی بهتر از هنر نیست و هیچ هنری بزرگ‌تر از ادب نیست.' }
+    ];
+
+    document.getElementById('stage-total').textContent = QUOTES.length;
+
+    // ==================== افکت صوتی سبک (Web Audio) ====================
+    var audioCtx = null;
+    var soundEnabled = safeGet('cg_sound', '1') !== '0';
+
+    function updateSoundIcon() {
+        document.getElementById('sound-btn').textContent = soundEnabled ? '🔊' : '🔇';
+    }
+    updateSoundIcon();
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        safeSet('cg_sound', soundEnabled ? '1' : '0');
+        updateSoundIcon();
+        if (soundEnabled) playSfx('tap');
+    }
+
+    function beep(f1, f2, dur, type, vol, delay) {
+        if (!soundEnabled) return;
+        try {
+            if (!audioCtx) {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (AC) audioCtx = new AC();
+            }
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume().catch(function() {});
+            var t0 = audioCtx.currentTime + (delay || 0);
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(f1, t0);
+            if (f2) osc.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+            gain.gain.setValueAtTime(vol || 0.06, t0);
+            gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t0);
+            osc.stop(t0 + dur + 0.01);
+        } catch (e) {}
+    }
+
+    function playSfx(kind) {
+        if (kind === 'tap') beep(560, 480, 0.04, 'triangle', 0.04);
+        else if (kind === 'ok') { beep(640, 880, 0.09, 'sine', 0.07); }
+        else if (kind === 'err') { beep(210, 130, 0.16, 'sawtooth', 0.07); }
+        else if (kind === 'hint') { beep(760, 1120, 0.14, 'sine', 0.08); }
+        else if (kind === 'win') {
+            beep(523, 523, 0.09, 'triangle', 0.09, 0);
+            beep(659, 659, 0.09, 'triangle', 0.09, 0.1);
+            beep(784, 784, 0.09, 'triangle', 0.09, 0.2);
+            beep(1046, 1046, 0.28, 'triangle', 0.12, 0.31);
+        } else if (kind === 'lose') {
+            beep(320, 220, 0.16, 'sawtooth', 0.07, 0);
+            beep(220, 140, 0.25, 'sawtooth', 0.07, 0.18);
+        }
+    }
+
+    // ==================== نرمال‌سازی حروف فارسی ====================
+    function normalizeKey(ch) {
+        if (ch === 'آ' || ch === 'أ' || ch === 'إ') return 'ا';
+        if (ch === 'ي' || ch === 'ئ') return 'ی';
+        if (ch === 'ك') return 'ک';
+        if (ch === 'ة') return 'ه';
+        if (ch === 'ؤ') return 'و';
+        return ch;
+    }
+
+    function isPersianLetter(ch) {
+        var nk = normalizeKey(ch);
+        return /^[ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]$/.test(nk);
+    }
+
+    // ==================== ساخت کیبورد ۳۲ حرفی فارسی ====================
+    var KB_ROWS = [
+        ['ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج'],
+        ['ش','س','ی','ب','ل','ا','ت','ن','م','ک','گ'],
+        ['NAV_NEXT','ظ','ط','ز','ر','ذ','د','پ','و','چ','ژ','NAV_PREV']
+    ];
+
+    var keyBtns = {};
+    var kbTray = document.getElementById('keyboard-tray');
+
+    for (var r = 0; r < KB_ROWS.length; r++) {
+        var rowDiv = document.createElement('div');
+        rowDiv.className = 'kb-row';
+        for (var c = 0; c < KB_ROWS[r].length; c++) {
+            var k = KB_ROWS[r][c];
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            if (k === 'NAV_NEXT') {
+                btn.className = 'key-btn nav-key';
+                btn.textContent = '⇤';
+                btn.title = 'خانه خالی بعدی';
+                btn.addEventListener('click', function() { playSfx('tap'); moveSelection(1); });
+            } else if (k === 'NAV_PREV') {
+                btn.className = 'key-btn nav-key';
+                btn.textContent = '⇥';
+                btn.title = 'خانه خالی قبلی';
+                btn.addEventListener('click', function() { playSfx('tap'); moveSelection(-1); });
+            } else {
+                btn.className = 'key-btn';
+                btn.textContent = k;
+                (function(letter) {
+                    btn.addEventListener('click', function() { handleKeyPress(letter); });
+                })(k);
+                keyBtns[k] = btn;
+            }
+            rowDiv.appendChild(btn);
+        }
+        kbTray.appendChild(rowDiv);
+    }
+
+    // ==================== وضعیت بازی و ذخیره‌سازی ====================
+    function storeKey(s) { return 'cg_' + user.id + '_' + s; }
+
+    var solvedIds = [];
+    try { solvedIds = JSON.parse(safeGet(storeKey('solved'), '[]')); } catch (e) { solvedIds = []; }
+    if (!Array.isArray(solvedIds)) solvedIds = [];
+
+    var totalScore = Number(safeGet(storeKey('score'), '0')) || 0;
+    var currentStageIndex = 0;
+    var currentQuote = null;
+    var cells = []; // [{ id, displayChar, keyChar, cipherNum, solved, el, charEl }]
+    var activeCellIdx = -1;
+    var mistakes = 0;
+    var hintsLeft = 3;
+    var stageScore = 0;
+    var multiplier = 1.0;
+    var stageOver = false;
+
+    var toastTimer = null;
+    function showToast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+    }
+
+    function pickInitialStageIndex() {
+        for (var i = 0; i < QUOTES.length; i++) {
+            if (solvedIds.indexOf(QUOTES[i].id) === -1) return i;
+        }
+        return Math.floor(Math.random() * QUOTES.length);
+    }
+
+    function updateTopHUD() {
+        document.getElementById('score-val').textContent = (totalScore + stageScore).toLocaleString('fa-IR');
+        document.getElementById('mult-val').textContent = '×' + multiplier.toFixed(1);
+        for (var i = 0; i < 3; i++) {
+            document.getElementById('mdot-' + i).classList.toggle('used', i < mistakes);
+        }
+        document.getElementById('hint-count-pill').textContent = hintsLeft;
+        document.getElementById('hint-fab').classList.toggle('empty', hintsLeft <= 0);
+    }
+
+    function startStage(index) {
+        closeModal('win-modal');
+        closeModal('lose-modal');
+
+        currentStageIndex = ((index % QUOTES.length) + QUOTES.length) % QUOTES.length;
+        currentQuote = QUOTES[currentStageIndex];
+        mistakes = 0;
+        hintsLeft = 3;
+        stageScore = 0;
+        multiplier = 1.0;
+        stageOver = false;
+        cells = [];
+        activeCellIdx = -1;
+
+        document.getElementById('author-label').textContent = '📜 ' + currentQuote.author;
+        document.getElementById('stage-num').textContent = currentStageIndex + 1;
+
+        // ۱. ساخت نقشه اعداد رمزی یکتا (۱ تا ۳۲ تصادفی) برای حروف این جمله
+        var uniqueKeys = [];
+        var cleanText = currentQuote.text.replace(/\u200c/g, '');
+        for (var i = 0; i < cleanText.length; i++) {
+            var ch = cleanText[i];
+            if (isPersianLetter(ch)) {
+                var nk = normalizeKey(ch);
+                if (uniqueKeys.indexOf(nk) === -1) uniqueKeys.push(nk);
+            }
+        }
+        var numPool = [];
+        for (var n = 1; n <= 32; n++) numPool.push(n);
+        numPool.sort(function() { return Math.random() - 0.5; });
+        var cipherMap = {};
+        for (var u = 0; u < uniqueKeys.length; u++) {
+            cipherMap[uniqueKeys[u]] = numPool[u];
+        }
+
+        // ۲. رندر کردن خطوط و کلمات در صفحه
+        var area = document.getElementById('puzzle-area');
+        area.innerHTML = '';
+        var lines = cleanText.split('/');
+
+        for (var l = 0; l < lines.length; l++) {
+            var lineStr = lines[l].trim();
+            if (!lineStr) continue;
+            var lineDiv = document.createElement('div');
+            lineDiv.className = 'quote-line';
+
+            var words = lineStr.split(/\s+/);
+            for (var w = 0; w < words.length; w++) {
+                var word = words[w];
+                var wordDiv = document.createElement('div');
+                wordDiv.className = 'word-group';
+
+                for (var ci = 0; ci < word.length; ci++) {
+                    var c = word[ci];
+                    if (isPersianLetter(c)) {
+                        var nk2 = normalizeKey(c);
+                        var cellIndex = cells.length;
+
+                        var slot = document.createElement('div');
+                        slot.className = 'cell-slot';
+                        var charEl = document.createElement('div');
+                        charEl.className = 'cell-char';
+                        var ul = document.createElement('div');
+                        ul.className = 'cell-underline';
+                        var numEl = document.createElement('div');
+                        numEl.className = 'cell-num';
+                        numEl.textContent = cipherMap[nk2];
+
+                        slot.appendChild(charEl);
+                        slot.appendChild(ul);
+                        slot.appendChild(numEl);
+
+                        (function(idx) {
+                            slot.addEventListener('click', function() {
+                                if (!cells[idx].solved && !stageOver) {
+                                    playSfx('tap');
+                                    selectCell(idx);
+                                }
+                            });
+                        })(cellIndex);
+
+                        wordDiv.appendChild(slot);
+                        cells.push({
+                            id: cellIndex,
+                            displayChar: c,
+                            keyChar: nk2,
+                            cipherNum: cipherMap[nk2],
+                            solved: false,
+                            el: slot,
+                            charEl: charEl
+                        });
+                    } else {
+                        var pDiv = document.createElement('div');
+                        pDiv.className = 'punct-slot';
+                        pDiv.textContent = c;
+                        wordDiv.appendChild(pDiv);
+                    }
+                }
+                lineDiv.appendChild(wordDiv);
+            }
+            area.appendChild(lineDiv);
+        }
+
+        // ۳. آشکارسازی هوشمند حدود ۳۵٪ خانه‌ها به عنوان سرنخ اولیه
+        var revealTarget = Math.max(4, Math.round(cells.length * 0.35));
+        var indices = [];
+        for (var k = 0; k < cells.length; k++) indices.push(k);
+        indices.sort(function() { return Math.random() - 0.5; });
+
+        var countByKey = {};
+        var revealedByKey = {};
+        for (var m = 0; m < cells.length; m++) {
+            countByKey[cells[m].keyChar] = (countByKey[cells[m].keyChar] || 0) + 1;
+        }
+
+        var revealedCount = 0;
+        for (var idxPos = 0; idxPos < indices.length && revealedCount < revealTarget; idxPos++) {
+            var ci2 = indices[idxPos];
+            var kc = cells[ci2].keyChar;
+            // سعی می‌کنیم همه تکرارهای یک حرف از اول لو نروند مگر تک‌تکرارها گاهی
+            if (countByKey[kc] > 1 && (revealedByKey[kc] || 0) >= countByKey[kc] - 1) continue;
+            markCellSolved(ci2, false);
+            revealedByKey[kc] = (revealedByKey[kc] || 0) + 1;
+            revealedCount++;
+        }
+
+        // اگر همچنان همه حل نشده‌اند، اولین خانه خالی را انتخاب کن
+        selectFirstEmptyCell();
+        refreshKeyboardStates();
+        updateTopHUD();
+    }
+
+    function markCellSolved(idx, animate) {
+        var cell = cells[idx];
+        cell.solved = true;
+        cell.charEl.textContent = cell.displayChar;
+        cell.el.classList.add('solved-cell');
+        cell.el.classList.remove('active', 'same-num');
+        if (animate) {
+            cell.el.classList.remove('pop-in');
+            void cell.el.offsetWidth;
+            cell.el.classList.add('pop-in');
+        }
+    }
+
+    function selectCell(idx) {
+        activeCellIdx = idx;
+        var targetNum = (idx >= 0 && cells[idx]) ? cells[idx].cipherNum : -1;
+        for (var i = 0; i < cells.length; i++) {
+            cells[i].el.classList.remove('active', 'same-num');
+            if (i === activeCellIdx) {
+                cells[i].el.classList.add('active');
+            } else if (!cells[i].solved && targetNum !== -1 && cells[i].cipherNum === targetNum) {
+                cells[i].el.classList.add('same-num');
+            }
+        }
+        if (activeCellIdx >= 0 && cells[activeCellIdx]) {
+            try { cells[activeCellIdx].el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+        }
+    }
+
+    function selectFirstEmptyCell() {
+        for (var i = 0; i < cells.length; i++) {
+            if (!cells[i].solved) {
+                selectCell(i);
+                return true;
+            }
+        }
+        activeCellIdx = -1;
+        return false;
+    }
+
+    function moveSelection(step) {
+        if (stageOver || cells.length === 0) return;
+        var start = activeCellIdx < 0 ? 0 : activeCellIdx;
+        for (var i = 1; i <= cells.length; i++) {
+            var next = (start + i * step + cells.length) % cells.length;
+            if (!cells[next].solved) {
+                selectCell(next);
+                return;
+            }
+        }
+    }
+
+    function refreshKeyboardStates() {
+        var stats = {}; // { keyChar: { total, solved } }
+        for (var i = 0; i < cells.length; i++) {
+            var kc = cells[i].keyChar;
+            if (!stats[kc]) stats[kc] = { total: 0, solved: 0 };
+            stats[kc].total++;
+            if (cells[i].solved) stats[kc].solved++;
+        }
+
+        Object.keys(keyBtns).forEach(function(k) {
+            var btn = keyBtns[k];
+            btn.classList.remove('discovered', 'completed');
+            var st = stats[k];
+            if (st) {
+                if (st.solved >= st.total) {
+                    btn.classList.add('completed');
+                } else if (st.solved > 0) {
+                    btn.classList.add('discovered');
+                }
+            }
+        });
+    }
+
+    function handleKeyPress(letter) {
+        if (stageOver) return;
+        if (activeCellIdx < 0 || cells[activeCellIdx].solved) {
+            if (!selectFirstEmptyCell()) return;
+        }
+
+        var cell = cells[activeCellIdx];
+        if (letter === cell.keyChar) {
+            // حدس درست!
+            markCellSolved(activeCellIdx, true);
+            var gain = Math.round(5 * multiplier);
+            stageScore += gain;
+            multiplier = Math.min(3.0, Math.round((multiplier + 0.2) * 10) / 10);
+            playSfx('ok');
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+            refreshKeyboardStates();
+            updateTopHUD();
+
+            if (isPuzzleCompleted()) {
+                handleStageWin();
+            } else {
+                moveSelection(1);
+            }
+        } else {
+            // حدس اشتباه
+            mistakes++;
+            multiplier = 1.0;
+            cell.el.classList.remove('wrong-flash');
+            void cell.el.offsetWidth;
+            cell.el.classList.add('wrong-flash');
+            setTimeout(function() { cell.el.classList.remove('wrong-flash'); }, 350);
+
+            playSfx('err');
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            updateTopHUD();
+
+            if (mistakes >= 3) {
+                stageOver = true;
+                playSfx('lose');
+                setTimeout(function() {
+                    document.getElementById('lose-modal').classList.remove('hidden');
+                }, 420);
+            } else {
+                showToast('اشتباه بود! (' + (3 - mistakes) + ' فرصت باقی‌مانده)');
+            }
+        }
+    }
+
+    function useHint() {
+        if (stageOver) return;
+        if (hintsLeft <= 0) {
+            showToast('راهنمای این مرحله تمام شد!');
+            return;
+        }
+        if (activeCellIdx < 0 || cells[activeCellIdx].solved) {
+            if (!selectFirstEmptyCell()) return;
+        }
+
+        hintsLeft--;
+        var cell = cells[activeCellIdx];
+        markCellSolved(activeCellIdx, true);
+        playSfx('hint');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+        refreshKeyboardStates();
+        updateTopHUD();
+
+        if (isPuzzleCompleted()) {
+            handleStageWin();
+        } else {
+            moveSelection(1);
+        }
+    }
+
+    function isPuzzleCompleted() {
+        for (var i = 0; i < cells.length; i++) {
+            if (!cells[i].solved) return false;
+        }
+        return true;
+    }
+
+    function handleStageWin() {
+        stageOver = true;
+        selectCell(-1);
+        playSfx('win');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+        var isFirstTime = (solvedIds.indexOf(currentQuote.id) === -1);
+        var clearBonus = mistakes === 0 ? 50 : (mistakes === 1 ? 30 : 15);
+        var earned = Math.min(220, stageScore + clearBonus);
+        if (!isFirstTime) earned = Math.round(earned * 0.4); // امتیاز کمتر در تکرار مرحله قبلاً حل‌شده
+
+        totalScore += earned;
+        if (isFirstTime) solvedIds.push(currentQuote.id);
+
+        safeSet(storeKey('score'), String(totalScore));
+        safeSet(storeKey('solved'), JSON.stringify(solvedIds));
+        updateTopHUD();
+
+        if (window.ChalbaziScore) {
+            ChalbaziScore.addScore(earned, 'cryptogram-fa', 'cg_' + currentQuote.id + '_' + Date.now());
+        }
+
+        // ثبت در جدول اختصاصی رمزنامه
+        fetch(CRYPTO_BOARD_PATH + '/' + user.id + '.json', {
+            method: 'PUT',
+            body: JSON.stringify({
+                name: user.name,
+                solvedCount: solvedIds.length,
+                totalScore: totalScore,
+                updatedAt: Date.now()
+            })
+        }).catch(function() {});
+
+        document.getElementById('win-quote-text').innerHTML = currentQuote.text.replace(/\s*\/\s*/g, '<br>');
+        document.getElementById('win-quote-author').textContent = '— ' + currentQuote.author;
+        document.getElementById('win-earned').textContent = '+' + earned;
+        document.getElementById('win-solved-count').textContent = solvedIds.length + '/' + QUOTES.length;
+        document.getElementById('win-mistakes-txt').textContent = mistakes + '/3';
+
+        setTimeout(function() {
+            document.getElementById('win-modal').classList.remove('hidden');
+        }, 450);
+    }
+
+    function retryCurrentStage() {
+        startStage(currentStageIndex);
+    }
+
+    function loadNextStage() {
+        for (var i = 1; i <= QUOTES.length; i++) {
+            var nextIdx = (currentStageIndex + i) % QUOTES.length;
+            if (solvedIds.indexOf(QUOTES[nextIdx].id) === -1) {
+                startStage(nextIdx);
+                return;
+            }
+        }
+        startStage(currentStageIndex + 1);
+    }
+
+    function skipStage() {
+        playSfx('tap');
+        startStage(currentStageIndex + 1);
+    }
+
+    function shareSolvedQuote() {
+        var cleanQ = currentQuote.text.replace(/\s*\/\s*/g, '\n');
+        var text = '📜 رمزنامه ادبی @chalbazi\nمن این شاهکار از «' + currentQuote.author + '» رو رمزگشایی کردم:\n\n«' + cleanQ + '»\n\n🏆 مراحل حل‌شده من: ' + solvedIds.length + ' از ' + QUOTES.length + '\nبیا ببینیم تو چند تاش رو می‌تونی کشف کنی 👇';
+        var url = 'https://t.me/share/url?url=' + encodeURIComponent(CHANNEL_URL) + '&text=' + encodeURIComponent(text);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+        else window.open(url, '_blank');
+    }
+
+    function openLeaderboard() {
+        document.getElementById('lb-modal').classList.remove('hidden');
+        var listEl = document.getElementById('lb-list');
+        listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#8A7A7A;">⏳ در حال دریافت...</div>';
+
+        fetch(CRYPTO_BOARD_PATH + '.json')
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(data) {
+                if (!data) {
+                    listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#8A7A7A;">هنوز کسی مرحله‌ای حل نکرده؛ اولین نفر باش! 🏆</div>';
+                    return;
+                }
+                var arr = [];
+                Object.keys(data).forEach(function(id) {
+                    var item = data[id];
+                    if (item && (item.solvedCount > 0 || item.totalScore > 0)) {
+                        arr.push({
+                            id: id,
+                            name: item.name || 'بازیکن',
+                            solved: item.solvedCount || 0,
+                            score: item.totalScore || 0
+                        });
+                    }
+                });
+                arr.sort(function(a, b) {
+                    if (b.solved !== a.solved) return b.solved - a.solved;
+                    return b.score - a.score;
+                });
+                if (arr.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#8A7A7A;">هنوز رکوردی ثبت نشده!</div>';
+                    return;
+                }
+                var html = '';
+                var lim = Math.min(20, arr.length);
+                for (var i = 0; i < lim; i++) {
+                    var p = arr[i];
+                    var m = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
+                    var cls = p.id === user.id ? 'lb-row me' : 'lb-row';
+                    html += '<div class="' + cls + '">'
+                        + '<span><strong>' + m + ' ' + p.name + '</strong></span>'
+                        + '<span style="color:#16A34A; font-weight:900;">📜 ' + p.solved + ' مرحله <small style="color:#8A7A7A;">(' + p.score + ')</small></span>'
+                        + '</div>';
+                }
+                listEl.innerHTML = html;
+            })
+            .catch(function() {
+                listEl.innerHTML = '<div style="text-align:center; padding:14px; color:#EF4444;">❌ خطا در اتصال به سرور</div>';
+            });
+    }
+
+    function openHelp() { document.getElementById('help-modal').classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // پشتیبانی از کیبورد فیزیکی
+    window.addEventListener('keydown', function(e) {
+        if (stageOver) return;
+        if (e.key === 'ArrowLeft') { moveSelection(1); return; }
+        if (e.key === 'ArrowRight') { moveSelection(-1); return; }
+        var nk = normalizeKey(e.key);
+        if (nk.length === 1 && keyBtns[nk]) {
+            handleKeyPress(nk);
+        }
+    });
+
+    startStage(pickInitialStageIndex());
+</script>
+</body>
+</html>
