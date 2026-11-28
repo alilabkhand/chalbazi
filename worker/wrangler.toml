@@ -1,0 +1,6 @@
+name = "chalbazi-api"
+main = "index.js"
+compatibility_date = "2026-11-28"
+
+[vars]
+ALLOWED_ORIGINS = "https://YOUR-APP-DOMAIN.example"
